@@ -21,10 +21,12 @@ Development Username and password
 =================================
 
 *Arm devices*:
+
 * Username: root
 * Password: cnm
 
 *Laptop*:
+
 * Username: miavita
 * password: inesc-id
 
