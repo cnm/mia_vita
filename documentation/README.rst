@@ -14,8 +14,19 @@ $> git submodule status
 * First add the submodule repository URLs to .git/config by running:
 $> git submodule init
 
-* Update the submoduels
+* Update the submodules
 $> git submodules update
+
+Development Username and password
+=================================
+
+*Arm devices*:
+* Username: root
+* Password: cnm
+
+*Laptop*:
+* Username: miavita
+* password: inesc-id
 
 FIRST STEPS - Connect to the RT7750 with serial cable
 =====================================================
