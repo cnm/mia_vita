@@ -1,3 +1,9 @@
+if [ $# -ne 2 ]
+then
+    echo "usage: client_big.sh exec_file distance"
+    exit 1
+fi
+
 ROUTING="STATIC BATMAN"
 SAMPLE_PER_SECOND="25 50"
 
