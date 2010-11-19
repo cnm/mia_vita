@@ -20,6 +20,20 @@ do
     do
         for route in ${ROUTING};
         do
+	    if [ "$route" == "STATIC" ] 
+	    then
+		pkill batmand
+		batctl if del rausbwifi
+		rmmod batman-adv
+	    fi
+
+	    if [ "$route" == "BATMAN" ] 
+	    then
+		insmod batman-adv.ko
+		batctl if add rausbwifi
+		batmand rausbwifi
+	    fi
+
             for sps in ${SAMPLE_PER_SECOND};
             do
                 for seed in ${SEED};
