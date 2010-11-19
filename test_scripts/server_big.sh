@@ -7,6 +7,7 @@ SEED=`seq 1 30`
 
 ############# TIMERS #########
 T_INITIAL_HUMAN=10
+EXEC=${1}
 
 ## Wait initial time (for human synchronization)
 sleep ${T_INITIAL_HUMAN}
@@ -26,7 +27,7 @@ do
                     TEST_SEED=${seed}
                     SPS=${sps}
 
-                    sh server_script.sh ${TEST_NAME} ${TEST_SEED} ${SPS}
+                    sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS}
                 done #SEED
             done #SAMPLE_PER_SECOND
 
