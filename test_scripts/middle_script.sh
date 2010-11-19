@@ -7,9 +7,14 @@ then
 fi
 
 ##################################################################
-echo "PRESS ENTER TO CHANGE TO BATMAN." 
+echo "PRESS ENTER TO CHANGE TO STATIC." 
 echo "WAIT FOR CONFIRMATION TO CONTINUE CLIENT AND SERVER SCRIPTS"
 ##################################################################
+
+pkill batmand
+batctl if del rausbwifi
+ifconfig bat0 down
+rmmod batman-adv	
 
 #### STATIC ROUTING #####################
 

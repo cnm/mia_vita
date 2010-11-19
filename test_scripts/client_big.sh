@@ -27,6 +27,7 @@ do
     then
 	pkill batmand
 	batctl if del rausbwifi
+	ifconfig bat0 down
 	rmmod batman-adv
     fi
 
@@ -34,6 +35,7 @@ do
     then
 	insmod batman-adv.ko
 	batctl if add rausbwifi
+	ifconfig bat0 up
 	batmand rausbwifi
 	if [ $? -eq 0 ]
 	then
@@ -83,7 +85,7 @@ done #SAMPLE_PER_SECOND
 
 ###############################################################
 ###############################################################
-################ PART 2 - NODE MIDLE STATIC ###################
+################ PART 3 - NODE MIDLE STATIC ###################
 ifconfig rausbwifi 192.168.5.1
 ###############################################################
 echo "MY IP IS 192.168.5.1"
@@ -92,6 +94,7 @@ read
 
 pkill batmand
 batctl if del rausbwifi
+ifconfig bat0 down
 rmmod batman-adv	    
 
 route add default gw 192.168.5.2 rausbwifi
