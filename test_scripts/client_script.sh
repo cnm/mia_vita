@@ -10,7 +10,7 @@ INPUT_FILE="${N_PACKETS}\n${SINK_NODE_IP}:${PORT_NUMBER}"
 echo ${INPUT_FILE} > client_in.commands
 
 #EMULATED="-e"
-RESULTS_FILE="ostatistics.data" #TODO CHANGE THIS
+RESULTS_FILE="ostatistics.data"
 
 ############# Input ##########
 EXEC=$1
@@ -19,7 +19,7 @@ TEST_VARIABLE_NUMBER=${3}
 SAMPLES_PER_SECOND=${4}
 
 ############# TIMERS #########
-T_SENDING_ALL_PACKETS=$(echo "${N_PACKETS} * ${SAMPLES_PER_SECOND} * 0" | bc) #TODO Remove the 0 when for real
+T_SENDING_ALL_PACKETS=$(echo "${N_PACKETS} / ${SAMPLES_PER_SECOND}" | bc)
 T_NET_DELAY=2
 T_NODE_DELAY=2
 T_JITTER=5
