@@ -35,6 +35,13 @@ do
 	insmod batman-adv.ko
 	batctl if add rausbwifi
 	batmand rausbwifi
+	if [ $? -eq 0 ]
+	then
+	    echo "BATMAN LOADED"
+	else
+	    echo "BATMAN FAILED TO LOAD."
+	    exit 1
+	fi
     fi
 
     for sps in ${SAMPLE_PER_SECOND};
