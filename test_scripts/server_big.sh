@@ -22,7 +22,7 @@ DISTANCE=$2
 if [ ! -e "batman-adv.ko" ]
 then
     echo "Missing batman module file 'batman-adv.ko'"
-exit
+    exit
 fi
 
 ## Wait initial time (for human synchronization)
@@ -34,27 +34,37 @@ for route in ${ROUTING};
 do
     if [ "$route" == "STATIC" ] 
     then
-	pkill batmand
-	batctl if del rausbwifi
-	ifconfig bat0 down
-	rmmod batman-adv
+        pkill batmand
+        batctl if del rausbwifi
+        ifconfig bat0 down
+        rmmod batman-adv
+
+
+        ifconfig rausbwifi up
+        iwconfig rausbwifi mode managed
+        sleep 3
+        ifconfig rausbwifi down
+        ifconfig rausbwifi up
+        iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+        ifconfig rausbwifi 192.168.0.3
     fi
 
     if [ "$route" == "BATMAN" ] 
     then
-	insmod batman-adv.ko
-	batctl if add rausbwifi
-	ifconfig bat0 up
-	batmand rausbwifi
-
-	if [ $? -eq 0 ] #TODO Correct this, should check the return value of all previous commands
-	then
-	    echo "BATMAN LOADED"
-	else
-	    echo "BATMAN FAILED TO LOAD."
-	    exit 1
-	fi
+        insmod batman-adv.ko
+        batctl if add rausbwifi
+        ifconfig bat0 up
+        batmand rausbwifi
     fi
+
+    if [ $? -eq 0 ] #TODO Correct this, should check the return value of all previous commands
+    then
+        echo "BATMAN LOADED"
+    else
+        echo "BATMAN FAILED TO LOAD."
+        exit 1
+    fi
+
 
     for sps in ${SAMPLE_PER_SECOND};
     do
@@ -68,7 +78,6 @@ do
             sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3"
         done #SEED
     done #SAMPLE_PER_SECOND
-
 done #ROUTING
 
 ###############################################################
@@ -83,11 +92,10 @@ for sps in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
-	
         TEST_NAME="distance_${DISTANCE}_middle_yes_routing_BATMAN"
         TEST_SEED=${seed}
         SPS=${sps}
-	
+
         sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3"
     done #SEED
 done #SAMPLE_PER_SECOND

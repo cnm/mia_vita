@@ -22,7 +22,7 @@ DISTANCE=$2
 if [ ! -e "batman-adv.ko" ]
 then
     echo "Missing batman module file 'batman-adv.ko'"
-exit
+    exit
 fi
 
 ## Wait initial time (for human synchronization)
@@ -34,25 +34,33 @@ for route in ${ROUTING};
 do
     if [ "$route" == "STATIC" ]
     then
-	pkill batmand
-	batctl if del rausbwifi
-	ifconfig bat0 down
-	rmmod batman-adv
+        pkill batmand
+        batctl if del rausbwifi
+        ifconfig bat0 down
+        rmmod batman-adv
+
+        ifconfig rausbwifi up
+        iwconfig rausbwifi mode managed
+        sleep 3
+        ifconfig rausbwifi down
+        ifconfig rausbwifi up
+        iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+        ifconfig rausbwifi 192.168.0.1
     fi
 
     if [ "$route" == "BATMAN" ]
     then
-	insmod batman-adv.ko
-	batctl if add rausbwifi
-	ifconfig bat0 up
-	batmand rausbwifi
-	if [ $? -eq 0 ]
-	then
-	    echo "BATMAN LOADED"
-	else
-	    echo "BATMAN FAILED TO LOAD."
-	    exit 1
-	fi
+        insmod batman-adv.ko
+        batctl if add rausbwifi
+        ifconfig bat0 up
+        batmand rausbwifi
+        if [ $? -eq 0 ]
+        then
+            echo "BATMAN LOADED"
+        else
+            echo "BATMAN FAILED TO LOAD."
+            exit 1
+        fi
     fi
 
     for sps in ${SAMPLE_PER_SECOND};
