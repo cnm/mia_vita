@@ -90,7 +90,8 @@ do
     for seed in ${SEED};
     do
 
-        TEST_NAME="distance_${DISTANCE}_middle_yes_routing_BATMAN"
+        TEST_NAME="distance_${DISTANCE}_middle_no_SPS_${sps}_routing_${route}"
+
         TEST_SEED=${seed}
         SPS=${sps}
 
