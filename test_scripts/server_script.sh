@@ -53,7 +53,7 @@ sleep ${T_NET_DELAY}
 sleep ${T_CAN}
 
 ## Kill the process
-killall -SIGINT sampler
+pkill -SIGINT sampler
 echo "KILLED SERVER"
 
 ## Move the files
