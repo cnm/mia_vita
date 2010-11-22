@@ -18,13 +18,10 @@ rmmod batman-adv
 
 #### STATIC ROUTING #####################
 
-echo 
+echo Now my ip is 192.168.5.2 and 192.168.6.4
 
 ifconfig rausbwifi:client 192.168.5.2 up
 ifconfig rausbwifi 192.168.6.4
 echo 1 > /proc/sys/net/ipv4/ip_forward
 route add -net 192.168.5.0 netmask 255.255.255.0 dev rauswifi:client
 route add -net 192.168.6.0 netmask 255.255.255.0 dev rauswifi
-
-
-

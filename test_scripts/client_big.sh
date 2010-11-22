@@ -103,7 +103,6 @@ done #SAMPLE_PER_SECOND
 ###############################################################
 ###############################################################
 ################ PART 3 - NODE MIDLE STATIC ###################
-ifconfig rausbwifi 192.168.5.1
 ###############################################################
 echo "MY IP IS 192.168.5.1"
 echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
@@ -113,6 +112,14 @@ pkill batmand
 batctl if del rausbwifi
 ifconfig bat0 down
 rmmod batman-adv
+
+ifconfig rausbwifi up
+iwconfig rausbwifi mode managed
+sleep 3
+ifconfig rausbwifi down
+ifconfig rausbwifi up
+iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+ifconfig rausbwifi 192.168.5.1
 
 route add default gw 192.168.5.2 rausbwifi
 

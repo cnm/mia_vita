@@ -58,7 +58,7 @@ sleep ${T_NODE_DELAY}
 sleep ${T_NET_DELAY}
 
 ## Kill the process
-pkill -9 sampler
+pkill -SIGINT sampler
 echo "KILLED client"
 
 # Wait T_CAN + T_REST
