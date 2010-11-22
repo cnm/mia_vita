@@ -23,7 +23,7 @@ ifconfig rausbwifi 192.168.0.1
 echo "MY IP IS 192.168.0.1"
 for route in ${ROUTING};
 do
-    if [ "$route" == "STATIC" ] 
+    if [ "$route" == "STATIC" ]
     then
 	pkill batmand
 	batctl if del rausbwifi
@@ -31,7 +31,7 @@ do
 	rmmod batman-adv
     fi
 
-    if [ "$route" == "BATMAN" ] 
+    if [ "$route" == "BATMAN" ]
     then
 	insmod batman-adv.ko
 	batctl if add rausbwifi
@@ -50,7 +50,6 @@ do
     do
         for seed in ${SEED};
         do
-	    
             TEST_NAME="distance_${DISTANCE}_middle_no_routing_${route}"
             TEST_SEED=${seed}
             SPS=${sps}
@@ -73,11 +72,11 @@ for sps in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
-	
+
         TEST_NAME="distance_${DISTANCE}_middle_yes_routing_BATMAN"
         TEST_SEED=${seed}
         SPS=${sps}
-	
+
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3"
     done #SEED
 done #SAMPLE_PER_SECOND
@@ -95,7 +94,7 @@ read
 pkill batmand
 batctl if del rausbwifi
 ifconfig bat0 down
-rmmod batman-adv	    
+rmmod batman-adv
 
 route add default gw 192.168.5.2 rausbwifi
 
@@ -103,11 +102,11 @@ for sps in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
-	
+
         TEST_NAME="distance_${DISTANCE}_middle_yes_routing_STATIC"
         TEST_SEED=${seed}
         SPS=${sps}
-	
+
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3"
     done #SEED
 done #SAMPLE_PER_SECOND

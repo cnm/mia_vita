@@ -4,10 +4,10 @@ then
     exit 1
 fi
 
+############ Parameters ######
 ROUTING="STATIC BATMAN"
 SAMPLE_PER_SECOND="25 50"
-
-SEED=`seq 1 30`
+SEED=`seq 1 30`             # Number of times a test will run
 
 ############# TIMERS #########
 T_INITIAL_HUMAN=10
@@ -38,7 +38,7 @@ do
 	ifconfig bat0 up
 	batmand rausbwifi
 
-	if [ $? -eq 0 ]
+	if [ $? -eq 0 ] #TODO Correct this, should check the return value of all previous commands
 	then
 	    echo "BATMAN LOADED"
 	else
@@ -96,7 +96,7 @@ read
 pkill batmand
 batctl if del rausbwifi
 ifconfig bat0 down
-rmmod batman-adv	    
+rmmod batman-adv
 
 route add default gw 192.168.5.2 rausbwifi
 
@@ -104,11 +104,11 @@ for sps in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
-	
+
         TEST_NAME="distance_${DISTANCE}_middle_yes_routing_STATIC"
         TEST_SEED=${seed}
         SPS=${sps}
-	
+
         sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3"
     done #SEED
 done #SAMPLE_PER_SECOND
