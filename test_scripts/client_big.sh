@@ -16,6 +16,15 @@ T_INITIAL_HUMAN=10
 EXEC=$1
 DISTANCE=$2
 
+###### Some validations ##############
+
+#Check if the module for batman exists
+if [ ! -e "batman-adv.ko" ]
+then
+    echo "Missing batman module file 'batman-adv.ko'"
+exit
+fi
+
 ## Wait initial time (for human synchronization)
 sleep ${T_INITIAL_HUMAN}
 

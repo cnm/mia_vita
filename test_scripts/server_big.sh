@@ -12,9 +12,18 @@ SEED=`seq 1 30`             # Number of times a test will run
 ############# TIMERS #########
 T_INITIAL_HUMAN=10
 
-############# INPUT #########
+############# INPUT ##########
 EXEC=$1
 DISTANCE=$2
+
+###### Some validations ##############
+
+#Check if the module for batman exists
+if [ ! -e "batman-adv.ko" ]
+then
+    echo "Missing batman module file 'batman-adv.ko'"
+exit
+fi
 
 ## Wait initial time (for human synchronization)
 sleep ${T_INITIAL_HUMAN}
