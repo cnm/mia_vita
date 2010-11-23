@@ -8,6 +8,7 @@ fi
 ROUTING="STATIC BATMAN"
 SAMPLE_PER_SECOND="25 50"
 SEED=`seq 1 30`             # Number of times a test will run
+N_PACKETS=100
 
 ############# TIMERS #########
 T_INITIAL_HUMAN=10
@@ -18,7 +19,6 @@ EXEC=$1
 DISTANCE=$2
 
 ###### Some validations ##############
-
 #Check if the module for batman exists
 if [ ! -e "batman-adv.ko" ]
 then
@@ -68,9 +68,10 @@ do
             TEST_SEED=${seed}
             SPS=${sps}
 
-            sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" &
+            sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
 
             echo SLEEPING BIG
+            sleep `expr ${N_PACKETS} / ${SPS}`
             sleep 30
             pkill -9 client_script.sh
         done #SEED

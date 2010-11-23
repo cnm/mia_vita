@@ -4,10 +4,11 @@ then
     exit 1
 fi
 
+############ Parameters ######
 ROUTING="STATIC BATMAN"
 SAMPLE_PER_SECOND="25 50"
-
 SEED=`seq 1 30`
+N_PACKETS=100
 
 ############# TIMERS #########
 T_INITIAL_HUMAN=10
@@ -67,9 +68,10 @@ do
             TEST_SEED=${seed}
             SPS=${sps}
 
-            sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" &
-            
+            sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
+
             echo SLEEPING BIG
+            sleep `expr ${N_PACKETS} / ${SPS}`
             sleep 30
             pkill -9 client_script.sh
         done #SEED

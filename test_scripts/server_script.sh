@@ -1,6 +1,5 @@
 PORT_NUMBER="57843"
 
-N_PACKETS=100
 
 RESULTS_FILE="ostatistics.data"
 
@@ -11,6 +10,7 @@ TEST_VARIABLE_NUMBER=${3}   # Its the seed number
 SAMPLES_PER_SECOND=${4}
 CLIENT_NODE_IP=${5}
 SINK_NODE_IP=${6}
+N_PACKETS=${7}
 
 ############# TIMERS #########
 T_SENDING_ALL_PACKETS=`expr ${N_PACKETS} / ${SAMPLES_PER_SECOND}`
