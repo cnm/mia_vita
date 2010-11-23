@@ -86,15 +86,18 @@ echo "MY IP IS 192.168.0.3"
 echo "PREPARE FOR NODE IN THE MIDDLE AND BATMAN ROUTING!!!"
 read
 
-for sps in ${SAMPLE_PER_SECOND};
+for SPS in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
-        TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${sps}_routing_BATMAN"
+        TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${SPS}_routing_BATMAN"
         TEST_SEED=${seed}
-        SPS=${sps}
 
-        sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3"
+        sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" &
+        echo SLEEPING BIG
+        sleep `expr ${N_PACKETS} / ${SPS}`
+        sleep 30
+        pkill -9 client_script.sh
     done #SEED
 done #SAMPLE_PER_SECOND
 
@@ -116,15 +119,18 @@ sleep ${T_BATMAN_WAIT}
 
 route add default gw 192.168.5.2 rausbwifi
 
-for sps in ${SAMPLE_PER_SECOND};
+for SPS in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
 
-        TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${sps}_routing_STATIC"
+        TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${SPS}_routing_STATIC"
         TEST_SEED=${seed}
-        SPS=${sps}
 
         sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3"
+        echo SLEEPING BIG
+        sleep `expr ${N_PACKETS} / ${SPS}`
+        sleep 30
+        pkill -9 client_script.sh
     done #SEED
 done #SAMPLE_PER_SECOND
