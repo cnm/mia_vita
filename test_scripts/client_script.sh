@@ -46,7 +46,6 @@ cur_time=`date +"%s"`
 
 # Sleep the JITTER_TIME
 sleep ${T_JITTER}
-echo $T_JITTER
 
 ## Start client
 echo "STARTING CLIENT"
@@ -54,11 +53,8 @@ ${EXEC} ${CLIENT_NODE_IP} ${SPS} ${EMULATED} < client_in.commands &
 
 ## Sleep x time
 sleep ${T_SENDING_ALL_PACKETS}
-echo $T_SENDING_ALL_PACKETS
 sleep ${T_NODE_DELAY}
-echo $T_NODE_DELAY
 sleep ${T_NET_DELAY}
-echo ${T_NET_DELAY}
 
 ## Kill the process
 pkill -SIGINT sampler
@@ -66,9 +62,7 @@ echo "KILLED client"
 
 # Wait T_CAN + T_REST
 sleep ${T_CAN}
-echo ${T_CAN}
 sleep ${T_REST}
-echo ${T_REST}
 
 ## Move the files
 mv ${RESULTS_FILE} ./results/${date}/${TEST_NAME}/result_${TEST_VARIABLE_NUMBER}_${cur_time}.txt
