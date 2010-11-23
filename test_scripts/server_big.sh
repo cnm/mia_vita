@@ -93,7 +93,7 @@ do
         TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${SPS}_routing_BATMAN"
         TEST_SEED=${seed}
 
-        sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" &
+        sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
         echo SLEEPING BIG
         sleep `expr ${N_PACKETS} / ${SPS}`
         sleep 30
@@ -127,7 +127,7 @@ do
         TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${SPS}_routing_STATIC"
         TEST_SEED=${seed}
 
-        sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3"
+        sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3" ${N_PACKETS} &
         echo SLEEPING BIG
         sleep `expr ${N_PACKETS} / ${SPS}`
         sleep 30
