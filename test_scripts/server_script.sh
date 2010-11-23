@@ -1,6 +1,6 @@
 PORT_NUMBER="57843"
 
-N_PACKETS=1
+N_PACKETS=100
 
 RESULTS_FILE="ostatistics.data"
 
@@ -42,15 +42,19 @@ cur_time=`date +"%s"`
 ## Start server
 echo "STARTING SERVER"
 ${EXEC} ${SINK_NODE_IP} -s &
-touch ${RESULTS_FILE}
 
 ## Sleep T_JITTER + T_SENDING_ALL_PACKETS + T_NODE_DELAY + T_NET_DELAY
 sleep ${T_JITTER}
+echo ${T_JITTER}
 sleep ${T_SENDING_ALL_PACKETS}
+echo ${T_SENDING_ALL_PACKETS}
 echo "Client should have ended"
 sleep ${T_NODE_DELAY}
+echo ${T_NODE_DELAY}
 sleep ${T_NET_DELAY}
+echo ${T_NET_DELAY}
 sleep ${T_CAN}
+echo ${T_CAN}
 
 ## Kill the process
 pkill -SIGINT sampler

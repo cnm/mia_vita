@@ -11,6 +11,7 @@ SEED=`seq 1 30`
 
 ############# TIMERS #########
 T_INITIAL_HUMAN=10
+T_BATMAN_WAIT=5
 
 ############# INPUT #########
 EXEC=$1
@@ -34,10 +35,11 @@ for route in ${ROUTING};
 do
     if [ "$route" == "STATIC" ]
     then
-        pkill batmand
-        batctl if del rausbwifi
-        ifconfig bat0 down
-        rmmod batman-adv
+        pkill batmand &
+        batctl if del rausbwifi &
+        ifconfig bat0 down &
+        rmmod batman-adv &
+        sleep ${T_BATMAN_WAIT}
 
         ifconfig rausbwifi up
         iwconfig rausbwifi mode managed
@@ -50,17 +52,11 @@ do
 
     if [ "$route" == "BATMAN" ]
     then
-        insmod batman-adv.ko
-        batctl if add rausbwifi
-        ifconfig bat0 up
-        batmand rausbwifi
-        if [ $? -eq 0 ]
-        then
-            echo "BATMAN LOADED"
-        else
-            echo "BATMAN FAILED TO LOAD."
-            exit 1
-        fi
+        insmod batman-adv.ko &
+        batctl if add rausbwifi &
+        ifconfig bat0 up &
+        batmand rausbwifi &
+        sleep ${T_BATMAN_WAIT}
     fi
 
     for sps in ${SAMPLE_PER_SECOND};
@@ -108,10 +104,11 @@ echo "MY IP IS 192.168.5.1"
 echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
 read
 
-pkill batmand
-batctl if del rausbwifi
-ifconfig bat0 down
-rmmod batman-adv
+pkill batmand &
+batctl if del rausbwifi &
+ifconfig bat0 down &
+rmmod batman-adv &
+sleep ${T_BATMAN_WAIT} &
 
 ifconfig rausbwifi up
 iwconfig rausbwifi mode managed
