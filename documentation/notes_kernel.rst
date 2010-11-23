@@ -51,3 +51,9 @@ This seems acceptable for my application -- clock_nanosleep() is
 obviously the way to do periodic timers.  However, it still seems that
 the jitter is still much higher than 2.6.20.
 
+Urls of High resolution timers
+==============================
+
+https://export.writer.zoho.com/public/rreginelli/Chapter-5---High-Resolution-Timers-Final1/fullpage
+
+http://elinux.org/High_Resolution_Timers#How_to_detect_if_your_timer_system_supports_high_resolution
