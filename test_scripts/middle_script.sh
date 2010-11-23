@@ -18,7 +18,7 @@ rmmod batman-adv
 
 #### STATIC ROUTING #####################
 
-echo Now my ip is 192.168.5.2 and 192.168.6.4
+echo "Now my ip is 192.168.5.2 and 192.168.6.4"
 
 ifconfig rausbwifi:client 192.168.5.2 up
 ifconfig rausbwifi 192.168.6.4

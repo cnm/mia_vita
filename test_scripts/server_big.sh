@@ -92,7 +92,7 @@ for sps in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
-        TEST_NAME="distance_${DISTANCE}_middle_yes_routing_BATMAN"
+        TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${sps}_routing_BATMAN"
         TEST_SEED=${seed}
         SPS=${sps}
 
@@ -122,7 +122,7 @@ do
     for seed in ${SEED};
     do
 
-        TEST_NAME="distance_${DISTANCE}_middle_yes_routing_STATIC"
+        TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${sps}_routing_STATIC"
         TEST_SEED=${seed}
         SPS=${sps}
 
