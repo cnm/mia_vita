@@ -67,7 +67,11 @@ do
             TEST_SEED=${seed}
             SPS=${sps}
 
-            sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3"
+            sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" &
+            
+            echo SLEEPING BIG
+            sleep 30
+            pkill -9 client_script.sh
         done #SEED
     done #SAMPLE_PER_SECOND
 
