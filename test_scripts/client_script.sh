@@ -3,6 +3,8 @@ PORT_NUMBER="57843"
 #EMULATED="-e"
 RESULTS_FILE="ostatistics.data"
 
+. ./parameters.sh
+
 ############# Input ##########
 EXEC=${1}
 TEST_NAME=${2}
@@ -19,11 +21,6 @@ echo ${INPUT_FILE} > client_in.commands
 
 ############# TIMERS #########
 T_SENDING_ALL_PACKETS=`expr ${N_PACKETS} / ${SAMPLES_PER_SECOND}`
-T_NET_DELAY=2
-T_NODE_DELAY=2
-T_JITTER=5
-T_CAN=5
-T_REST=5
 
 #===================================
 # Do the preparations
