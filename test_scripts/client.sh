@@ -27,10 +27,10 @@ for route in ${ROUTING};
 do
     if [ "$route" == "STATIC" ]
     then
-        pkill batmand &
-        batctl if del rausbwifi &
-        ifconfig bat0 down &
-        rmmod batman-adv &
+        pkill batmand
+        batctl if del rausbwifi
+        ifconfig bat0 down
+        rmmod batman-adv
         sleep ${T_BATMAN_WAIT}
 
         ifconfig rausbwifi up
@@ -44,10 +44,10 @@ do
 
     if [ "$route" == "BATMAN" ]
     then
-        insmod batman-adv.ko &
-        batctl if add rausbwifi &
-        ifconfig bat0 up &
-        batmand rausbwifi &
+        insmod batman-adv.ko
+        batctl if add rausbwifi
+        ifconfig bat0 up
+        batmand rausbwifi
         sleep ${T_BATMAN_WAIT}
     fi
 
@@ -62,13 +62,17 @@ do
             if [ ${TEST_SEED} == 10 ]
             then
                 echo "Please synchronize. Don't do anything else"
+                ts7500ctl -c
                 read
+                ts7500ctl -d &
             fi
 
             if [ ${TEST_SEED} == 20 ]
             then
                 echo "Please synchronize. Don't do anything else"
+                ts7500ctl -c
                 read
+                ts7500ctl -d &
             fi
 
             sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
@@ -100,13 +104,17 @@ do
         if [ ${TEST_SEED} == 10 ]
         then
             echo "Please synchronize. Don't do anything else"
+            ts7500ctl -c
             read
+            ts7500ctl -d &
         fi
 
         if [ ${TEST_SEED} == 20 ]
         then
             echo "Please synchronize. Don't do anything else"
+            ts7500ctl -c
             read
+            ts7500ctl -d &
         fi
 
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
@@ -123,11 +131,11 @@ done #SAMPLE_PER_SECOND
 ###############################################################
 ################ PART 3 - NODE MIDLE STATIC ###################
 ###############################################################
-pkill batmand &
-batctl if del rausbwifi &
-ifconfig bat0 down &
-rmmod batman-adv &
-sleep ${T_BATMAN_WAIT} &
+pkill batmand
+batctl if del rausbwifi
+ifconfig bat0 down
+rmmod batman-adv
+sleep ${T_BATMAN_WAIT}
 
 ifconfig rausbwifi up
 iwconfig rausbwifi mode managed
@@ -153,13 +161,17 @@ do
         if [ ${TEST_SEED} == 10 ]
         then
             echo "Please synchronize. Don't do anything else"
+            ts7500ctl -c
             read
+            ts7500ctl -d &
         fi
 
         if [ ${TEST_SEED} == 20 ]
         then
             echo "Please synchronize. Don't do anything else"
+            ts7500ctl -c
             read
+            ts7500ctl -d &
         fi
 
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3" ${N_PACKETS} &
