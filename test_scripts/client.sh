@@ -40,6 +40,11 @@ do
         ifconfig rausbwifi up
         iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
         ifconfig rausbwifi 192.168.0.1
+
+        echo "Please synchronize. Don't do anything else"
+        ts7500ctl -c
+        read
+        ts7500ctl -d &
     fi
 
     if [ "$route" == "BATMAN" ]
@@ -49,6 +54,11 @@ do
         ifconfig bat0 up
         batmand rausbwifi
         sleep ${T_BATMAN_WAIT}
+
+        echo "Please synchronize. Don't do anything else"
+        ts7500ctl -c
+        read
+        ts7500ctl -d &
     fi
 
     for sps in ${SAMPLE_PER_SECOND};
@@ -145,6 +155,11 @@ ifconfig rausbwifi up
 iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
 ifconfig rausbwifi 192.168.5.1
 route add default gw 192.168.5.2 rausbwifi
+
+echo "Please synchronize. Don't do anything else"
+ts7500ctl -c
+read
+ts7500ctl -d &
 
 echo "MY IP IS 192.168.5.1"
 echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
