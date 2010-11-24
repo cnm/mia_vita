@@ -59,6 +59,18 @@ do
             TEST_SEED=${seed}
             SPS=${sps}
 
+            if [ ${TEST_SEED} == 10 ]
+            then
+                echo "Please synchronize. Don't do anything else"
+                read
+            fi
+
+            if [ ${TEST_SEED} == 20 ]
+            then
+                echo "Please synchronize. Don't do anything else"
+                read
+            fi
+
             sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
 
             echo SLEEPING BIG
@@ -84,6 +96,18 @@ do
     do
         TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${SPS}_routing_BATMAN"
         TEST_SEED=${seed}
+
+        if [ ${TEST_SEED} == 10 ]
+        then
+            echo "Please synchronize. Don't do anything else"
+            read
+        fi
+
+        if [ ${TEST_SEED} == 20 ]
+        then
+            echo "Please synchronize. Don't do anything else"
+            read
+        fi
 
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
         echo SLEEPING BIG
@@ -125,6 +149,18 @@ do
 
         TEST_NAME="distance_${DISTANCE}_middle_yes_SPS_${SPS}_routing_STATIC"
         TEST_SEED=${seed}
+
+        if [ ${TEST_SEED} == 10 ]
+        then
+            echo "Please synchronize. Don't do anything else"
+            read
+        fi
+
+        if [ ${TEST_SEED} == 20 ]
+        then
+            echo "Please synchronize. Don't do anything else"
+            read
+        fi
 
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3" ${N_PACKETS} &
 
