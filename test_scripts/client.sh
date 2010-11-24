@@ -63,6 +63,7 @@ do
 
             echo SLEEPING BIG
             sleep `expr ${N_PACKETS} / ${SPS}`
+            sleep ${T_JITTER}
             sleep ${T_LIMIT_TEST_TIME}
             pkill -9 client_script.sh
         done #SEED
@@ -87,6 +88,7 @@ do
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
         echo SLEEPING BIG
         sleep `expr ${N_PACKETS} / ${SPS}`
+        sleep ${T_JITTER}
         sleep ${T_LIMIT_TEST_TIME}
         pkill -9 client_script.sh
     done #SEED
@@ -128,6 +130,7 @@ do
 
         echo SLEEPING BIG
         sleep `expr ${N_PACKETS} / ${SPS}`
+        sleep ${T_JITTER}
         sleep ${T_LIMIT_TEST_TIME}
         pkill -9 client_script.sh
     done #SEED

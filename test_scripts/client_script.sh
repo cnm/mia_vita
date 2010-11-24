@@ -1,4 +1,5 @@
 PORT_NUMBER="57843"
+echo `date +"%s"`
 
 #EMULATED="-e"
 RESULTS_FILE="ostatistics.data"

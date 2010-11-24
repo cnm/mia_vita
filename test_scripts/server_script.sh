@@ -1,5 +1,5 @@
 PORT_NUMBER="57843"
-
+echo `date +"%s"`
 
 RESULTS_FILE="ostatistics.data"
 
