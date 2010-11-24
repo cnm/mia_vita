@@ -6,7 +6,7 @@ RESULTS_FILE="ostatistics.data"
 ############# Input ##########
 EXEC=${1}
 TEST_NAME=${2}
-TEST_VARIABLE_NUMBER=${3}   # Its the seed number
+TEST_VARIABLE_NUMBER=${3} #Its the seed number
 SAMPLES_PER_SECOND=${4}
 CLIENT_NODE_IP=${5}
 SINK_NODE_IP=${6}
@@ -55,9 +55,10 @@ sleep ${T_CAN}
 pkill -SIGINT sampler
 echo "KILLED SERVER"
 
+# Wait T_REST
+sleep ${T_REST}
+
 ## Move the files
 mv ${RESULTS_FILE} ./results/${date}/${TEST_NAME}/result_${TEST_VARIABLE_NUMBER}_${cur_time}.txt
 
-## Wait server time after
-sleep ${T_REST}
 #===================================

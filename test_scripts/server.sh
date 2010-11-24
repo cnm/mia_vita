@@ -7,7 +7,7 @@ fi
 # Load the parameters
 . ./parameters.sh
 
-############# INPUT ##########
+############# INPUT #########
 EXEC=$1
 DISTANCE=$2
 
@@ -25,7 +25,7 @@ ifconfig rausbwifi 192.168.0.3
 echo "MY IP IS 192.168.0.3"
 for route in ${ROUTING};
 do
-    if [ "$route" == "STATIC" ] 
+    if [ "$route" == "STATIC" ]
     then
         pkill batmand &
         batctl if del rausbwifi &
@@ -42,7 +42,7 @@ do
         ifconfig rausbwifi 192.168.0.3
     fi
 
-    if [ "$route" == "BATMAN" ] 
+    if [ "$route" == "BATMAN" ]
     then
         insmod batman-adv.ko &
         batctl if add rausbwifi &
@@ -87,7 +87,7 @@ do
         sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
         echo SLEEPING BIG
         sleep `expr ${N_PACKETS} / ${SPS}`
-        sleep 30
+        sleep ${T_LIMIT_TEST_TIME}
         pkill -9 client_script.sh
     done #SEED
 done #SAMPLE_PER_SECOND
@@ -115,7 +115,6 @@ route add default gw 192.168.6.2 rausbwifi
 echo "MY IP IS 192.168.6.3"
 echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
 read
-
 
 for SPS in ${SAMPLE_PER_SECOND};
 do

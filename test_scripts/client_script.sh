@@ -66,6 +66,4 @@ sleep ${T_REST}
 
 ## Move the files
 mv ${RESULTS_FILE} ./results/${date}/${TEST_NAME}/result_${TEST_VARIABLE_NUMBER}_${cur_time}.txt
-
-## Wait server time after
 #===================================
