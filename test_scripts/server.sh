@@ -4,26 +4,18 @@ then
     exit 1
 fi
 
-############ Parameters ######
-ROUTING="STATIC BATMAN"
-SAMPLE_PER_SECOND="25 50"
-SEED=`seq 1 30`             # Number of times a test will run
-N_PACKETS=100
-
-############# TIMERS #########
-T_INITIAL_HUMAN=10
-T_BATMAN_WAIT=5
+# Load the parameters
+. ./parameters.sh
 
 ############# INPUT ##########
 EXEC=$1
 DISTANCE=$2
 
 ###### Some validations ##############
-#Check if the module for batman exists
-if [ ! -e "batman-adv.ko" ]
+sh ./validations.sh
+if [ ! $? -eq 0 ]
 then
-    echo "Missing batman module file 'batman-adv.ko'"
-    exit
+    return 1
 fi
 
 ## Wait initial time (for human synchronization)
@@ -63,7 +55,6 @@ do
     do
         for seed in ${SEED};
         do
-
             TEST_NAME="distance_${DISTANCE}_middle_no_SPS_${sps}_routing_${route}"
             TEST_SEED=${seed}
             SPS=${sps}
