@@ -63,7 +63,7 @@ do
 
             echo SLEEPING BIG
             sleep `expr ${N_PACKETS} / ${SPS}`
-            sleep 30
+            sleep ${T_LIMIT_TEST_TIME}
             pkill -9 client_script.sh
         done #SEED
     done #SAMPLE_PER_SECOND
@@ -96,19 +96,26 @@ done #SAMPLE_PER_SECOND
 ###############################################################
 ###############################################################
 ################ PART 3 - NODE MIDLE STATIC ###################
-ifconfig rausbwifi 192.168.6.3
 ###############################################################
-echo "MY IP IS 192.168.6.3"
-echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
-read
-
 pkill batmand &
 batctl if del rausbwifi &
 ifconfig bat0 down &
 rmmod batman-adv &
-sleep ${T_BATMAN_WAIT}
+sleep ${T_BATMAN_WAIT} &
 
-route add default gw 192.168.5.2 rausbwifi
+ifconfig rausbwifi up
+iwconfig rausbwifi mode managed
+sleep 3
+ifconfig rausbwifi down
+ifconfig rausbwifi up
+iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+ifconfig rausbwifi 192.168.6.3
+route add default gw 192.168.6.2 rausbwifi
+
+echo "MY IP IS 192.168.6.3"
+echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
+read
+
 
 for SPS in ${SAMPLE_PER_SECOND};
 do
@@ -119,9 +126,10 @@ do
         TEST_SEED=${seed}
 
         sh server_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3" ${N_PACKETS} &
+
         echo SLEEPING BIG
         sleep `expr ${N_PACKETS} / ${SPS}`
-        sleep 30
+        sleep ${T_LIMIT_TEST_TIME}
         pkill -9 client_script.sh
     done #SEED
 done #SAMPLE_PER_SECOND

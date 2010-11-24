@@ -18,7 +18,6 @@ then
     return 1
 fi
 
-
 ## Wait initial time (for human synchronization)
 sleep ${T_INITIAL_HUMAN}
 
@@ -64,11 +63,10 @@ do
 
             echo SLEEPING BIG
             sleep `expr ${N_PACKETS} / ${SPS}`
-            sleep 30
+            sleep ${T_LIMIT_TEST_TIME}
             pkill -9 client_script.sh
         done #SEED
     done #SAMPLE_PER_SECOND
-
 done #ROUTING
 
 ###############################################################
@@ -83,9 +81,7 @@ for SPS in ${SAMPLE_PER_SECOND};
 do
     for seed in ${SEED};
     do
-
-        TEST_NAME="distance_${DISTANCE}_middle_no_SPS_${SPS}_routing_${route}"
-
+        TEST_NAME="distance_${DISTANCE}_middle_no_SPS_${SPS}_routing_BATMAN"
         TEST_SEED=${seed}
 
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} & 
@@ -93,7 +89,6 @@ do
         sleep `expr ${N_PACKETS} / ${SPS}`
         sleep 30
         pkill -9 client_script.sh
-
     done #SEED
 done #SAMPLE_PER_SECOND
 
@@ -102,10 +97,6 @@ done #SAMPLE_PER_SECOND
 ###############################################################
 ################ PART 3 - NODE MIDLE STATIC ###################
 ###############################################################
-echo "MY IP IS 192.168.5.1"
-echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
-read
-
 pkill batmand &
 batctl if del rausbwifi &
 ifconfig bat0 down &
@@ -119,8 +110,11 @@ ifconfig rausbwifi down
 ifconfig rausbwifi up
 iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
 ifconfig rausbwifi 192.168.5.1
-
 route add default gw 192.168.5.2 rausbwifi
+
+echo "MY IP IS 192.168.5.1"
+echo "PREPARE FOR NODE IN THE MIDDLE AND STATIC ROUTING!!!"
+read
 
 for SPS in ${SAMPLE_PER_SECOND};
 do
@@ -134,7 +128,7 @@ do
 
         echo SLEEPING BIG
         sleep `expr ${N_PACKETS} / ${SPS}`
-        sleep 30
+        sleep ${T_LIMIT_TEST_TIME}
         pkill -9 client_script.sh
     done #SEED
 done #SAMPLE_PER_SECOND
