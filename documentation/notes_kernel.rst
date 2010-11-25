@@ -57,3 +57,12 @@ Urls of High resolution timers
 https://export.writer.zoho.com/public/rreginelli/Chapter-5---High-Resolution-Timers-Final1/fullpage
 
 http://elinux.org/High_Resolution_Timers#How_to_detect_if_your_timer_system_supports_high_resolution
+
+Dynamic Tick kernel Explanation
+===============================
+
+http://bvargo.net/blog/2010/sep/13/dynamic-ticks-operating-systems/?c=8
+
+http://lwn.net/Articles/223185/
+
+http://elinux.org/Kernel_Timer_Systems
