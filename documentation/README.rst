@@ -231,3 +231,10 @@ Remove nfs
 
 sudo update-rc.d -f nfs-common remove
 
+
+Autofeed the watchdog every 2 seconds
+#####################################
+
+Run:
+
+ts7500 --autofeed=2

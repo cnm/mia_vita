@@ -66,3 +66,8 @@ http://bvargo.net/blog/2010/sep/13/dynamic-ticks-operating-systems/?c=8
 http://lwn.net/Articles/223185/
 
 http://elinux.org/Kernel_Timer_Systems
+
+Advice on how to get samples at a frequency rate and DIO comm
+=============================================================
+
+http://tech.dir.groups.yahoo.com/group/ts-7000/message/18279
