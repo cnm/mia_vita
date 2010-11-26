@@ -34,6 +34,7 @@ do
         sleep ${T_BATMAN_WAIT}
 
         ifconfig rausbwifi up
+        iwconfig rausbwifi rate 1M
         iwconfig rausbwifi mode managed
         sleep 3
         ifconfig rausbwifi down
@@ -148,6 +149,7 @@ rmmod batman-adv
 sleep ${T_BATMAN_WAIT}
 
 ifconfig rausbwifi up
+iwconfig rausbwifi rate 1M
 iwconfig rausbwifi mode managed
 sleep 3
 ifconfig rausbwifi down
