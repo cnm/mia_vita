@@ -120,6 +120,47 @@ Translation table
 |  3   | 192.168.0.3     |   MV-27  |
 +======+=================+==========+
 
+Changes done in the Operating System
+====================================
+
+Fix the name of the wireless card
+---------------------------------
+Add the file "01-our-rewrite.rules" to /etc/udev.d/rules with the following text:
+
+   # All ralink wireless are named rausbwifi
+   SUBSYSTEM=="net", ACTION=="add", KERNEL=="ra*", NAME="rausbwifi"
+
+
+
+
+Blacklist the rt73 usb driver
+-----------------------------
+add "blacklist rt73usb" to /etc/modprobe.d/blacklist
+
+Startup adhoc at the beggining
+-------------------------------
+In /etc/network/interfaces pu:
+
+    auto rausbwifi
+    iface rausbwifi inet static
+    address 192.168.0.3
+    netmask 255.255.255.0
+    pre-up /root/adhoc.sh rausbwifi 192.168.1.3
+
+and /root/adhoc.sh should contain:
+
+#!/bin/bash
+
+    ifconfig $1 up
+    iwconfig $1 mode managed
+    sleep 3
+    ifconfig $1 down
+    ifconfig $1 up
+    iwconfig $1 mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+    ifconfig $1 $2
+
+
+
 
 How to compile kernel in the TS-7500 node
 =========================================

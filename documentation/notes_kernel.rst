@@ -71,3 +71,17 @@ Advice on how to get samples at a frequency rate and DIO comm
 =============================================================
 
 http://tech.dir.groups.yahoo.com/group/ts-7000/message/18279
+
+SPI Communication
+=================
+
+http://tech.dir.groups.yahoo.com/group/ts-7000/message/19178
+
+Use hardware interrupt to enable precision
+==========================================
+
+This maybe very usefull for constant sample rates
+
+http://tech.groups.yahoo.com/group/ts-7000/message/18950
+
+http://tech.groups.yahoo.com/group/ts-7000/message/19261
