@@ -45,7 +45,7 @@ FIRST STEPS - Connect to the RT7750 with serial cable
 
 
 Documentation URLs
-======================
+==================
 In here put the cites with documentation for the little arms:
 
 * http://tech.groups.yahoo.com/group/ts-7000/
@@ -54,6 +54,11 @@ Sites to discover what chipset is in what wireless card
 
 * http://wireless.kernel.org/en/users/Drivers/
 * http://linux-wless.passys.nl/
+
+Filesystem and kernels
+======================
+http://tagus.inesc-id.pt/~jtrindade/mia_vita/
+
 
 Establishing AD-HOC Communication
 =================================
