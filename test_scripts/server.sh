@@ -34,12 +34,12 @@ do
         sleep ${T_BATMAN_WAIT}
 
         ifconfig rausbwifi up
-        iwconfig rausbwifi rate 1M
         iwconfig rausbwifi mode managed
         sleep 3
         ifconfig rausbwifi down
         ifconfig rausbwifi up
         iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+        iwconfig rausbwifi rate 1M
         ifconfig rausbwifi 192.168.0.3
 
         echo "Please synchronize. Don't do anything else"
@@ -149,12 +149,12 @@ rmmod batman-adv
 sleep ${T_BATMAN_WAIT}
 
 ifconfig rausbwifi up
-iwconfig rausbwifi rate 1M
 iwconfig rausbwifi mode managed
 sleep 3
 ifconfig rausbwifi down
 ifconfig rausbwifi up
 iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+iwconfig rausbwifi rate 1M
 ifconfig rausbwifi 192.168.6.3
 route add default gw 192.168.6.2 rausbwifi
 
