@@ -1,7 +1,7 @@
 ############ Parameters ######
 ROUTING="STATIC BATMAN"
 SAMPLE_PER_SECOND="25 50"
-SEED=`seq 1 30`             # Number of times a test will run
+SEED=`seq 1 5`             # Number of times a test will run
 N_PACKETS=100
 
 ############# TIMERS #########
