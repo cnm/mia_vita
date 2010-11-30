@@ -135,16 +135,13 @@ Add the file "01-our-rewrite.rules" to /etc/udev.d/rules with the following text
    # All ralink wireless are named rausbwifi
    SUBSYSTEM=="net", ACTION=="add", KERNEL=="ra*", NAME="rausbwifi"
 
-
-
-
 Blacklist the rt73 usb driver
 -----------------------------
 add "blacklist rt73usb" to /etc/modprobe.d/blacklist
 
 Startup adhoc at the beggining
 -------------------------------
-In /etc/network/interfaces pu:
+In /etc/network/interfaces put:
 
     auto rausbwifi
     iface rausbwifi inet static
@@ -162,6 +159,7 @@ and /root/adhoc.sh should contain:
     ifconfig $1 down
     ifconfig $1 up
     iwconfig $1 mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+    iwconfig $1 rate 1M
     ifconfig $1 $2
 
 
