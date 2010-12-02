@@ -32,12 +32,16 @@ Global startup instructions
 
 * Connect the wireless card to the device
 * Start the respective nodes identified by (check the scenario to see which nodes should be turned on):
+
   * C1: MV-25
   * M1: MV-26
   * S1: MV-27
+
 * Wait around 30 seconds
 * Connect to it via telnet
+
   * User: root password: cnm
+
 * Check if the wifi device is blinking
 
 Client (collector) instructions
@@ -110,7 +114,9 @@ Scenario 2
 * Insert the USB wireless device
 * Turn on the ARM device
 * Go to the directory:
+
   * /root/test_scripts
 
 * run the command:
+
   * nice -20 sh server.sh ./sampler 40
