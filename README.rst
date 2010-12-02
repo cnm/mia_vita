@@ -243,3 +243,6 @@ Copy the kernel and initrd to the flash in the arm
 
 * Put the sd-card on the arm and then turn it up
 
+Add a batman service at startup
+==============================
+* update-rc.d batman-adv defaults

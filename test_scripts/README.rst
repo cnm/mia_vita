@@ -20,7 +20,7 @@ Scenario 2
 C1 ------ M1 ------- S1
     40m        40m
 
-Connection with the client and the server with an intermediate node. 
+Connection with the client and the server with an intermediate node.
 There should not be any possible direct communication between the client and server.
 
 
@@ -32,12 +32,12 @@ Global startup instructions
 
 * Connect the wireless card to the device
 * Start the respective nodes identified by (check the scenario to see which nodes should be turned on):
-  ** C1: MV-25
-  ** M1: MV-26
-  ** S1: MV-27
+  * C1: MV-25
+  * M1: MV-26
+  * S1: MV-27
 * Wait around 30 seconds
 * Connect to it via telnet
-  ** User: root password: cnm
+  * User: root password: cnm
 * Check if the wifi device is blinking
 
 Client (collector) instructions
@@ -110,7 +110,7 @@ Scenario 2
 * Insert the USB wireless device
 * Turn on the ARM device
 * Go to the directory:
-  /root/test_scripts
+  * /root/test_scripts
 
 * run the command:
-  nice -20 sh server.sh ./sampler 40
+  * nice -20 sh server.sh ./sampler 40
