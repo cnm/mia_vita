@@ -47,8 +47,8 @@ do
 
     if [ "$route" == "BATMAN" ]
     then
-        sleep ${T_BATMAN_WAIT}
         sh /root/our_scripts/batman-adv start
+        sleep ${T_BATMAN_WAIT}
 
         echo "Please synchronize. Don't do anything else"
         ts7500ctl -c
@@ -83,7 +83,7 @@ do
             sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
 
             echo SLEEPING BIG
-            sleep `expr ${N_PACKETS} / ${SPS}`
+            sleep `expr ${N_PACKETS} / ${SPS} + 1`
             sleep ${T_JITTER}
             sleep ${T_LIMIT_TEST_TIME}
             pkill -9 client_script.sh
@@ -124,7 +124,7 @@ do
 
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.0.1" "192.168.0.3" ${N_PACKETS} &
         echo SLEEPING BIG
-        sleep `expr ${N_PACKETS} / ${SPS}`
+        sleep `expr ${N_PACKETS} / ${SPS} + 1`
         sleep ${T_JITTER}
         sleep ${T_LIMIT_TEST_TIME}
         pkill -9 client_script.sh
@@ -185,7 +185,7 @@ do
         sh client_script.sh ${EXEC} ${TEST_NAME} ${TEST_SEED} ${SPS} "192.168.5.1" "192.168.6.3" ${N_PACKETS} &
 
         echo SLEEPING BIG
-        sleep `expr ${N_PACKETS} / ${SPS}`
+        sleep `expr ${N_PACKETS} / ${SPS} + 1`
         sleep ${T_JITTER}
         sleep ${T_LIMIT_TEST_TIME}
         pkill -9 client_script.sh
