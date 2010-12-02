@@ -16,8 +16,12 @@ case "$1" in
 	echo "Done"
     ;;
   stop)
-    echo "Stopping script blah"
-    echo "Could do more here"
+	echo "Stopping B.A.T.M.A.N. ..."
+	ifconfig $BAT_IFACE down
+	ifconfig $IFACE down
+	batctl if del $IFACE
+	rmmod $BAT_KO
+	echo "Done"
     ;;
   *)
     echo "Usage: /etc/init.d/ {start|stop}"
