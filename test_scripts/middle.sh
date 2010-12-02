@@ -12,10 +12,8 @@ fi
 ################ PART 2 - NODE MIDDLE BATMAN ##################
 ###############################################################
 ifconfig rausbwifi 192.168.0.2
-
+iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
 iwconfig rausbwifi rate 1M
-iwconfig rausbwifi mode managed
-
 insmod batman-adv.ko
 batctl if add rausbwifi
 ifconfig bat0 up
@@ -39,12 +37,12 @@ rmmod batman-adv
 sleep ${T_BATMAN_WAIT}
 
 ifconfig rausbwifi up
-iwconfig rausbwifi rate 1M
 iwconfig rausbwifi mode managed
 sleep 3
 ifconfig rausbwifi down
 ifconfig rausbwifi up
 iwconfig rausbwifi mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+iwconfig rausbwifi rate 1M
 ifconfig rausbwifi 192.168.5.2
 ifconfig rausbwifi:virtual 192.168.6.2
 
