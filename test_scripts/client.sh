@@ -27,10 +27,7 @@ for route in ${ROUTING};
 do
     if [ "$route" == "STATIC" ]
     then
-        pkill batmand
-        batctl if del rausbwifi
-        ifconfig bat0 down
-        rmmod batman-adv
+        sh /root/our_scripts/batman-adv stop
         sleep ${T_BATMAN_WAIT}
 
         ifconfig rausbwifi up
@@ -50,11 +47,8 @@ do
 
     if [ "$route" == "BATMAN" ]
     then
-        insmod batman-adv.ko
-        batctl if add rausbwifi
-        ifconfig bat0 up
-        batmand rausbwifi
         sleep ${T_BATMAN_WAIT}
+        sh /root/our_scripts/batman-adv start
 
         echo "Please synchronize. Don't do anything else"
         ts7500ctl -c
@@ -142,10 +136,7 @@ done #SAMPLE_PER_SECOND
 ###############################################################
 ################ PART 3 - NODE MIDLE STATIC ###################
 ###############################################################
-pkill batmand
-batctl if del rausbwifi
-ifconfig bat0 down
-rmmod batman-adv
+sh /root/our_scripts/batman-adv stop
 sleep ${T_BATMAN_WAIT}
 
 ifconfig rausbwifi up
