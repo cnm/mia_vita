@@ -143,3 +143,103 @@ Startup adhoc at the beggining
 -------------------------------
 In /etc/network/interfaces put:
 
+    auto rausbwifi
+    iface rausbwifi inet static
+    address 192.168.0.3
+    netmask 255.255.255.0
+    pre-up /root/adhoc.sh rausbwifi 192.168.1.3
+
+and /root/adhoc.sh should contain:
+
+#!/bin/bash
+
+    ifconfig $1 up
+    iwconfig $1 mode managed
+    sleep 3
+    ifconfig $1 down
+    ifconfig $1 up
+    iwconfig $1 mode ad-hoc essid teste channel 1 ap 02:0C:F1:B5:CC:5D
+    iwconfig $1 rate 1M
+    ifconfig $1 $2
+
+
+
+
+How to compile kernel in the TS-7500 node
+=========================================
+
+* Download the kernel from: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/linux-2.6.24-ts-src-aug102009.tar.gz
+ (or fetch it from: http://github.com/joninvski/ts_7500_kernel )
+
+* Download the crosstool chain: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/cross-toolchains/crosstool-linux-arm-uclibc-3.4.6.tar.gz
+ (or fetch it from: http://github.com/joninvski/arm-uclibc-3.4.6 )
+
+* Download the module for the wireless card
+ (or fetch it from: http://github.com/joninvski/USB_Wifi_RT2501_TS-7500 )
+
+First compile the kernel
+------------------------
+
+* In the 2.6.24.4-cavium directory change the Makefile pointing it to the correct path. In my case:
+
+  * CROSS_COMPILE   ?= /home/workspace/plaquinhas/kernel/arm-uclibc-3.4.6/bin/arm-linux-
+
+* Put the crosstoll chain in the path
+
+* Run: $> make ts7500_defconfig
+
+* Run: $> make menuconfig
+(If there is any error compiling menuconfig just install the package libncurses-dev)
+
+* Go to networking and select all the modules necessary for iptables/netfilter
+(The .config present in the git repository contains this information)
+
+* Run: $> make modules; make modules_install
+(in here i did a litlle trick: chmod a+w /lib/modules to be able to install modules whitout being root)
+
+Copy the kernel to the sd card
+------------------------------
+
+* Put the sdcard in the computer (let's assume sdb)
+
+* Run: dd if=arch/arm/boot/zImage of=/dev/sdb2\
+
+* Mount /dev/sdb4
+
+* Copy the modules present in /lib/modules/2.6.24.4/ to the card 4th partition (to the same directory)
+
+Compile the usb wifi card driver
+--------------------------------
+
+* Go the the directory of the usb wifi source code.
+
+* In the Makefile change the cross tools path and the target to 7500
+(you can find these changes in the git repository)
+
+* make
+
+* Copy the ts73.ko file to the /lib/modules/2.6.24.4/kernel/drivers/net/wireless/rt2x00/rt73_ts7500.ko (note this is in the forth partition of the sd-card)o
+
+* You should probably (not tested) run depmod on the arm node (then restart)
+
+
+Run the kernel from the sd-card
+-------------------------------
+
+* Put the jumpers in the development board: JP1 = ON; JP2 = OFF
+
+* Do a depmod -a to do all module dependencies
+
+Copy the kernel and initrd to the flash in the arm
+--------------------------------------------------
+
+* On my pc (I cannot to this in the card) I copy the sdb2 and sdb3 partitions to two files and then use those files to copy to the flash. This is how to do it.
+
+* Put the sd-card on the pc
+
+* dd if=/dev/nbd2 of=/tmp/zImage
+* dd if=/dev/nbd3 of=/tmp/initrd
+* Copy both these files to the /dev/ndb4 file system (mount it!!!!!!)
+
+* Put the sd-card on the arm and then turn it up
+
