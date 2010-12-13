@@ -1,0 +1,5 @@
+29-11-2010
+
+-> after executing the tests with static and batman routing protocols the red led should turn on and ask to change to the second case scenario, but the led was turned off.
+
+->Before you start a test the computer wireless card should be turned off to minimize the interferences
