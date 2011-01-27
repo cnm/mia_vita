@@ -9,6 +9,13 @@ spictl -e 1 -c 2000000 -l 1 -w 04:00 -d 01:02 | hexdump -C
 
 Seen here: http://groups.yahoo.com/group/ts-7000/message/17368;_ylc=X3oDMTM3MGo0dDduBF9TAzk3MzU5NzE0BGdycElkAzEzNjQwMzQ5BGdycHNwSWQDMTcwNTAwNTM3OARtc2dJZAMxOTgxNgRzZWMDZnRyBHNsawN2dHBjBHN0aW1lAzEyOTQ4NTE1NTgEdHBjSWQDMTczNjg-
 
+Change scheduller to deal with interuption
+==============================
+
+man page for sched_setscheduler() for information on setting the algorithm and priority for your process.
+
+http://groups.yahoo.com/group/ts-7000/message/19561;_ylc=X3oDMTM3MWtpZmhzBF9TAzk3MzU5NzE0BGdycElkAzEzNjQwMzQ5BGdycHNwSWQDMTcwNTAwNTM3OARtc2dJZAMxOTU3MARzZWMDZnRyBHNsawN2dHBjBHN0aW1lAzEyOTE3NDE1NDMEdHBjSWQDMTk1NjE-
+
 HZ Freq
 =======
 
