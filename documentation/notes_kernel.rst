@@ -1,3 +1,14 @@
+Communication SPI (Quick and easy)
+===========================
+The following command would set SPI to use the positive 
+clock edge, with a clock frequency of 2Mhz, using LUN #1, and would 
+write 0x04:0x00 and then would write 0x01:0x02 while reading and 
+outputting to stdout in hex format:
+
+spictl -e 1 -c 2000000 -l 1 -w 04:00 -d 01:02 | hexdump -C
+
+Seen here: http://groups.yahoo.com/group/ts-7000/message/17368;_ylc=X3oDMTM3MGo0dDduBF9TAzk3MzU5NzE0BGdycElkAzEzNjQwMzQ5BGdycHNwSWQDMTcwNTAwNTM3OARtc2dJZAMxOTgxNgRzZWMDZnRyBHNsawN2dHBjBHN0aW1lAzEyOTQ4NTE1NTgEdHBjSWQDMTczNjg-
+
 HZ Freq
 =======
 
