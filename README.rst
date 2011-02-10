@@ -240,8 +240,13 @@ Copy the kernel and initrd to the flash in the arm
 * dd if=/dev/nbd2 of=/tmp/zImage
 * dd if=/dev/nbd3 of=/tmp/initrd
 * Copy both these files to the /dev/ndb4 file system (mount it!!!!!!)
-
+* Unmount /dev/ndb4 after copy
 * Put the sd-card on the arm and then turn it up
+* Do: 
+ * spiflashctl -W 4095 -z 512 -k part1 -i /temp/zImage
+ * spiflashctl -W 32 -z 65536 -k part2 -i /temp/initrd
+ * sync
+
 
 Add a batman service at startup
 ==============================
