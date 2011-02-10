@@ -1,0 +1,1625 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+ 
+ 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<title>Documentation: TS-7500 Software Guide</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+ 
+<link rel="stylesheet" type="text/css" href="/css/print.css" media="print" /> 
+ 
+<link href="../css/styles.css" rel="stylesheet" type="text/css" media="all" /> 
+<style type="text/css"> 
+ 
+</style> 
+<script type="text/javascript">  
+var current_divK = "divK1" 
+function showDiv(id) 
+{ 
+   document.getElementById(current_divK).style.display = 'none' 
+   document.getElementById('div'+id).style.display = 'block' 
+   current_divK = 'div'+id 
+} 
+</script> 
+<link href="../css/sub-sub-menu.css" rel="stylesheet" type="text/css" /> 
+</head> 
+<body> 
+<div id="container"> 
+ 
+<table class="dana-menu"> 
+<tr> 
+          <td style="padding: 5px 0px 0px 5px; width: 350px;"><a href="http://www.embeddedARM.com/index.php"><img src="/images/logo.gif" alt="technologic systems logo" width="252" height="72" /></a></td> 
+          <td style="padding: 8px 3px 0px 0px;"> 
+<table id="header-search-box-cart" style="width: 100%; height: 100%; text-align: right; margin-bottom: 3px;"> 
+              <tr> 
+			  <td style="padding-top: 5px; padding-bottom: 10px;"> 
+<form style="padding: 0px; margin: 0px; vertical-align: middle;" name="form1" method="get" action="http://67.40.67.41/search"> 
+<a href="javascript:document.form1.submit();"><img src="/images/bt_search.gif" alt="search icon" width="24" height="24" style="padding: 0px 5px 5px 10px; float: right; clear: right; " /></a> 
+<input class="searchbox" type="text" name="q" value=""  /> 
+<input type="hidden" name="btnG" value="Google Search"/> 
+<input type="hidden" name="entqr" value="0"> 
+<input type="hidden" name="sort" value="date:D:L:d1"> 
+<input type="hidden" name="output" value="xml_no_dtd"> 
+<input type="hidden" name="ud" value="1"> 
+<input type="hidden" name="oe" value="UTF-8"> 
+<input type="hidden" name="ie" value="UTF-8"> 
+<input type="hidden" name="proxystylesheet" value="ts2"> 
+<input type="hidden" name="client" value="ts2"> 
+<input type="hidden" name="site" value="default_collection"> 
+</form> 
+				</td> 
+              </tr> 
+              <tr> 
+                <td><span style=" padding: 0px 7px;"><a href="http://www.embeddedARM.com/support/contact-us.php">Contact Us</a></span> | <span style=" padding: 0px 7px;"><a href="https://www.embeddedARM.com/support/customer.php" >Customer Area</a> </span> 
+                  |<span style=" padding-left: 7px;"><a href="https://www.embeddedARM.com/products/cart.php"><img src="/images/bt_carshop.jpg" alt="cart icon" width="24" height="24" style="vertical-align: middle; padding: 0px 5px;" /></a></span> 
+				  </td> 
+              </tr> 
+            </table></td> 
+          <td id="bg-dotted-line" style=" background-image: url(/images/img_home_dotted.gif); background-repeat: repeat-y;">&nbsp;</td> 
+         
+    <td style="width: 150px; padding: 5px 8px 5px 3px;">                  16525 East Laser Drive<br /> 
+                  Fountain Hills, AZ 85268<br /> 
+                  Phone (480) 837-5200<br /> 
+                  Fax (480) 837-5300<br />                  <a href="mailto:info@embeddedarm.com">info@embeddedARM.com</a>      </td> 
+             
+  </tr> 
+</table> 
+ 
+  <div id="mainnav"> 
+    <table> 
+      <tr> 
+	  		
+        <td align="right"><a href="http://www.embeddedARM.com/index.php"><img src="/images/bt_home.gif" alt="home button" width="57" height="25" /></a><a href="http://www.embeddedARM.com/products/index.php"><img src="/images/bt_products.gif" alt="product button" width="99" height="25" /></a><a href="http://www.embeddedARM.com/services/index.php"><img src="/images/bt_services.gif" alt="services button" width="85" height="25" /></a><a href="http://www.embeddedARM.com/software/index.php"><img src="/images/bt_software.gif" alt="software button" width="96" height="25" /></a><a href="http://www.embeddedARM.com/support/index.php"><img src="/images/bt_support.gif" alt="support button" width="83" height="25" /></a><a href="http://www.embeddedARM.com/about/index.php"><img src="/images/bt_about_on.gif" alt="about button" width="66" height="25" /></a></td> 
+      		
+      </tr> 
+    </table> 
+  </div> 
+	  
+	  
+      		
+  <div id="subnav"> 
+    <table> 
+      <tr> 
+      		
+        <td> 
+		<a href="history.php" >History</b></a> | 
+		<a href="values.php">Business &amp; Values</b></a>  | 
+		<a href="orders.php">Orders &amp; Policies</b></a> | 
+		<a href="news-archive.php">News</b></a> | 
+		<a href="jobs.php" >Jobs</b></a> | 
+		<a href="/support/contact-us.php" >Contact us</b></a> 
+		</td> 
+      		
+      </tr> 
+    </table> 
+  </div> 
+      		
+	  
+      <div id="body-bg-blue2"> 
+    <table id="body"> 
+    <tr> 
+      <td><table width="100%"> 
+          <tr> 
+            <td><p class="bc-nav-white"><a href="/index.php">Home</a> &gt;<a href="/about/index.php"> About </a> &gt;<a href="/about/news-archive.php"> News </a> &gt;<strong> Documentation </strong></p></td> 
+          </tr> 
+          <tr> 
+            <td>&nbsp;</td> 
+          </tr> 
+        </table></td> 
+    </tr> 
+         <tr> 
+            <td><table class="layout"> 
+                <tr> 
+                  <td><table class="nested"> 
+                        <tr> 
+                          <td colspan="2"><h1 class="underline">TS-7500 Software Guide</h1></td> 
+                        </tr> 
+                        <tr> 
+                          td style="width: 34px;"><img src="../images/img_arrow_big.gif" alt="arrow" width="24" height="23" style="margin: 0px 5px 0px 5px; " /></td> 
+                          <td> 
+						      <p><strong>Documentation from August-2009</strong></p><br> 
+							  <h3>Table of Contents</h3>
+   <ul>
+
+      <li><a href="#intro">An Introduction</a></li>
+      <li><a href="#serial">Connecting via Serial Console</a></li>
+      <li><a href="#ssh">Connecting via SSH or Telnet</a></li>
+      <li><a href="#basic">Basic Commands &amp; Files</a></li>
+      <li><a href="#usb">USB Devices in Fastboot Environment</a></li>
+      <li><a href="#static">Setup a Dynamic/Static IP Address</a></li>
+      <li><a href="#devel">Developing On-Board</a></li>
+      <li><a href="#java">Java Development</a></li>
+      <li><a href="#part">Partition Layout Information</a></li>
+      <li><a href="#backup">Backup/Restore Instructions</a></li>
+      <li><a href="#files">Modifying and Adding Files on MicroSD Card</a></li>
+      <li><a href="#corruption">Fixing MicroSD Card Corruption</a></li>
+      <li><a href="#spiflash">Copying Changes to SPI Flash</a></li>
+      <li><a href="#crosstool">Simple Cross Compiling Example</a></li>
+      <li><a href="#compile">Compiling Custom TS Kernel</a></li>
+      <li><a href="#appendixcompile">Appendix - Compiling Custom TS Kernel</a></li>
+      <li><a href="#xuartdemo">Simple Demonstration Utilizing an XUART</a></li> 
+      <li><a href="#bluetooth">Bluetooth Support</a></li>
+      <li><a href="#example">Example .c Program</a></li>
+      <li><a href="#customfpga">Custom FPGA Programming by Customer</a></li>
+      <li><a href="#customfpga_detail_load">Detailed Instructions for Loading Custom FPGA</a></li>
+      <li><a href="#usbserial">USB to Serial Devices</a></li>
+      <li><a href="#runonbootup">Load Scripts/Programs Automatically on Bootup</a></li>
+      <li><a href="#usbdevice">USB Device Port Usage</a></li>
+      <li><a href="#appendixA">Appendix A: Document History</a></li>
+   </ul></p>
+   
+   <p>The purpose of this document, the TS-7500 Software Guide, is to act as supplemental 
+   documentation to the <a href="/about/resource.php?item=414">TS-7500 Manual</a> and
+   touch upon some basic usage, configurations, and information for the TS-7500 that didn't
+   seem to belong in the full manual.  It has been written for both new and experienced users alike.</p>
+   
+   <p>This document is somewhat time sensitive.  That is, it&#39;s not to be used verbatim too 
+   far past the date written.  Updates are applied to images and files/locations
+   sometimes change.  The principles generally stay the same, so keep this in 
+   the back of your mind while working through anything which associates with 
+   filenames and links in this manual.</p>
+
+<br />
+<h3><a id="intro">Introduction</a></h3>
+
+   <p>The TS-7500 was released Jul. 2009 as a small embedded board with a 
+   CNS2132 250Mhz ARM9 CPU, Lattice XP2 5k FPGA, 64MB DDR SDRAM, and 4MByte SPI 
+   NOR flash chip. </p>
+
+<p>Hardware features include:</p>
+<ul>
+<li>250Mhz Cavium ARM9 CPU core (Faraday 526)</li>
+<li> 64MByte 16-bit wide DDR SDRAM running at 125Mhz</li>
+<li> micro SD slot </li>
+<li> 4MByte SPI NOR flash chip</li>
+<li> DIO pins on the 40 pin header</li>
+<li> 2 USB 2.0 High speed (480 Mb/s) Host ports</li>
+<li> 1 USB 2.0 slave port</li>
+<li> 1 TTL serial console port (16550) on CPU</li>
+<li> 8 XUART TTL serial ports on FPGA</li>
+<li> Hardware watchdog on FPGA</li>
+<li> Optional battery backed real time clock</li>
+<li> 10/100 Mbit on-CPU ethernet </li>
+<li> Low power (395mA @ 5V or 2.0 Watt)</li>
+<li> rugged 40 pin .1" header expansion connector</li>
+<li> Fanless/heatsink-less operation up to 80C temperatures</li>
+</ul>
+
+<p>Software features include:</p>
+<ul>
+<li> Boots 2.6.24 Linux out-of-the-box in 2.65 seconds (to shell prompt)</li>
+<li> Flexible booting options (SD card, onboard SPI NOR flash, offboard SPI)</li>
+<li> SD card pre-installed with standard Debian Linux "Lenny" distribution</li>
+<li> Hardware specific functionality via both high level (command line/shell </li>
+   script) and low level (C language userspace) mechanisms.</li>
+<li> Default software load has hook via USB flash dongle to hijack bootup</li>
+   for custom production loading.li>
+</ul>
+
+<p>Manufacturer (Technologic Systems) benefits include:</p>
+<ul>
+<li> Long term availability and short lead-times</li>
+<li> Engineers on free technical support.</li>
+<li> Each board undergoes production tests and burn-in stress tests prior
+   to shipment.</li>
+<li> Board customizations available with no minimum order.</li>
+</ul>
+
+   <p>Additional documentation which is generic to all TS models can be found at <a href="http://www.embeddedarm.com">http://www.embeddedarm.com</a> including:</p>
+      <ul>   
+         <li><a href="http://www.embeddedarm.com/documentation/software/arm-tslinux-ts72xx.pdf">Getting Started with TS-Linux</a></li>
+         <li><a href="http://www.embeddedarm.com/documentation/software/arm-linux-ts72xx.pdf">Linux for ARM on TS-72XX</a></li>
+         <li><a href="http://www.embeddedarm.com/about/resource.php?item=370">TS-LCD-READY Getting Started Sheet</a></li>
+
+      </ul>
+      
+   <p>There are two separate booting memories: SPI Flash and SD Card.  In the
+   absence of the TS-752 development board, the TS-7500 will always boot to
+   initrd/busybox from SPI Flash (when &#39;exit&#39; command is issued, it will boot
+   to Debian located on SD Card).  With the TS-752 connected, there are jumpers
+   which control which device to boot from.  Here are the jumper settings:</p>
+      <ul>
+      <li>Boot from Offboard SPI Flash:</li>
+         <ul><li>JP2 = ON</li></ul> 
+      <li>Boot from Onboard SPI Flash:</li>
+         <ul><li>JP1 = OFF; JP2 = OFF</li></ul>
+      <li>Boot from MicroSD Card:</li>
+         <ul><li>JP1 = ON; JP2 = OFF</li></ul>
+      </ul>
+   
+   <p>Should you wish to automatically bypass the fastboot and
+proceed directly into starting the SD card version of Linux, you can do
+so with the following command issued to the fastboot shell:</p>
+<p style="font-style: italic;">$&nbsp;rm linuxrc; ln
+-sf /linuxrc-sdroot /linuxrc; save</p>
+<p>For a NFS root filesystem, the command is:</p>
+<p style="font-style: italic;">$ rm linuxrc; ln -sf
+/linuxrc-nfsroot /linuxrc; save</p>
+
+<p>If you would like to run the TS-7500 without the presence of the TS-752, you'll
+need to copy these changes to the SPI Flash.  See "<a href="#spiflash">Copying Changes to SPI Flash</a>"
+
+<p>To get back to the fastboot shell, you can do so by placing
+the file "/fastboot" in the root directory of the filesystem (fourth partition).</p>
+   
+
+<h3><a id="serial">Connecting Via Serial Console</a></h3>
+   <p>Connecting to the TS-7500 is done by connecting a RS-232 Null Modem cable 
+   from a development PC running either Linux or Windows to the COM port of the 
+   TS-752 development board.  If using Windows, <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a> or Hyperterminal are
+   suggested.  If using Linux, <a href="http://alioth.debian.org/projects/minicom/">minicom</a> is suggested.  Whichever program is 
+   chosen, these settings are required to connect:</p>
+      
+      <ul>
+
+         <li>Bps/Par/Bits : 115200 8N1</li>
+         <li>Hardware Flow Control : No</li>
+         <li>Software Flow Control : No</li>
+      </ul>
+      
+   <p>Power on the board, and you should see the boot-up in progress and then the 
+   initrd/busybox terminal prompt (within 2 seconds).</p>
+   
+   <p>If using <a href="http://alioth.debian.org/projects/minicom/">minicom</a> for Linux, you&#39;ll need to modify and save the default
+   configuration page.  Do to this, follow these instructions (in terminal):</p>
+
+      <pre>
+   1.) apt-get install minicom     [IF NOT YET INSTALLED]
+   2.) minicom -s</li>
+   3.) [Navigate to &#39;serial port setup&#39;]
+   4.) [Type &quot;a&quot; and change location of serial device to &#39;/dev/ttyS0&#39; then hit &quot;enter&quot;]
+   5.) [If needed, modify the settings to match this and hit &quot;esc&quot; when done]
+      E - Bps/Par/Bits          : 115200 8N1
+      F - Hardware Flow Control : No
+      G - Software Flow Control : No
+   6.) [Navigate to &#39;Save setup as dfl&#39;, hit &quot;enter&quot;, and then &quot;esc&quot;]</pre>
+
+      
+      
+   <p>To use <a href="http://alioth.debian.org/projects/minicom/">minicom</a>, simply type &quot;minicom&quot; in the terminal and power on the board 
+   (you&#39;ll need to run as super user (sudo) or root to get proper permissions).
+   You should now see:</p>
+      <pre>
+   &gt;&gt; TS-BOOTROM - built Oct  1 2008                                               
+   &gt;&gt; Copyright (c) 2008, Technologic Systems                                      
+   &gt;&gt; Booting from SD card...
+      </pre>   
+   <p>Press &quot;Ctrl + A&quot; to get the <a href="http://alioth.debian.org/projects/minicom/">minicom</a> command menu.  For example, hitting
+   &quot;Ctrl + A&quot; then &quot;Q&quot; will quit the application and return you to the terminal.</p>
+
+
+<h3><a id="ssh">Connecting Via Ssh Or Telnet</a></h3>
+   <p>This section will not be comprehensive as to avoid duplicating any
+   documentation which can already be found online or otherwise.  To connect via
+   secure shell (SSH), the TS-7500 needs a password setup for root because  SSH 
+   will not allow connections without a password.  Use the &#39;passwd&#39; command to 
+   set a password.  To connect via SSH in Windows, use an application like 
+   <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a> (which also has telnet support).  To connect in Linux, use the &#39;ssh&#39; in
+   the terminal (likewise, use &#39;telnet&#39; command for telnet).</p>
+
+
+<h3><a id="basic">Basic Commands &amp; Files</a></h3>
+   <p>The TS-7500 has two environments: 1) an initrd/busybox environment with very 
+   fast bootup time and a very stripped down set of linux utilities (ls, cp, and
+   others) and 2) a Debian environment which contains a comprehensive set of 
+   tools and utilities which would normally come with a Debian Linux install.  
+   If needed, the &quot;Debian GNU/Linux Reference Card&quot; is a good resource for 
+   getting started with Debian and can be viewed and printed by following this 
+   link: <a href="http://xinocat.com/refcard/">http://xinocat.com/refcard/</a></p>
+   
+   <p>There are a couple of custom Technologic Systems commands which are included 
+   with the TS-7500 which will help to control and utilize the board and its 
+   features.  The most useful commands are:</p>
+      <pre>
+
+   ts7500ctl
+   spiflashctl
+   devmem</pre>
+      
+   <p>In order to understand how to use these commands, simply type &#39;--help&#39; at the
+   end of the command (&#39;ts7500ctl --help&#39;).</p>
+   
+   <p>Since space is limited, the commands &quot;df -h&quot; and &quot;free&quot; can provide 
+   information about the SD Card/Filesystem and memory/swap usage.  Also, &quot;ps&quot;
+
+   and &quot;top&quot; and &quot;ps aux&quot; can provide information about what programs are 
+   running in the background.</p>
+   
+   <p>Some files of interest include:</p>
+   
+      <ul>
+         <li>linuxrc</li>
+
+               <ul><li>Main TS startup script for initrd/busybox</li></ul>
+         <li>linuxrc-fastboot</li>
+               <ul><li>Uses initrd as root filesystem and drops to shell--on exit of 
+                  serial shell, real Linux is booted.</li></ul>
+         <li>linuxrc-mtdroot</li>
+               <ul><li>Roots to NAND flash chip (NOT APPLICABLE TO TS-7500)</li></ul>
+         <li>linuxrc-nfsroot</li>
+
+               <ul><li>Attempts to NFS root to 192.168.0.1:/tsarm-nfsroot</li></ul>
+         <li>linuxrc-sdroot</li>
+               <ul><li>Roots to SD flash card, assumes partition #3</li></ul>
+         <li>/etc/network/interfaces</li>
+               <ul><li>Network interface configuration</li></ul>
+         <li>/etc/inittab</li>
+
+               <ul><li>Describes which processes are started at bootup and 
+                  during normal operation</li></ul>
+      </ul>
+      
+
+<h3><a id="usb">USB Devices in Fastboot Environment</a></h3>
+<p>By default, the TS-7500 will not insert the necessary modules into the kernel
+to mount and use USB devices within the initrd/busybox environment if there is no 
+USB device present upon bootup (USB support is enabled by default within the 
+Debian environment).  The quickest way to get a USB device 
+(like a USB thumb drive) to mount in the initrd/busybox environment is to ensure 
+that it is plugged in before the TS-7500 is powered up.  In order to get hot-swappable
+USB devices regardless of device presence at bootup time, you must "modprobe" the 
+necessary modules.  This has been done for you in the ts7500.subr file.  The inclusion of
+the line ". /ts7500.subr" at the top of script followed by "usbload".
+
+<h3><a id="static">Setup a Dynamic/Static IP Address</a></h3>
+<p>You can change the default IP address of 192.168.0.50 to something that suits
+your network a little more.  If you're interested in setting up a dynamic IP
+address, simply use the "dhclient" from within Debian or "udhcpc" from within
+the busybox/fastboot environment.  If you'd like a bit more control over the IP
+address, you can set the TS-7500 up with a static IP address.  From within 
+Debian, edit "/etc/network/interfaces" to reflect the changes you'd like to make:
+<pre>
+   # Used by ifup(8) and ifdown(8). See the interfaces(5) man page or
+   # /usr/share/doc/ifupdown/examples for more information.
+
+   auto eth0
+   #iface eth0 inet dhcp
+   iface eth0 inet static
+           address 192.168.1.100
+           network 192.168.1.0
+           netmask 255.255.255.0
+           broadcast 192.168.1.255
+           gateway 192.168.1.1
+
+
+   #auto eth1
+   #iface eth1 inet dhcp
+</pre>
+
+<p>Then, edit the "/etc/resolv.conf" file to reflect the DNS servers:</p>
+<pre>
+   #domain ts-local.net
+   #search ts-local.net
+   nameserver 208.67.222.222
+   nameserver 208.67.220.220
+</pre>
+
+<p>Now, reset the eth0 interface by using the command:</p>
+<pre>ifdown eth0; ifup eth0</pre>
+
+<p>Test the connection using the command:</p>
+<pre>ping google.com</pre>
+
+
+<h3><a id="devel">Developing on Board</a></h3>
+   <p>One of the most common ways to develop applications for the TS-7500 is on
+   the board itself using an editor such as &quot;vi&quot; or &quot;nano&quot;.  vi can be difficult to
+   understand at first, so refer to vi documentation which can be found through
+   an Internet search.  You may also use any other CLI editors of your choosing
+   such as emacs, pico, nano, etc.</p>
+   
+   <p>Development of a simple .c or .cpp file can be compiled directly on the 
+   board by issuing this command:</p>
+
+      
+      <pre>gcc -Wall -mcpu=arm9 tstest.c -o tstest</pre>
+      
+         <ul>
+            <li>Wall = print out all warning messages</li>
+            <li>mcpu=arm9 = specify architecture (a bit redundant)</li>
+            <li>tstest.c = file to compile</li>
+            <li>-o tstest = output file name</li>
+
+         </ul>
+   
+   <p>Possibly the best way to develop applications for the TS-7500 is by using
+   a Linux box with an NFS share setup which the TS-7500 can access (Linux Journal
+   has a guide on how to do this entitled "<a href="http://www.linuxjournal.com/article/4880">Starting Share Files with NFS</a>").  
+   This way, development can occur from the Linux box with a full GUI and be quickly 
+   compiled and ran directly from the TS-7500 fastboot/initrd environment 
+   without the need to transfer files.  Here is the brief set of commands to run
+   after setting up the NFS server in order to access the NFS share and start 
+   developing:</p>
+   
+   <pre>
+   # On-Board development from initrd/fastboot environment (tested on TS-7500 & TS-7800).
+   # Requires NFS server
+
+   udhcpc
+   mkdir -p /mnt/root/mnt2
+   mount -o nolock,vers=2 192.168.1.101:/home/username /mnt/root/mnt2/
+   chroot /mnt/root
+   mount /proc
+   cd mnt2/
+
+   #EXAMPLE:
+   #gcc -g -mcpu=arm9 gettemp.c sbus.c -o gettemp
+</pre>
+
+   <p>Another way is to simply transfer files from the development PC to the 
+   TS-7500 via FTP (username: eclipse; password: eclipse) and then compile on 
+   board.  Most Linux distributions have "ftp" installed already.  Here is an 
+   example dialog from a Linux box which transfers a test file to and from the 
+   TS-7500 within the Debian environment:</p>
+
+   <pre>
+   [user@linux ~]$ <b>ftp 192.168.0.50</b>
+   Connected to 192.168.0.50 (192.168.0.50).
+   220 ts7500 FTP server (Version 6.4/OpenBSD/Linux-ftpd-0.17) ready.
+   Name (192.168.0.50:user): <b>eclipse</b>
+   331 Password required for eclipse.
+   Password: <b>eclipse</b>
+   230- Linux ts7500 2.6.24.4 #55 Fri Aug 7 11:20:02 MST 2009 armv4l
+   230- 
+   230- The programs included with the Debian GNU/Linux system are free software;
+   230- the exact distribution terms for each program are described in the
+   230- individual files in /usr/share/doc/*/copyright.
+   230- 
+   230- Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+   230- permitted by applicable law.
+   230 User eclipse logged in.
+   Remote system type is UNIX.
+   Using binary mode to transfer files.
+   ftp> <b>send test.c</b>
+
+   local: test.c remote: test.c
+   227 Entering Passive Mode (192,168,0,50,169,248)
+   150 Opening BINARY mode data connection for 'test.c'.
+   226 Transfer complete.
+   19914 bytes sent in 0.00399 secs (4994.73 Kbytes/sec)
+   ftp> <b>get test.c</b>
+   local: test.c remote: test.c
+   227 Entering Passive Mode (192,168,0,50,218,4)
+   150 Opening BINARY mode data connection for 'test.c' (19914 bytes).
+   226 Transfer complete.
+   19914 bytes received in 0.00578 secs (3447.71 Kbytes/sec)
+   ftp> <b>bye</b>
+   221 Goodbye.
+   [user@linux ~]$ 
+</pre>
+
+
+<h3><a id="java">Java Development</a></h3>
+   <p>Out of the box, the TS-7500 does not offer any support for Java developers.
+In order to provide Java development support, Technologic Systems has made 
+a Debian Etch distribution complete with Java development tools available for 
+download on the <a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux">TS-7500 FTP Repository</a> 
+or by <a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/distributions/debian-etch-arm-java-sep1809.tar.gz">clicking on this direct link</a>. </p>
+<p>Once downloaded, the distribution can then be un-archived to the 4th partition
+of the MicroSD card.</p>
+   
+
+<h3><a id="part">Partition Layout Information</a></h3>
+   <p>The TS-7500 can boot from a MicroSD card with the proper partition layout.
+   One could purchase a 2GB MicroSD card on their own, download an MicroSD 
+   card image from the Technologic Systems TS-7500 FTP repository, and image
+   the card.  For customers who purchased the 2GB MicroSD card through the 
+   development kit or from the TS website, the MicroSD card already has the 
+   correct image.  See &quot;<a href="#backup">Backup/Restore the MicroSD Card/SPI Flash Image(s)</a>&quot;.</p>
+
+    
+   <p>The TS-7500 is similar to other TS models in that it can boot from an SD card 
+   (2GB MicroSD in this case) with four partitions with this layout:</p>
+
+      <pre>
+   1 - vfat partition with development kit and samples  (FAT32)
+   2 - raw linux kernel   (Non-FS)
+   3 - initrd/busybox     (Non-FS)
+   4 - debian linux       (ext3)
+      </pre>
+   
+   <p>One of the major differences of the TS-7500 from other TS models is that it 
+   has a 4MB SPI Flash card which contains two &#39;partitions&#39;:</p>
+   
+      <pre>
+   1 - raw linux kernel  (2096640 bytes MAX!)
+   2 - initrd/busybox    (2097152 bytes MAX!)
+      </pre>
+
+      
+   <p>These are used when the absence of the TS-752.  In other words, 
+   the TS-7500 will boot from SPI Flash if not connected to TS-752.  When the 
+   user types &quot;exit&quot; from the busybox environment, it will boot into the Debian
+   partition of the MicroSD card.</p>
+   
+   <p>The partition locations can be found using the terminal command &#39;fdisk -l&#39; on 
+   a development PC with Linux installed and the MicroSD card inserted in the 
+   USB SD card reader.  Most of the time the SD card will probably be mounted
+   as &#39;/dev/sdb&#39;, but can be &#39;/dev/sdc&#39; or others.  The partition number will 
+   follow (&#39;/dev/sdb1&#39;).  It&#39;s advised to verify this location before issuing
+   any commands found in this mini-guide.</p>
+
+   
+   <div class="note">
+<p><span class="blue">NOTE:</span></p>
+<p>If you try and mount the MicroSD card on a Windows PC, you will only see the very first partition.  On a Linux PC, all partitions are visible.</p></div>
+
+   
+
+<h3><a id="backup">Backup/Restore the MicroSD Card/SPI Flash Image(s)</a></h3>
+   <p>Before modifying the files located on the factory image, it&#39;s always a good
+   idea to create a backup or have a backup copy on hand.  In order to create a
+   backup, simply use the &#39;dd&#39; command on the development PC with Linux.  For 
+   example (done in the terminal):</p>
+
+      
+      <pre>
+   dd if=/dev/sdb of=backup.dd  [verify /dev/ location with &#39;fdisk -l&#39;]</pre>
+      
+   <p>A factory image can be found on the Technologic Systems FTP repository here: <br />
+   <a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-images/">ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-images/</a></p>
+   
+   <p>To backup the SPI Flash on the TS-7500:</p>
+      <pre>    
+   1.) mkdir /temp
+   2.) spiflashctl -R 4095 -z 512 -k part1 &gt; /temp/zImage
+   3.) spiflashctl -R 32 -z 65536 -k part2 &gt; /temp/initrd
+      </pre>
+
+      
+   <p>To restore image to the MicroSD card:</p>
+   <pre>
+   dd if=backup.dd of=/dev/sdb
+   </pre>
+    
+   <p>To restore image to SPI Flash:</p>
+        <pre>
+   1.) spiflashctl -W 4095 -z 512 -k part1 -i /temp/zImage
+   2.) spiflashctl -W 32 -z 65536 -k part2 -i /temp/initrd
+         </pre>
+
+
+<h3><a id="files">Modifying/Adding Files</a></h3>
+   <p>Most development can be completed directly from the board, but it might not
+   be as efficient or simple as modifying or adding the files directly on a 
+   separate development PC with a Linux OS.  To do this, insert the MicroSD card
+   into the SD card adapter and then insert the SD Card adapter into the USB SD 
+   card reader.  The Linux system will probably try to automatically mount the 
+   partitions.  This might work for some users, but a good habit would be to 
+   manually mount the partitions to a known directory.  Here is one way to do
+   this and then start editing a file (all done in terminal on Linux PC):</p>
+   
+      <pre>
+   1.) mkdir /mnt/part4
+   2.) mount -t ext3 /dev/sdb4 /mnt/part4 [verify /dev/ location with &#39;fdisk -l&#39;]
+   3.) cd /mnt/part4
+   4.) vi linuxrc  [you may use an editor of your choice like gedit]
+      </pre>
+      
+   <p>Other partitions of interest would be partition 1 and 3, in which case you&#39;ll
+   repeat the steps 1-3 above with the new partition number.</p>
+   
+   <p>There are several other methods to transfer files including USB thumb drives, FTP, NFS, Samba, etc.
+   Some of these methods have been discussed already in the <a href=#devel>Developing on Board</a> section above.</p>
+
+
+<h3><a id="corruption">Fixing MicroSD Card Corruption</a></h3>
+<p>Technologic Systems carefully chooses the type of filesystems in which to use
+in any of their products, however, no filesystem is perfect.  They are all 
+susceptible to becoming dirty with filesystem corruption.  Symptoms include long
+boot times and/or the Linux development PC not being able to identify or mount the 
+partitions (both nonfs and ext3) when the MicroSD card is inserted into the USB SD Card reader.  Most
+of the time this is easily fixed by running, for example, "fsck /dev/sdb4" on the
+Linux development PC.</p>
+
+
+<h3><a id="spiflash">Copying Changes to SPI Flash</a></h3>
+   <p>As mentioned before, the TS-7500 will boot from what is located on the SPI
+   Flash in the absence of the TS-752 development board (or when the jumpers on 
+   the TS-752 are set to JP1= OFF; JP2 = OFF).  In order to use any changes
+   made to the kernel image or initrd/busybox partitions of the MicroSD card 
+   their files will need to be transferred to SPI Flash.  In order to accomplish
+   this, there is a custom program called &#39;spiflashctl&#39; within the 
+   initrd/busybox environment.  AFTER TESTING the changes and modified files on 
+   the MicroSD card AND VERIFYING THE KERNEL IMAGE SIZE IS &lt; 2096640 bytes AND INITRD IMAGE IS &lt; 2097152 bytes, use these steps to 
+   copy them to SPI Flash:</p>
+   
+   <pre>
+   1.) mkdir /temp
+   2.) dd if=/dev/nbd2 of=/temp/zImage
+   3.) dd if=/dev/nbd3 of=/temp/initrd
+   4.) spiflashctl -W 4095 -z 512 -k part1 -i /temp/zImage
+   5.) spiflashctl -W 32 -z 65536 -k part2 -i /temp/initrd
+   6.) sync</pre>
+
+           
+    <p>Test by placing both JP1 and JP2 to the OFF position.  You should see</p>
+   <pre>
+   &quot;&gt;&gt; Booting from onboard SPI flash...&quot; </pre> 
+<p>on the console and the system should boot as expected.</p>
+   
+   <p>For more information on the &#39;spiflashctl&#39; program, add the &#39;--help&#39; flag:</p>
+
+   
+      <pre>
+   spiflashctl --help</pre>
+
+<h3><a id="crosstool">Simple Cross Compiling Example</a></h3>
+<p>The following is a step-by-step guide to compiling a simple C++ program for 
+use in the Debian environment.  These steps have been verified and will work 
+if they are followed in the exact, step-by-step order.  If you would like to
+compile an application for the busybox environment, simply replace the glibc 
+crosstools with the uclibc crosstools <a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/cross-toolchains/crosstool-linux-arm-uclibc-3.4.6.tar.gz">located here</a> and keep in mind that the directory structure is a little different. 
+Also, for compiling a C program, replace 'g++' with 'gcc'.  The same is also true for other compilers.</p>
+<pre>
+   Assumptions:
+      -- The cross compiler will be located at ~/crosstool (~ is equivalent to $HOME)
+	     * mkdir ~/crosstool/   
+      -- The program will be located at ~/main.cpp
+
+   01.) Download the cross compile toolchain from Technologic Systems:
+      *  wget ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7200-linux/cross-toolchains/crosstool-linux-gcc-4.0.1-glibc-2.3.5.tar.bz2
+
+   02.) Extract to crosstool directory:
+      * tar xvf crosstool-linux-gcc-4.0.1-glibc-2.3.5.tar.bz2 -C ~/crosstool
+
+   03.) For cleanliness sake, delete the originally downloaded tar.gz file:
+      * rm crosstool-linux-gcc-4.0.1-glibc-2.3.5.tar.bz2
+
+   04.) Change directory to where your program is located:
+      * cd ~
+      
+   05.) Use the following greatest common divisor (gcd.cpp) file as an example if 
+	    needed:
+
+   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+     #include &lt;iostream&gt;
+     using namespace std;
+
+     int GCD(int a, int b) 
+     {
+         while( 1 )
+         {
+             a = a % b;
+		     if( a == 0 )
+			     return b;
+		     b = b % a;
+
+             if( b == 0 )
+			     return a;
+         }
+     }
+
+     int main()
+     {
+	     int x, y;
+
+	     cout &lt;&lt; &quot;This program allows calculating the GCD\n&quot;;
+	     cout &lt;&lt; &quot;Value 1: &quot;;
+	     cin &gt;&gt; x;
+	     cout &lt;&lt; &quot;Value 2: &quot;;
+	     cin &gt;&gt; y;
+
+	     cout &lt;&lt; &quot;\nThe Greatest Common Divisor of &quot;
+	          &lt;&lt; x &lt;&lt; &quot; and &quot; &lt;&lt; y &lt;&lt; &quot; is &quot; &lt;&lt; GCD(x, y) &lt;&lt; endl;  
+
+	     return 0;
+     }
+
+   =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+   06.) Use the cross compiling toolchain to compile the program:
+      * ./crosstool/opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-g++ gcd.cpp -o gcd
+
+   07.) Copy the program to the TS-75XX and then test by running it.  You will see:
+
+        ts7500:~# ./gcd 
+        This program allows calculating the GCD
+        Value 1: 8
+        Value 2: 2
+
+        The Greatest Common Divisor of 8 and 2 is 2
+        ts7500:~# 
+
+   08.) Additionally, you can include the crosstools in your PATH for less typing:
+      * PATH=$HOME/crosstool/opt/crosstool/gcc-4.0.1-glibc-2.3.5/arm-unknown-linux-gnu/bin/:$PATH
+      * export PATH
+      * arm-linux-uclibc-g++ gcd.cpp -o gcd
+</pre>
+
+
+<h3><a id="compile">Compiling TS-Kernel with Custom Options</a></h3>
+   <p>The following is a step-by-step guide to compiling a custom TS-Kernel 
+   specifically for the TS-7500.  These steps have been verified and will work
+   if they are followed in the exact, step-by-step order.  This was written with
+   beginners in mind, but may still be a bit too advanced for some.  Remember
+   to backup file and images so you may revert back to them if something goes 
+   wrong.
+
+<div class="warning"><span class="red">Warning:</span><p>BACKUP YOUR FILES AND IMAGES!</p></div>
+
+   <h3>Prerequisites:</h3>
+<p>SOFTWARE:</p>
+   <ul>
+
+      <li>Must be logged in as root on a Linux PC separate from the SBC</li>
+      <li>These packages need to be installed for kernel compiling:<br /><br />
+      RHEL/Fedora/CentOS: <br />
+         <pre>yum install ncurses-devel ncurses</pre>
+      Debian/Ubuntu:<br />
+         <pre>sudo apt-get install libncurses5-dev libncursesw5-dev</pre></li>
+
+   </ul>
+   
+<p>HARDWARE:</p>
+   <ul>
+      <li>TS-7500 SBC with 2GB MicroSD Card inserted</li>
+      <li>TS-752 Development Board Connected with JP1 = OFF; JP2 = ON</li>
+      <li>MicroSD Card Adapter and USB SD Card Reader</li>
+      <li>Development PC with Linux installed</li>
+
+   </ul>
+   <br />
+
+ <pre>  
+   01.) Download the cross compile toolchain (OABI)from Technologic Systems:
+      * wget ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/cross-toolchains/crosstool-linux-arm-uclibc-3.4.6.tar.gz
+
+   02.) Extract to current working directory:
+      * tar xvf crosstool-linux-arm-uclibc-3.4.6.tar.gz
+
+   03.) Obtain the TS-7500 kernel source tree
+      * wget ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/linux-2.6.24-ts-src-aug102009.tar.gz
+
+   04.) Extract the TS-7500 kernel source tree
+      * gzip -dc linux-2.6.24-ts-src-aug102009.tar.gz | tar xf -
+
+   05.) Move into the newly extracted directory
+      * cd linux-2.6.24-cavium/
+
+   06.) Edit the Makefile at the kernel root dir to point to the appropriate 
+        cross-compiler path.  In our case, with the toolchain decompressed into 
+        the same directory as the kernel, we'll change line 195 of the Makefile 
+        to read:
+      * CROSS_COMPILE ?= ../arm-uclibc-3.4.6/bin/arm-linux-
+
+   07.) Type "make ts7500_defconfig" to make the kernel with the options that 
+        Technologic Systems uses for the TS-7500
+
+   08.) Type "make menuconfig" and edit the boot command line and other options 
+        of interest (optional)
+      * For Example, to include CIFS support, use the arrow and Enter keys to 
+        navigate to Filesystems -> Network File Systems -> CIFS Support.  Press 
+        "y" to include CIFS support into the kernel (alternatively, you could 
+        modularize the feature with "m" so you can enable or disable the module 
+        on demand which will also enable you to simply copy/paste the cifs.ko 
+        into the correct path in the kernel instead of copying the entire kernel 
+        (outlined below in appendix)).  Keep hitting "exit" until you're 
+        prompted to save changes, choose "yes".
+
+   09.) Type "make" to compile the kernel
+
+   10.) The new kernel will be at "arch/arm/boot" in a compressed format called 
+        zImage (the uncompressed version is simply called Image, but it is 
+        REQUIRED that it be &lt; 2096640 bytes in size).
+
+   11.) Copy the binary zImage to the second partition (in most cases, this is 
+        mounted as /dev/sdb2).  This will erase any data which is on the MiniSD 
+        card now, so a backup is advised.
+      * TO BACKUP: dd if=/dev/sdb2 of=../zImageBak
+      * TO COPY zImage: dd if=arch/arm/boot/zImage of=/dev/sdb2
+
+   12.) At this point, insert the MiniSD card and try to boot.  If the image is 
+        working correctly, and you'd like to be able to use the TS-7500 
+        independently of the TS-752 development board, you will need to copy the 
+        kernel to the 4MB SPI Flash on the board, as it will boot from SPI 
+        Flash instead of MiniSD without the development board.
+      * mkdir /temp
+      * dd if=/dev/nbd2 of=/temp/zImage
+      * dd if=/dev/nbd3 of=/temp/initrd
+      * spiflashctl -W 4095 -z 512 -k part1 -i /temp/zImage
+      * spiflashctl -W 32 -z 65536 -k part2 -i /temp/initrd
+      * sync
+
+   13.) Test by placing both JP1 and JP2 to the OFF position.  You should have 
+        ">> Booting from onboard SPI flash..." and the system should boot as 
+        expected.
+        </pre>
+
+  
+<h3><a id="appendixcompile">Appendix - Compiling TS-Kernel with Custom Options</a></h3>
+   <p>In order to compile a separate kernel module and come out with a .ko file for
+   inclusion in the already existing kernel, these are the steps to take 
+   following step 08 and ending at step 09 above.  Note: Steps after step 02 are
+   unverified/untested.  They represent an accurate procedure which one would go
+   through.</p>
+
+<pre>
+   01.) Open menuconfig and modularize the kernel feature using &quot;M&quot;.  For 
+        example, to modularize cifs.ko, one would use the arrow and Enter keys 
+        to navigate to Filesystems -&gt; Network File Systems -&gt; CIFS Support.  
+        Press &quot;M&quot; to modularize CIFS support into the kernel then keep hitting 
+        &quot;exit&quot; until you&#39;re prompted to save changes, choose &quot;yes&quot;.
+      * make menuconfig
+      
+   02.) Compile the kernel with the modules and copy the modules to the Linux PC
+      * make &amp;&amp; make modules &amp;&amp; make modules_install  
+      
+   03.) Retrieve the module which was copied to the Linux PC with a command like
+        cp so that it can be installed into the kernel on the MiniSD card.
+      * mkdir /mnt/miniSD4
+      * mount /dev/sdb4 /mnt/miniSD4
+      * cp /lib/modules/2.6.24.4/kernel/fs/cifs/cifs.ko /mnt/miniSD4
+      
+   04.) Install the module into the kernel by copy and pasting from partition 4 
+        of the card to partition 2 on the SBC.
+      * cp -r /dev/nbd4/cifs.ko /dev/nbd2/lib/modules/2.6.24.4/kernel/fs/cifs/cifs.ko
+
+    05.) Finally, in order to use the new module, you must enable it.  This can 
+         be included in a startup script such as linuxrc.
+      * depmod
+      * modprobe cifs.ko
+</pre>
+
+<p>If you're having difficulties inserting your module (ie. "insmod: error
+inserting module.ko: -1 Invalid module format"), it could be because either
+1.) the kernel which it was compiled against has not been loaded to the
+microSD and/or 2.) there are module dependencies that are not being satisfied.
+The 'dmesg' utility is <em>invaluable</em> when trying to troubleshoot
+these issues.</p>
+
+<p>When compiling additional modules into the kernel, you must use "make
+modules_install" as the final step in kernel compiling to install the
+modules to your development Linux PC.  From there, you can create a
+tarball to copy and then extract to the fourth partition of the microSD
+card. ie. (assuming your microSD card's device node was enumerated
+to /dev/sdb; use 'fdisk -l' to verify)</p>
+<pre>
+   tar czvf linuxmodules-2.6.24.tar.gz /lib/modules/2.6.24.4/
+   mkdir /mnt/sd_part4
+   mount /dev/sdb4 /mnt/sd_part4
+   tar xzvf linuxmodules-2.6.24.tar.gz -C /mnt/sd_part4/
+</pre>
+
+<p>After doing this, boot the TS-7500 with the updated microSD card to full
+Debian and then can use "depmod -a" to build the module dependency lists
+that 'modprobe' will use.  Once this has been complete, you should then
+be able to use 'modprobe' to successfully insert the module along with
+all of its dependencies. ie.</p>
+<pre>
+   modprobe usbnet
+</pre>
+
+<p>If you would like your module to be inserted automatically on system
+startup, then simply include the module name in /etc/modules.  ie.</p>
+<pre>
+   echo "usbnet" >> /etc/modules
+</pre>
+
+<p>Keep in mind that if anything in the 'make menuconfig' step was required
+to be compiled as part of the kernel as indicated by [*], then you will
+need to copy the entire kernel image to the microSD card. ie.</p>
+<pre>
+   dd if=arch/arm/boot/Image of=/dev/sdb2
+</pre>
+
+
+<h3><a id="xuartdemo">Simple Demonstration Utilizing an XUART</a></h3>
+
+<p>This is an example of how to use the XUART0 and CONSOLE and make them talk to each other.  XUART0 was chosen because of it's easy to connect and RS-232 level shifters are not required to use it like the other XUARTS.</p>
+
+<p>Hardware Required:</p>
+<ul>
+   <li>TS-7500</li>
+   <li>TS-752</li>
+   <li>2x NULL Modem Cables</li>
+   <li>2x Serial Ports on Development PC</li>
+   <li>Connecting hook-up cables with connector sockets</li>
+   <ul>
+      <li>This will connect the male pins of the DB9 header to the female pins 
+          of the null modem cable</li>
+   </ul>
+   <ul>
+      <li>USB to Serial, built-in, or otherwise</li>
+    </ul>
+</ul>
+<pre>
+ 01.) Setup the test bench
+      a.) Connect the TS-7500 with the TS-752, but do not power yet.
+      b.) Connect the NULL modem cables to the serial ports on the development
+          PC, but do not connect them to the TS-7500 at this point.
+      c.) On the development PC, open a terminal emulator such as puTTY, 
+          Hyperterminal (Windows), or minicom (Linux) and open two connections, 
+          one for CONSOLE and one for XUART0.
+          i.) You will need to set the connection variables to 115200 baud, 8N1,
+              and no hardware control for both of the NULL modem cables for
+              this test.
+          ii.) To specify, this guide will refer to the NULL modem cable which
+               will become the terminal console of the TS-7500 as NM1.  The NULL
+               modem cable which will become the XUART0 of the TS-7500 will be
+               referred to as NM2.
+ 02.) Make the connections between the DB9 header and NULL modem cables
+
+       =============         =============  
+      1\\+ + + + +//5       5\\- - - - -//1 
+      6 \\+ + + +// 9       9 \\- - - -// 6 
+         =========             =========
+         DB9 HEADER          NULL MODEM (NM)
+
+      a.) Required pins:
+            PIN2 of DB9 header of TS-752 is CONSOLE_RX
+            PIN3 of DB9 header of TS-752 is CONSOLE_TX
+            PIN7 of DB9 header of TS-752 is DIO5_TXD2 (XUART#0)
+            PIN8 of DB9 header of TS-752 is DIO6_RXD2 (XUART#0)
+      b.) Make the following physical pin connections:
+            DB9_PIN2 <=====> NM1_PIN2
+            DB9_PIN3 <=====> NM1_PIN3
+            DB9_PIN7 <=====> NM2_PIN3
+            DB9_PIN8 <=====> NM2_PIN2
+ 03.) Power on the TS-7500
+      a.) Observe NM1 terminal emulator on the development PC.  It should be 
+          showing the startup sequence and command prompt of the TS-7500 which 
+          looks like this:
+
+            >> TS-BOOTROM - built Jul 30 2009 13:41:34
+            >> Copyright (c) 2009, Technologic Systems
+            >> Booting from offboard SPI flash...
+            .
+            .
+            .
+            Finished booting in 2.61 seconds
+            Type 'tshelp' for help
+            #
+
+ 04.) Setup XUART0 using the following command on the TS-7500:
+      * xuartctl --port 0 --server
+ 05.) Observe the output of the above command.  It should look like this:     
+
+        # xuartctl --port 0 --server --speed 115200
+        ttyname=/dev/pts/0
+        # 
+
+ 06.) Send a message to the development PC from the TS-7500 XUART0 by using
+        the command:
+      * echo "Hello world" > /dev/pts/0
+ 07.) Send a message to the TS-7500 from the development PC by using the
+        following command and then typing into the terminal emulator on the 
+        development PC.
+      * cat /dev/pts/0
+          -- Note: Use CTRL+C to exit
+ 08.) Observe the output of the characters typed on the development PC terminal
+        emulator appear on the TS-7500.
+        
+        # cat /dev/pts/0
+        Hello World!
+        # 
+</pre>
+
+<p>The xuartctl utility will always choose the first free device node.  So, there
+may be instances where specifying "--port 0" will result in /dev/pts/1.  This
+makes it difficult when programming for /dev/pts/0 specifically.  One suggestion
+ to overcome this is to create symlinks:</p>
+<pre>
+   ln -s /dev/pts/1 /dev/pts/0
+</pre>
+
+<h3><a id="bluetooth">Bluetooth Support</a></h3>
+   <p>This section will assist in giving an overview of how to proceed in order
+   to get bluetooth started for both USB serial and Bluetooth ports on the 
+   TS-7500.  These steps were reported to work by a customer, but have been 
+   unverified.</p>
+   
+   <p>Required packages to be compiled manually:</p>
+      <pre>
+   &#39;bluez-libs-3.36&#39; AND &#39;bluez-utils-3.36&#39;</pre>
+
+   
+   <p>Required modules to be compiled into or modularized in kernel (see &quot;Compiling
+   TS-Kernel with Custom Options&quot;): </p>
+      <pre>
+   &#39;ohci-hcd&#39;, &#39;bluetooth&#39;, and &#39;hci_usb&#39;</pre>
+
+<p>Here is an example script to get everything working:</p>
+
+<pre>
+   #######################
+   # BEGIN SCRIPT        #
+   #######################
+   depmod
+   modprobe ohci-hcd    # open HCI
+   #modprobe uhci-hcd   # Intels HCI universal uses the PCI
+
+   modprobe bluetooth   # load Bluez stack
+   modprobe hci_usb     # load USB device handlers
+    
+   /etc/init.d/bluetooth restart   # startup hci0 bluetooth network device
+   hciconfig  hci0 up
+   modprobe rfcomm 
+
+   mknod -m 666 /dev/rfcomm0 c 216 0 
+   mknod -m 666 /dev/rfcomm1 c 216 1 
+   rfcomm bind 0 &lt;Bluetooth device MAC address&gt;  # serial BT connection  
+   #######################
+   # END SCRIPT          #
+   #######################</pre>
+   
+   <h3><a id="example">Example .c Program</a></h3>
+   <p>Here is an example of a userspace application which controls and reads the DIO
+pins of the TS-752.  This example can also be found on the FTP site located here:
+<a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/samples/dio.c">ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/samples/dio.c</a></p>
+<pre>
+    /*******************************************************************************
+    * Program: 
+    *    Get DIO (dio.c)
+    *    Technologic Systems TS-7500 with TS-752 Development Board
+    * 
+    * Summary:
+    *   This program will accept any pin number between 5 and 40 and attempt to get
+    * or set those pins in a c program rather than scripted.  You will need the 
+    * TS-7500 and TS-752 development board. Although this program will enable the 
+    * use of said pins, it will primarily enable the use of the 8 Inputs, 3 Outputs,
+    * and Relays on the TS-752.  Keep in mind that if a GND or PWR pin is read (or
+    * something else illogical, we don't necessarily care about the output because 
+    * it could be simply &quot;junk&quot;. 
+    *   Notice careful semaphore usage (sbuslock, sbusunlock) within main.
+    *
+    * Usage:
+    *   ./dio &lt;get|set&gt; &lt;pin#&gt; &lt;set_value (0|1|2)&gt;
+    *
+    * 0 - GND
+    * 1 - 3.3V
+    * 2 - Z (High Impedance)
+    *
+    * Examples:
+    *   To read an input pin (such as 1 through 8 on the TS-752):
+    *      ts7500:~/sbus# ./dio get 40
+    *      Result of getdiopin(38) is: 1 
+    *
+    *   To set an output pin (such as 1 through 3 or relays on the TS-752):
+    *      ts7500:~/sbus# ./dio set 33 0
+    *      Pin#33 has been set to 0   [You may verify with DVM]
+    *
+    * Compile with:
+    *   gcc -mcpu=arm9 dio.c sbus.c -o dio
+    *******************************************************************************/
+    #include &quot;sbus.h&quot;
+    #include &lt;assert.h&gt;
+    #include &lt;string.h&gt;
+    #include &lt;stdio.h&gt;
+
+    #define DIO_Z 2
+
+    /*******************************************************************************
+    * Main: accept input from the command line and act accordingly.
+    *******************************************************************************/
+    int main(int argc, char **argv)
+    {
+       int pin;
+       int val;
+       int returnedValue;
+             
+       // Check for invalid command line arguments
+       if ((argc &gt; 4) | (argc &lt; 3))
+       {
+           printf(&quot;Usage: %s &lt;get|set&gt; &lt;pin#&gt; &lt;set_value (0|1|2)&gt;\n&quot;, argv[0]);
+           return 1;
+       }
+       
+       // We only want to get val if there are more than 3 command line arguments
+       if (argc == 3)
+          pin = strtoul(argv[2], NULL, 0);
+       else
+       {
+          pin = strtoul(argv[2], NULL, 0);
+          val = strtoul(argv[3], NULL, 0);
+       }
+       
+       // If anything other than pins 5 through 40, fail program
+       assert(pin &lt;= 40 &amp;&amp; pin &gt;= 5);
+
+       // Parse through the command line arguments, check for valid inputs, and exec
+       if (!(strcmp(argv[1], &quot;get&quot;)) &amp;&amp; (argc == 3))
+       {
+          sbuslock();
+          returnedValue = getdiopin(pin);
+          sbusunlock();
+          
+          printf(&quot;pin#%d = %d \n&quot;, pin, returnedValue);
+       }
+       else if(!(strcmp(argv[1], &quot;set&quot;)) &amp;&amp; (argc == 4) &amp;&amp; (val &lt;= 2))
+       {
+          sbuslock();
+          setdiopin(pin, val);
+          sbusunlock();
+          
+          printf(&quot;pin#%d set to %d\n&quot;, pin, val);
+       }   
+       else
+       {
+          printf(&quot;Usage: %s &lt;get|set&gt; &lt;pin#&gt; &lt;set_value (0|1|2)&gt;\n&quot;, argv[0]);
+          return 1;
+       }
+       return 0;
+    }
+</pre>
+
+<h3><a id="customfpga">Custom FPGA Programming by Customer</a></h3>
+
+<p>Technologic Systems has made available a zipped up a Lattice ispLever 7.2 project which 
+allows customers to generate custom TS75xx FPGA projects.  It can be found here: </p>
+<p><a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/ts75xx_opencores_source.tar.gz"</a>ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/ts75xx_opencores_source.tar.gz</p>
+
+<p>Once downloaded, open up the project in ispLever (free download from Lattice)
+and double-click "Generate Data File (JEDEC)"</p>
+
+<p>A few minutes later, a ts7500_opencore.jed will be produced that can be copied
+over to the SBC and loaded into the FPGA SRAM via the command "ts7500ctl
+--loadfpga ts7500_opencore.jed". FPGA reloading takes approx 2.8 seconds.</p>
+
+<p>Some notable points about the FPGA opencore:</p>
+<ul>
+<li>The opencore FPGA bitstream has all functionality of the default bitstream
+including SD, XUARTs, SPI NOR flash, watchdog, etc..</li>
+
+<li>SD and XUART cores are Lattice .ngo (binary netlists), but Verilog sources
+to everything else is included.</li>
+
+<li>You need the newest ts7500ctl just released that has the "--loadfpga"
+option at ftp://ftp.embeddedARM.com/ts-arm-sbc/ts-7500-linux/binaries/ts-utils/</li>
+
+<li>You also need jed2vme executable in your path (same FTP location as above)
+to use ts7500ctl --loadfpga on a .jec file.</li>
+
+<li>jed2vme can be used to turn the 1.2Mbyte JEDEC .jed file into a 190Kbyte
+.vme file. This .vme file can also be gzip'ed or bzip2'ed into (~90Kbyte)
+.vme.bz2 or .vme.gz and "ts7500ctl --loadfpga" will decompress automatically.</li>
+
+<li>Licensing will be BSD (not GPL) to allow for proprietary closed-source
+modifications. However, there will be a caveat that you can only use the
+sources on our own TS hardware. Basically, as long as you do it on our boards,
+you can do whatever you want with it.</li>
+
+<li>The intention is to make the default initrd "linuxrc" attempt to
+automatically load a bitstream at "/ts7500.vme.gz" if it exists since it is best
+to reload the FPGA as early as possible before userspace driver daemons are all
+started.</li>
+</ul>
+
+<p>Also, Technologic Systems has released the source code to all the userspace *ctl 
+utilities they have written at <a href="ftp://ftp.embeddedARM.com/ts-arm-sbc/ts-7500-linux/sources/">
+ftp://ftp.embeddedARM.com/ts-arm-sbc/ts-7500-linux/sources/</a>.</p>
+
+<h3><a id="customfpga_detail_load">Detailed Instructions for Loading Custom FPGA</a></h3>
+<p>Outlined below are two approaches to loading a custom or updated FPGA bitstream to the TS-7500.  Keep in mind that the FPGA contains flash memory which contains Technologic System's default FPGA SRAM load.  The "ts7500ctl --loadfpga" will not overwrite the flash memory of the FPGA and will only load the SRAM contents of the FPGA, making for an unbrickable system if something should go wrong.  If something does go wrong, you can restore the onboard flash via the offboard flash or microSD card (see <a href="#spiflash">Copying Changes to SPI Flash</a>).</p>
+
+<p>You'll need a standard bootable MicroSD card and the TS-752 board with JP1 set to ON and JP2 set to OFF so that the board will boot using the MicroSD card and not the on or off-board flash.</p>
+
+<p>You may use the provided binary bitstreams that have already been compiled 
+using the steps outlined in the above section located here:</p>
+<p><a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-bitstreams/ts75xx_opencores.tar.gz">
+ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-bitstreams/ts75xx_opencores.tar.gz</a></p>
+<div class="note"><span class="blue">NOTE:</span><p>For customers interested in 
+TS-7500 CAN Bus, there has been a bitstream binary created especially for this
+and is included in the above tar.gz file as ts7500_opencore_can.vme.gz.</p></div>
+
+<p>The goal is to download the "bitstream.vme.gz" file to the fourth partition and modify the "linuxrc" file to call the "ts7500ctl --loadfpga" command upon boot.  You will need the updated ts7500ctl (with --loadfpga option) utility compiled with uclibc located on the FTP site here:  <a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-utils/ts7500ctl.uclibc">ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-utils/ts7500ctl.uclibc</a>.  Copy this utility to partition 4 of the MicroSD card, boot to SPI Flash (JP1 and JP2 = OFF), and copy from MicroSD card to SPI Flash using "cp /mnt/root/ts7500ctl.uclibc /sbin/ts7500ctl".  Save the changes using the "save" command.</p>
+
+<h4>Bitstream Update via MicroSD Card:</h4>
+<pre>
+ 01.) Remove the MicroSD card from the TS-7500 and insert it into the SD Card 
+        adapter and then into the USB SD Card reader.
+ 02.) Open a terminal window in your Linux PC and use the following commands to
+        mount partition 4 of the SD card to /mnt/part4:
+      * mkdir /mnt/part4 && mount /dev/sdb4 /mnt/part4
+         - You'll need to verify the location of the device node using 'fdisk -l'
+ 03.) Copy the "bitstream.vme.gz" file
+      * cp /the/path/to/bitstream.vme.gz /mnt/part4
+ 04.) Sync the changes and unmount the SD card from the Linux PC
+      * sync; umount /dev/sdb4
+ 05.) Insert the MicroSD card back into the TS-7500, set the jumpers of the
+        TS-752 to JP1=OFF and JP2=OFF, causing the system to boot from onboard
+        SPI Flash.  Apply power to boot the board.
+ 06.) Copy the bitstream.vme.gz file from the fourth partition of the MicroSD
+        card to the initrd of onboard SPI Flash
+      * cp /mnt/root/bitstream.vme.gz .
+ 07.) Edit "linuxrc" and add the "ts7500ctl --loadfpga=bitstream.vme.gz -d" 
+        command (use snippit below for reference).  BE SURE YOU HAVE THE LATEST
+        'ts7500ctl' AS MENTIONED IN THE ABOVE SECTION!
+      * vi linuxrc
+ 08.) Save the changes you've made to the linuxrc file and exit (in vi, the 
+        command is :wq), then save all changes to SPI Flash
+      * save
+ 09.) Reboot the TS-7500.  You will notice a three second delay while the 
+        bitstream is loaded.  Use the following to verify the FPGA revision 
+        number:
+      * ts7500ctl --info
+</pre>
+
+<h4>Bitstream Update via FTP:</h4>
+<pre>
+ 01.) Boot the TS-7500 to the Debian environment.  Here, you will be able to use 
+        FTP to transfer the "bitstream.vme.gz" file from your PC to the TS-7500.
+        Make sure you have a working network connection and you can ping both
+        the TS-7500 and the PC you're working on.  You may need to change the IP
+        address of the TS-7500
+      * ifconfig eth0 192.168.1.100  #[you'll need to tailor to your network]
+ 02.) Use an FTP client such as FileZilla or the built-in 'ftp' command in Linux
+        to connect to the TS-7500 using the username "eclipse" and the password 
+        "eclipse"
+ 03.) Transfer the file to the default home directory (which is /home/eclipse/ 
+        on the TS-7500) and then sync the changes
+      * sync
+ 04.) Place the JP1 and JP2 jumpers of the TS-752 to the "OFF" position so the 
+        board will boot to onboard SPI Flash upon restart and then restart the
+        board
+      * shutdown -r now
+ 05.) Copy the bitstream.vme.gz file from the fourth partition of the MicroSD
+        card to the initrd of onboard SPI Flash
+      * cp /mnt/root/bitstream.vme.gz .
+ 06.) Edit "linuxrc" and add the "ts7500ctl --loadfpga=bitstream.vme.gz -d" 
+        command (use snippit below for reference) BE SURE YOU HAVE THE LATEST
+        'ts7500ctl' AS MENTIONED IN THE ABOVE SECTION!
+      * vi linuxrc
+ 07.) Save the changes you've made to the linuxrc file and exit (in vi, the 
+        command is :wq), then save all changes to SPI Flash
+      * save
+ 08.) Reboot the TS-7500.  You will notice a three second delay while the 
+        bitstream is loaded.  Use the following to verify the FPGA revision 
+        number:
+      * ts7500ctl --info      
+      
+      
+ 
+   -----------------------------------------------------------------------------     
+   linuxrc snippit:
+   -----------------------------------------------------------------------------     
+   #!/bin/sh
+
+   export CONSOLE=/dev/ttyS0
+   export
+   PATH=/bin:/sbin:/usr/bin:/usr/sbin:/mnt/root/bin:/mnt/root/sbin:/mnt/root
+
+   let x=`devmem 0x79000040`
+   sec=$((x / 100000))
+   tenths=$((x % 100000 / 1000))
+   export BOOTTIME=`printf "%d.%02d" $sec $tenths`
+
+   setconsole $CONSOLE
+   stty -F $CONSOLE ospeed 115200 > /dev/null 2>&1
+   mount -t proc proc /proc
+   mount -t sysfs sysfs /sys
+   hostname ts7500
+   ts7500ctl --getrtc --resetswitchon --autofeed 2 -d</b>
+   <b>ts7500ctl --loadfpga bitstream.vme.gz</b>
+   
+   devmem 0xc8000004 32 0x106
+   devmem 0xcc000060 32 0x1
+   let x=`devmem 0xcc000068`
+   let y=`devmem 0xcc000064`
+   x=$(((x | y) & 0x1))
+   -----------------------------------------------------------------------------     
+</pre>
+
+<h3><a name="usbserial" id="usbserial">USB to Serial Devices</a></h3>
+<p>Additional serial ports can be added to the TS-7500 by using USB to
+Serial cables through the USB Ports of the TS-7500 (and even more if
+a USB hub is used).  The instructions for how to use this are outline
+below. Within these steps, You will need to download the "ftdi_sio.ko"
+module from our FTP site using wget which will require a working network
+connection on the TS-7500 (see <a href="#static">Static/Dynamic
+IP Address</a> section above if you need help). If you don't
+have a working network connection, then simply download it manually from <a
+href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-modules/ftdi_sio.ko">ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-modules/ftdi_sio.ko</a> and then copy it to the TS-7500.</p>
+
+<pre>
+   01.) Set the jumpers of the TS-752 to boot from MicroSD card, power on the 
+          TS-7500, and 'exit' to Debian.
+   02.) Download the ftdi_sio.ko module from the FTP site           
+        * wget ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-modules/ftdi_sio.ko
+   03.) Insert the necessary modules
+        * insmod /lib/modules/2.6.24.4/kernel/drivers/usb/host/ohci-hcd.ko
+        * insmod /lib/modules/2.6.24.4/kernel/drivers/usb/serial/usbserial.ko
+        * insmod ftdi_sio.ko
+   04.) The kernel should then detect the FTDI device and add device node at
+          /dev/ttyUSB0.
+</pre>
+<p>If you have problems inserting the modules and get an error such as "-1 Invalid module format", try updating the microSD Card image to the latest which at the time of this writing is <a hfef="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/binaries/ts-images/2gbsd-eclipse-dec152009.dd.bz2">2gbsd-eclipse-dec152009.dd.bz2</a>.</p>
+
+<h3><a name="runonbootup" id="runonbootup">Load Scripts/Programs Automatically on Bootup</a></h3>
+<p>Scripts and/or programs can be run automatically as part of the Linux bootup process by adding it to the /etc/rc2.d runtime folder.  For example, if you wanted to immediately print out the IP address on boot, you would follow these simple steps:</p>
+<pre>
+   01.) echo "ifconfig eth0 192.168.1.100" > /etc/init.d/changeip
+   02.) chmod +x /etc/init.d/changeip
+   03.) ln -sf /etc/init.d/changeip /etc/rc2.d/S01changeip
+           * Note: you may need to check your default runlevel with the
+             'runlevel' command.  The TS-7500 should be defaulted to 2.
+</pre>
+<p>If you find that your process is being killed, try preceding it with the 'nohup' command, followed by a 'sleep 1' command.  For example:</p>
+<pre>
+#!/bin/sh
+
+echo -n "Initializing my program..."
+nohup myprogram --daemonize &
+sleep 1
+echo "done"
+</pre>
+
+<h3><a name="usbdevice" id="usbdevice">USB Device Port Usage</a></h3>
+<p>Certain Technologic System Single Board Computers (SBC)
+contain both USB Host and USB Device ports.  This section will
+discuss the configuration and use of the Linux USB device gadgets (<a
+href="http://www.linux-usb.org/">http://www.linux-usb.org/</a>).  The two
+supported gadgets are 1) USB Mass Storage Device and 2) IP over USB
+(A.K.A. USB Ethernet).</p>
+
+<p>The USB Mass Storage Device Linux USB gadget will allow you to use your
+SBC as a storage device, like a USB thumb drive, when connected to a host PC.
+Subsequently, the SBC can access the saved data through the storage element
+named <code>usb_storage_file</code>.</p>
+
+<p>The IP over USB (A.K.A. USB Ethernet) Linux USB gadget will allow you to
+connect to your SBC with a USB cable from a PC like you would with a CAT5
+Ethernet cable.  You will have access to the SBC via the TCP/IP connection
+allowing you to use any networking utility (e.g. ping, ssh, ftp, http,
+etc).</p>
+
+<p>All software modules required for Linux are contained on recent SBCs
+(those released with the May 18, 2010 or later software load).  For Windows,
+a driver interface configuration file (<code>linux.inf</code>) will need to
+be downloaded and installed on the host PC.  This procedure is described in
+detail below.  The <code>linux.inf</code> file can be downloaded here:
+<a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/USB_gadget/linux.inf">
+ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/USB_gadget/linux.inf</a></p>
+
+<h4>Utilizing SBC as "USB Mass Storage Device"</h4>
+<p>The SBC must be setup prior to connection to a host PC.  These steps are
+outline below.</p>
+<pre>
+   1.) Create a mount point and then mount the first partition of SD card where
+       the storage element exists.
+      * mkdir /mnt/vfat; mount /dev/nbd1 /mnt/vfat
+
+   2.) Install the g_file_storage driver with storage element details
+      * modprobe g_file_storage file=/mnt/vfat/usb_storage_file
+</pre>
+
+<p>After following these steps for preparing the SBC storage element, plug
+the SBC into the host PC with a A to B USB Cable (ISB Cable).  You will see
+the newly mounted volume and should be able to access it.</p>
+
+<p>When you have completed using the device on the Linux or Windows System,
+you will need to eject volume using either <code>umount</code> on Linux,
+or "Safely Remove Hardware" on Windows and then unplug the USB cable.</p>
+
+<p>After transferring data from a host PC to the SBC through the USB Mass
+Storage Device Linux gadget, you can access the data on the SBC by using
+the following steps.</p>
+<pre>
+   1.) Remove the g_file_storage driver allowing local access to storage element
+      * rmmod g_file_storage
+
+   2.) Create a mount point and then mount the storage element (assuming
+       "/dev/nbd1" is still mounted to "/mnt/vfat" from steps above)
+      * mkdir /mnt/usbdev
+      * mount -t vfat -o loop=/dev/loop0,offset=4096 /mnt/vfat/usb_storage_file /mnt/usbdev/
+</pre>
+
+<div class="note">
+   <span class="blue">NOTE:</span>
+   <p>The kernel should already have support for loop block devices.  If not, you will need to insert the loop.ko module with modprobe or insmod.</p>
+</div>
+
+<p>You can now locally access <code>/mnt/usbdev</code>.</p>
+
+<p>When finished with the device, or to allow access via the USB Device
+port, you must un-mount the device using:</p>
+<pre>
+   umount /mnt/usbdev
+</pre>
+
+<h4>Utilizing IP over USB (USB Ethernet) on SBC</h4>
+<p>The SBC must be setup prior to connection to a host PC.  These steps are
+outline below.</p>
+<pre>
+   1.) Install the g_ether driver
+      * modprobe g_ether
+
+   2.) Assign an IP address to the new usb0 interface
+      * ifconfig usb0 192.168.42.20
+</pre>
+
+<div class="note">
+   <span class="blue">NOTE:</span>
+   <p>The IP address in the above example may be any valid IP
+address, but should typically not be on the same subnet as the Ethernet
+network on the SBC (if connected), or the host computer to which the
+SBC will be connected.</p>
+</div>
+
+<p><b>Connecting Linux Host to SBC via IP over USB</b></p>
+<p>Most modern Linux distributions already have all of the required modules (such as usbnet.ko)
+and utilities installed, so the setup steps are minimal.  Simply plug in
+the SBC after it has been prepared for IP over USB (see above) and observe
+that a new interface has been added named <code>usb0</code> or similar
+(use <code><b>dmesg | tail</b></code> to verify).  You can now assign an IP
+address to that interface with <code>ifconfig</code> (e.g. <code><b>ifconfig
+usb0 192.168.42.21</b></code>) and begin using the TCP/IP connection.
+To test your connection, use <code><b>ping 192.168.42.20</b></code>.
+You should also be able to login to the SBC using ssh ie. <code><b>ssh
+root@192.168.42.40</b></code>.</p>
+
+<div class="note">
+   <span class="blue">NOTE:</span>
+   <p>The IP address above may be any valid IP address, but must be in
+the same subnet as the IP address assigned to the SBC IP over USB connection above.</p>
+</div>
+
+<p><b>Connecting Windows XP Host to SBC via IP over USB</b></p>
+<p>An additional driver interface configuration file called
+<code>linux.inf</code> is required for IP over USB connection to a Windows
+host.  First, download this file onto the Windows PC and remember where you
+placed it. The <code>linux.inf</code> file can be downloaded here:
+<a href="ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/USB_gadget/linux.inf">
+ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/USB_gadget/linux.inf</a>
+Next, connect the SBC and Windows PC with the A to B USB cable
+(ISB Cable).  You should see the "Found New Hardware Wizard".  Answer the
+prompts as follows:</p>
+<ol>
+   <li>Select Include this location in the search and choose the location of the driver you downloaded. Finish running the wizard.</li>
+   <li>Go to the Control Panel and open "Network Connections". Right-click the new connection (labeled "Linux USB Ethernet/RNDIS Gadget") and click "Rename". Rename it to something useful such as "USB Network". </li>
+   <li>Right-click on the newly labeled icon, and select properties.</li>
+   <li>Under the properties General tab, select the item labeled Internet Protocol (TCP/IP)</li>
+   <li>Select Use the following IP Address, and enter 192.168.42.21.</li>
+   <li>Click OK; Click OK</li>
+</ol>
+
+<p>You may now access the SBC via the TCP/IP connection.  Use <code>ping</code> in the Command Prompt window to verify connectivity (e.g. <code><b>ping 192.168.42.20</b></code>).</p>
+
+<div class="note">
+   <span class="blue">NOTE:</span>
+   <p>Note that the IP address above may be any valid IP address, but must be in
+the same subnet as the IP address assigned to the SBC IP over USB connection above.</p>
+</div>
+
+<p><b>Connecting Windows Vista Host to SBC via IP over USB</b></p>
+<p>Not yet supported, but currently in progress.</p>
+
+<p><b>Connecting Windows 7 Host to SBC via IP over USB</b></p>
+<p>Not yet supported, but currently in progress.</p>
+
+<h3><a name="appendixA" id="appendixA">Appendix A: Document History</a></h3>
+<table class="data">
+	  <tbody>
+	  <tr>
+		<th>Date of Issue/Revision</th>
+
+		<th>Revision Number</th>
+		<th>Comments</th>
+	  </tr>
+	  <tr>
+		<td>08/26/2009</td>
+		<td>1.0</td>
+		<td>Created as "TS-7500 Software Guide"</td>
+	  </tr>
+	  <tr>
+		<td>11/04/2009</td>
+		<td>1.1</td>
+		<td>Added section "Setup Dynamic/Static IP Address" and "Document History"</td>
+	  </tr>
+	  <tr>
+		<td>11/18/2009</td>
+		<td>1.2</td>
+		<td>Added section "Detailed Instructions for Loading Custom FPGA"</td>
+	  </tr>
+	  <tr>
+		<td>12/09/2009</td>
+		<td>1.3</td>
+		<td>Corrected sample code syntax which was being lost in HTML translation.</td>
+	  </tr>
+	  <tr>
+		<td>12/11/2009</td>
+		<td>1.4</td>
+		<td>Added section "Simple Demonstration Utilizing an XUART"</td>
+	  </tr>
+  	  <tr>
+		<td>12/14/2009</td>
+		<td>1.5</td>
+		<td>Modified "Detailed Instructions for Loading Custom FPGA" step so that it now safe.</td>
+	  </tr>
+  	  <tr>
+		<td>12/16/2009</td>
+		<td>1.6</td>
+		<td>Corrected image sizes of kernel image and initrd image for spiflashctl (from "-W 32 -z 65536" to "-W 4095 -z 512").<br />
+		    Added a few comments in the "Detailed Instructions for Loading Custom FGPA" section about unbrickable design.<br />
+		    Added section "USB to Serial Devices" <br />
+		    Added section "Load Scripts/Programs Automatically on Bootup"</td>
+	  </tr>
+          <tr>
+   		<td>02/04/2010</td>
+		<td>1.7</td>
+		<td>Corrected /etc/resolv.conf reference (/etc/resolv --> /etc/resolv.conf)</td>
+          </tr>
+       <tr>
+       <tr>
+   		<td>02/17/2010</td>
+		<td>1.8</td>
+		<td>Added section "Simple Cross Compiling Example (C++/Debian)" <br />
+		Changed all links from ftp://oz.embeddedarm.com to ftp://ftp.embeddedarm.com</td>
+       </tr>
+       <tr>
+         <td>02/24/2010</td>
+         <td>1.9</td>
+         <td>Added a description and link to already compiled opencore bitstreams<br />
+                 Change insmod to modprobe in USB to Serial section</td>
+       </tr>
+       <tr>
+          <td>03/04/2010</td>
+          <td>2.0</td>
+          <td>Fixed USB to Serial section and verified correctness with dec152009 microSD card image</td>
+       </tr>
+        <tr>
+          <td>04/08/2010</td>
+          <td>2.1</td>
+          <td>Updated opencore bitstream URLs and created note for TS-7500 CAN Bus</td>
+       </tr>
+	<tr>
+	  <td>05/14/2010</td>
+	  <td>2.2</td>
+	  <td>Added explanation for properly installing and loading newly compiled kernel modules</td>
+	</tr>
+	<tr>
+	  <td>05/19/2010</td>
+	  <td>2.3</td>
+	  <td>Added "USB Device Usage" section (requires may172010 or greater software)</td>
+	</tr>
+	<tr>
+	   <td>06/17/2010</td>
+	   <td>2.4</td>
+	   <td>Moved the --loadfpga option to it's own line so if FPGA load fails, ts7500ctl will continue to live and feed watchdog</td>
+	</tr>
+	<tr>
+	   <td>07/08/2010</td>
+	   <td>2.5</td>
+	   <td>Added a link to linux.inf for USB gadget</td>
+	</tbody>
+</table>                          </td> 
+                        </tr> 
+                    </table> 
+                  </td> 
+                </tr> 
+              </table> 
+            </td> 
+          </tr> 
+        </table> 
+		
+<div id="footer"> 
+ 
+<img src="/images/img_bottom.gif" alt="footer gradient" width="770" height="40" /> 
+    <div id="footer-links" style="clear: both">  <a href="/index.php" >HOME</a>|<a href="/products/index.php" >PRODUCTS</a> 
+      |<a href="/services/index.php" >SERVICES</a> 
+      |<a href="/software/index.php" >SOFTWARE</a> 
+      |<a href="/support/index.php" >SUPPORT</a> 
+      |<a href="/about/index.php" >ABOUT</a> 
+      |<a href="/support/contact-us.php" >CONTACT 
+        US</a><br />Copyright Â© 2008 
+      Technologic Systems  - All rights reserved
+      <br /> 
+	  </div> 
+</div> 
+  </div> 
+</div> 
+ 
+<script type="text/javascript"> 
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script> 
+<script type="text/javascript"> 
+var pageTracker = _gat._getTracker("UA-401033-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script></body> 
+</html> 
+ 
+Open Link in New Tab
+Download
