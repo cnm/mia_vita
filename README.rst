@@ -174,7 +174,7 @@ How to compile kernel in the TS-7500 node
 * Download the crosstool chain: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/cross-toolchains/crosstool-linux-arm-uclibc-3.4.6.tar.gz
  (or fetch it from: http://github.com/joninvski/arm-uclibc-3.4.6 )
 
-* Download the module for the wireless card
+* Download the module for the wireless card: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/wifi-g-usb-2_rt2501usb-sources.tar.gz
  (or fetch it from: http://github.com/joninvski/USB_Wifi_RT2501_TS-7500 )
 
 First compile the kernel
