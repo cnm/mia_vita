@@ -251,3 +251,42 @@ Copy the kernel and initrd to the flash in the arm
 Add a batman service at startup
 ==============================
 * update-rc.d batman-adv defaults
+
+Udev rule
+=========
+
+On some linux distros users experience some minicom problems, while using the serial cable to connect to the development board. In other words, minicom stops working wtih an error message similar to::
+
+   Unable to open /dev/ttyUSB0
+
+This happens because the kernel keeps changing the device name and ttyUSB0 is now ttyUSB1. This can be avoided by creating an udev rule. The following udev rule is the simplest one, which provides a workaround to this problem:
+
+* Open file /etc/udev/rules.d/99_serial_cable.rules
+* Write: SUBSYSTEM=="usb", KERNEL=="ttyUSB*", NAME="ttyUSB0"
+
+Or you can just copy and execute the command::
+
+   sudo sh -c 'echo "SUBSYSTEM==\"usb\", KERNEL==\"ttyUSB*\", NAME=\"ttyUSB0\"" > /etc/udev/rules.d/99_serial_cable.rules'
+
+You will need to restar udev or your pc.
+
+Keep in mind that this rule is very simple and it only tells the udev layer to give the name ttyUSB0 to every device that the kernel reports as beginning with ttyUSB. If you ever need to connect two serial cables via USB adapters, you'll need to add another parameter to the rule above. To do this we first need the device ID for each usb adapter. Issue::
+
+   lsusb
+
+Which should give you an output similar to::
+
+
+   Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+   Bus 004 Device 002: ID 0b05:1712 ASUSTek Computer, Inc. BT-183 Bluetooth 2.0+EDR adapter
+   Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+   Bus 003 Device 002: ID 04f3:0210 Elan Microelectronics Corp. AM-400 Hama Optical Mouse
+
+Now, what we're looking for is the device id, which is the second hexadecimal number in the ID field. For example, the blue tooth adapter has a device ID of 1712.
+
+The udev rule for multiple adapters becomes::
+
+   SUBSYSTEM=="usb", ATTR{idProduct}=="0001", NAME="ttyUSB0"
+   SUBSYSTEM=="usb", ATTR{idProduct}=="0002", NAME="ttyUSB1"
+
+The udev will give the name ttyUSB0 to the usb adapter with id 0001 and ttyUSB1 to the usb adapter with id 0002.
