@@ -1,5 +1,5 @@
 obj-m := int.o chardev.o
-KDIR := /lib/modules/$(shell uname -r)/build 
+KDIR := /lib/modules/2.6.24.4/build/ 
 PWD := $(shell pwd)
 
 all:
