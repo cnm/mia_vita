@@ -27,20 +27,24 @@
 MODULE_AUTHOR ("Joao Trindade");
 MODULE_LICENSE("GPL");
 
-#define IRQ_NUMBER 13
-#define MEMORY_REGION 0x7C000000
-#define MEMORY_SIZE 4
+#define IRQ_NUMBER          13
+#define MEMORY_SIZE         4
 
-#define MISC_REGISTER 0x76000000
-#define GPIOA_EN_ADDRESS    ((MISC_REGISTER) + 0x20)  /* GPIO_A_PIN_ENABLE_REGISTER See page 187 */
+#define MISC_REGISTER       0x76000000
+#define GPIOA_EN_ADDRESS    ((MISC_REGISTER) + 0x20)  /* See page 187 */
 #define TEST_ADDR           ((MISC_REGISTER) + 0x18)
 
-#define SCL_BIT_NUMBER 13
-#define SDA_BIT_NUMBER 14
-#define SCL_MASK (1<<SCL_BIT_NUMBER)
-#define SDA_MASK (1<<SCL_BIT_NUMBER)
-
+#define SCL_BIT_NUMBER      13
+#define SDA_BIT_NUMBER      14
+#define SCL_MASK            (1<<SCL_BIT_NUMBER)
+#define SDA_MASK            (1<<SCL_BIT_NUMBER)
 #define GPIOA_EN_MASK (SCL_MASK | SDA_MASK)
+
+#define GPIOA_REGISTER      0x7C000000
+#define INTRENABLE_ADDRESS  ((GPIOA_REGISTER) + 0x20) /* See page 224 */
+#define INTRMASK_ADDRESS    ((GPIOA_REGISTER) + 0x2C) /* See page 224 */
+
+
 
 /* For testing purposes  */
 /*#undef GPIOA_EN_ADDRESS*/
@@ -58,6 +62,8 @@ int request_port(unsigned int port_addr, unsigned int size);
 void enable_pin_interruptions(void);
 
 unsigned int gpioa_en_new_address = 0;
+unsigned int intr_en_new_address = 0;
+
 
 /*
  * To handle the interruption
@@ -74,6 +80,7 @@ void request_memory_regions(void){
     unsigned int i;
 
     gpioa_en_new_address = request_mem(GPIOA_EN_ADDRESS, MEMORY_SIZE);
+    intr_en_new_address = request_mem(INTRENABLE_ADDRESS, MEMORY_SIZE);
 
     i = *(unsigned int *)(gpioa_en_new_address);
     printk(KERN_INFO "Testing with address: %p --------> %x\n", (void *) gpioa_en_new_address, i);
@@ -84,21 +91,25 @@ void request_memory_regions(void){
 void unregister_memory_region()
 {
   release_mem(GPIOA_EN_ADDRESS, MEMORY_SIZE);
+  release_mem(INTRENABLE_ADDRESS, MEMORY_SIZE);
 }
 
 /*  Set's all pins needed for interruptions */
 void enable_pin_interruptions(void)
 {
-
-
   /* Puts GPIOA_EN bits 13 and 14 to 0 */
-  volatile unsigned int *p;
+  volatile unsigned int *p; // The volatile is extremely important here
   p = (unsigned int *) gpioa_en_new_address;
 
-  printk(KERN_INFO "\t\tBEFORE: %x \n", *p);
-  *p |= GPIOA_EN_MASK;
-  printk(KERN_INFO "\t\tAfter: %x \n", *p);
+  printk(KERN_INFO "\t\tBEFORE: \t\t%x \n", *p);
+  *p &= ~GPIOA_EN_MASK;
+  printk(KERN_INFO "\t\tAfter:  \t\t%x \n", *p);
 
+  /* Now enable interrupt to the respective bits  */
+  p = (unsigned int *) intr_en_new_address;
+  printk(KERN_INFO "\t\tBEFORE: \t\t%x \n", *p);
+  *p |= GPIOA_EN_MASK;
+  printk(KERN_INFO "\t\tAfter:  \t\t%x \n", *p);
 }
 
 
