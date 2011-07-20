@@ -47,6 +47,7 @@ MODULE_LICENSE("GPL");
 
 
 
+
 /* For testing purposes  */
 /*#undef GPIOA_EN_ADDRESS*/
 /*#define GPIOA_EN_ADDRESS TEST_ADDR */
@@ -65,6 +66,7 @@ void enable_pin_interruptions(void);
 unsigned int gpioa_en_new_address = 0;
 unsigned int intr_en_new_address = 0;
 unsigned int pin_dir_new_address = 0;
+unsigned int intrmask_new_address = 0;
 
 
 /*
@@ -84,6 +86,7 @@ void request_memory_regions(void){
     gpioa_en_new_address = request_mem(GPIOA_EN_ADDRESS, MEMORY_SIZE);
     pin_dir_new_address = request_mem(PIN_DIR_ADDRESS, MEMORY_SIZE);
     intr_en_new_address = request_mem(INTRENABLE_ADDRESS, MEMORY_SIZE);
+    intrmask_new_address = request_mem(INTRMASK_ADDRESS, MEMORY_SIZE);
 
     i = *(unsigned int *)(gpioa_en_new_address);
     printk(KERN_INFO "Testing with address: %p --------> %x\n", (void *) gpioa_en_new_address, i);
@@ -96,6 +99,7 @@ void unregister_memory_region()
   release_mem(GPIOA_EN_ADDRESS, MEMORY_SIZE);
   release_mem(PIN_DIR_ADDRESS, MEMORY_SIZE);
   release_mem(INTRENABLE_ADDRESS, MEMORY_SIZE);
+  release_mem(INTRMASK_ADDRESS, MEMORY_SIZE);
 }
 
 /*  Set's all pins needed for interruptions */
@@ -105,21 +109,27 @@ void enable_pin_interruptions(void)
 
   /* Puts GPIOA_EN bits 13 and 14 to 0 */
   p = (unsigned int *) gpioa_en_new_address;
-  printk(KERN_INFO "\t\tBEFORE: \t\t%x \n", *p);
+  printk(KERN_INFO "\t\tGPIOA_EN BEFORE: \t\t%x \n", *p);
   *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t\tAfter:  \t\t%x \n", *p);
+  printk(KERN_INFO "\t\tGPIOA_EN AFTER:  \t\t%x \n", *p);
 
   /* Puts PIN DIR bits 13 and 14 to 0 */
   p = (unsigned int *) pin_dir_new_address;
-  printk(KERN_INFO "\t\tBEFORE: \t\t%x \n", *p);
+  printk(KERN_INFO "\t\tPIN_DIR BEFORE: \t\t%x \n", *p);
   *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t\tAfter:  \t\t%x \n", *p);
+  printk(KERN_INFO "\t\tPIN_DIR AFTER:  \t\t%x \n", *p);
 
-  /* Now enable interrupt to the respective bits  */
+  /* Puts INTR_EN bits 13 and 14 to 1 */
   p = (unsigned int *) intr_en_new_address;
   printk(KERN_INFO "\t\tBEFORE: \t\t%x \n", *p);
   *p |= GPIOA_EN_MASK;
-  printk(KERN_INFO "\t\tAfter:  \t\t%x \n", *p);
+  printk(KERN_INFO "\t\tAFTER:  \t\t%x \n", *p);
+
+  /* Puts IntrMask bits 13 and 14 to 1 */
+  p = (unsigned int *) intrmask_new_address;
+  printk(KERN_INFO "\t\tBEFORE: \t\t%x \n", *p);
+  *p |= GPIOA_EN_MASK;
+  printk(KERN_INFO "\t\tAFTER:  \t\t%x \n", *p);
 }
 
 
