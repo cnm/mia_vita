@@ -34,8 +34,8 @@ MODULE_LICENSE("GPL");
 #define GPIOA_EN_ADDRESS                ((MISC_REGISTER) + 0x20)    /* See page 187 */
 #define TEST_ADDR                       ((MISC_REGISTER) + 0x18)
 
-#define SCL_BIT_NUMBER                  13
-#define SDA_BIT_NUMBER                  14
+#define SCL_BIT_NUMBER                  14
+#define SDA_BIT_NUMBER                  13
 #define SCL_MASK                        (1<<SCL_BIT_NUMBER)
 #define SDA_MASK                        (1<<SDA_BIT_NUMBER)
 #define GPIOA_EN_MASK                   (SCL_MASK | SDA_MASK)
@@ -103,7 +103,8 @@ unsigned int gpio_data_input_new_address = 0;
 unsigned int gpio_int_clear_new_address = 0;
 unsigned int gpio_int_status_new_address = 0;
 
-unsigned int counter = 0;
+unsigned int counter_sda = 0;
+unsigned int counter_scl = 0;
 
 /*
  * Functions to handle the interruption
@@ -114,18 +115,29 @@ irqreturn_t interrupt(int irq, void *dev_id)
   /*  printk(KERN_INFO "Inside the interruption %d\n", irq);*/
   /*  printk(KERN_EMERG "Inside the interruption %d\n", irq);*/
 
-  /* Clear the interrupt */
-  /*  p = (unsigned int *) gpio_int_status_new_address;*/
-  /*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x \n", *p);*/
+  /* Check what the interruption was*/
+  p = (unsigned int *) gpio_int_status_new_address;
+/*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x %08x\n", *p, (*p & (SCL_MASK | SDA_MASK)));*/
+  if(SCL_MASK & *p){
+    counter_scl++;
+  }
 
+
+  else if(SDA_MASK & *p){
+    counter_sda++;
+  }
+
+  else{
+      printk(KERN_INFO "-------------SOMETHING ELSE ------------------- ??");
+  }
+
+  /* Clear the GPIO interruption */
   p = (unsigned int *) gpio_int_clear_new_address;
   *p |= GPIOA_EN_MASK;
 
-  /*  p = (unsigned int *) gpio_int_status_new_address;*/
-  /*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x \n", *p);*/
-
-  if(counter++ % 100){
-      printk(KERN_INFO "Number interruptions: %u \n", counter);
+  if(!((counter_sda + counter_scl) % 100)){
+      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);
+      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);
   }
 
   return IRQ_HANDLED;
