@@ -44,7 +44,9 @@ MODULE_LICENSE("GPL");
 #define GPIO_DATA_INPUT                 ((GPIOA_REGISTER) + 0x04)   /* See page 223 */
 #define PIN_DIR_ADDRESS                 ((GPIOA_REGISTER) + 0x08)   /* See page 223 */
 #define INTRENABLE_ADDRESS              ((GPIOA_REGISTER) + 0x20)   /* See page 224 */
-#define INTRMASK_ADDRESS                ((GPIOA_REGISTER) + 0x2C)   /* See page 224 */
+#define GPIO_INT_STATUS                 ((GPIOA_REGISTER) + 0x28)   /* See page 225 */
+#define INTRMASK_ADDRESS                ((GPIOA_REGISTER) + 0x2C)   /* See page 225 */
+#define GPIO_INT_CLEAR                  ((GPIOA_REGISTER) + 0x30)   /* See page 225 */
 
 #define VIC                             0xFFFFF000
 #define INT_STATUS_ADDRESS              ((VIC) + 0x00)          /* See page 291 */
@@ -98,6 +100,10 @@ unsigned int irq_priorities_new_address = 0;
 unsigned int vic_control_new_address = 0;
 unsigned int sotware_int_new_address = 0;
 unsigned int gpio_data_input_new_address = 0;
+unsigned int gpio_int_clear_new_address = 0;
+unsigned int gpio_int_status_new_address = 0;
+
+unsigned int counter = 0;
 
 /*
  * Functions to handle the interruption
@@ -105,13 +111,22 @@ unsigned int gpio_data_input_new_address = 0;
 irqreturn_t interrupt(int irq, void *dev_id)
 {
   volatile unsigned int *p; // The volatile is extremely important here
-  printk(KERN_INFO "Inside the interruption %d\n", irq);
-  printk(KERN_EMERG "Inside the interruption %d\n", irq);
+  /*  printk(KERN_INFO "Inside the interruption %d\n", irq);*/
+  /*  printk(KERN_EMERG "Inside the interruption %d\n", irq);*/
 
-  p = (unsigned int *) intrmask_new_address;
-  printk(KERN_INFO "\t IntrMask BEFORE: \t\t\t%08x \n", *p);
+  /* Clear the interrupt */
+  /*  p = (unsigned int *) gpio_int_status_new_address;*/
+  /*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x \n", *p);*/
+
+  p = (unsigned int *) gpio_int_clear_new_address;
   *p |= GPIOA_EN_MASK;
-  printk(KERN_INFO "\t IntrMask AFTER:  \t\t\t%08x \n", *p);
+
+  /*  p = (unsigned int *) gpio_int_status_new_address;*/
+  /*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x \n", *p);*/
+
+  if(counter++ % 100){
+      printk(KERN_INFO "Number interruptions: %u \n", counter);
+  }
 
   return IRQ_HANDLED;
 }
@@ -134,6 +149,8 @@ void request_memory_regions(void){
     vic_control_new_address = request_mem(VIC_CONTROL, WORD_SIZE);
     sotware_int_new_address = request_mem(SOFT_INT_REGISTER, WORD_SIZE);
     gpio_data_input_new_address = request_mem(GPIO_DATA_INPUT, WORD_SIZE);
+    gpio_int_clear_new_address  = request_mem(GPIO_INT_CLEAR, WORD_SIZE);
+    gpio_int_status_new_address = request_mem(GPIO_INT_STATUS, WORD_SIZE);
 
     /* Just for tests */
     /*    unsigned int i;*/
@@ -160,6 +177,8 @@ void unregister_memory_region()
   release_mem(VIC_CONTROL, WORD_SIZE);
   release_mem(SOFT_INT_REGISTER, WORD_SIZE);
   release_mem(GPIO_DATA_INPUT, WORD_SIZE);
+  release_mem(GPIO_INT_CLEAR, WORD_SIZE);
+  release_mem(GPIO_INT_STATUS, WORD_SIZE);
 }
 
 /*  Set's all pins needed for interruptions */
@@ -195,56 +214,53 @@ void enable_gpio_interruptions(void)
 }
 
 void enable_irq_interruptions(void){
-  volatile unsigned int *p; // The volatile is extremely important here
+    volatile unsigned int *p; // The volatile is extremely important here
 
-  /* Interruption mask read  */
-  p = (unsigned int *) int_mask_new_address;
-  printk(KERN_INFO "\t IRQ Mask BEFORE:\t\t\t%08x 3.23.3\n", *p);
-  /* Enable interruptions for GPIO - Set bit 4 of Interrupt Mas Clear register to 1 */
-  p = (unsigned int *) int_mask_clear_new_address;
-  *p |= IRQ_GPIO_MASK;
-  /* Interruption mask read  */
-  p = (unsigned int *) int_mask_new_address;
-  printk(KERN_INFO "\t IRQ Mask AFTER:\t\t\t%08x Is losing value each time\n", *p);
+    /* Interruption mask read  */
+    p = (unsigned int *) int_mask_new_address;
+    printk(KERN_INFO "\t IRQ Mask BEFORE:\t\t\t%08x 3.23.3\n", *p);
+    /* Enable interruptions for GPIO - Set bit 4 of Interrupt Mas Clear register to 1 */
+    p = (unsigned int *) int_mask_clear_new_address;
+    *p |= IRQ_GPIO_MASK;
+    /* Interruption mask read  */
+    p = (unsigned int *) int_mask_new_address;
+    printk(KERN_INFO "\t IRQ Mask AFTER:\t\t\t%08x Is losing value each time\n", *p);
 
-  /* Set to level trigger mode - Set bit 4 of OF Interrupt Trigger mode to 0 */
-  p = (unsigned int *) int_trigger_mode_new_address;
-  printk(KERN_INFO "\t Trigger Mode BEFORE:\t\t\t%08x 3.23.5\n", *p);
-  *p |= IRQ_GPIO_MASK; //Not working
-  printk(KERN_INFO "\t Trigger Mode after:\t\t\t%08x NOT WORKING 2letter should be odd \n", *p);
+    /* Set to level trigger mode - Set bit 4 of OF Interrupt Trigger mode to 0 */
+    p = (unsigned int *) int_trigger_mode_new_address;
+    printk(KERN_INFO "\t Trigger Mode BEFORE:\t\t\t%08x 3.23.5\n", *p);
+    *p |= IRQ_GPIO_MASK; //Not working
+    printk(KERN_INFO "\t Trigger Mode after:\t\t\t%08x NOT WORKING 2letter should be odd \n", *p);
 
-  /* IRQ Status read */
-  p = (unsigned int *) irq_status_new_address;
-  printk(KERN_INFO "\t IRQ status BEFORE:\t\t\t%08x 3.23.8\n", *p);
+    /* IRQ Status read */
+    p = (unsigned int *) irq_status_new_address;
+    printk(KERN_INFO "\t IRQ status BEFORE:\t\t\t%08x 3.23.8\n", *p);
 
-  /* Set GPIO interruption to be treated by IRQ - Set bit 4 of FIQ select register to 0 */
-  p = (unsigned int *) int_mask_clear_new_address;
-  *p &= ~IRQ_GPIO_MASK;
+    /* Set GPIO interruption to be treated by IRQ - Set bit 4 of FIQ select register to 0 */
+    p = (unsigned int *) int_mask_clear_new_address;
+    *p &= ~IRQ_GPIO_MASK;
 
-  /* IRQ Status read */
-  p = (unsigned int *) irq_status_new_address;
-  printk(KERN_INFO "\t IRQ status AFTER:\t\t\t%08x Bit 4 should be 0\n", *p);
-
-
-  /* TEST read */
-  p = (unsigned int *) int_trigger_level_new_address;
-  printk(KERN_INFO "\t TEST trigger level Before:\t\t%08x 3.23.6 \n", *p);
-  *p |= IRQ_GPIO_MASK;
-  printk(KERN_INFO "\t TEST trigger level Before:\t\t%08x Error should change from previous\n", *p);
-
-  /*  Test VIC */
-  p = (unsigned int *) vic_control_new_address;
-  printk(KERN_INFO "\t TEST VIC CONTROL Before:\t\t%08x \n", *p);
+    /* IRQ Status read */
+    p = (unsigned int *) irq_status_new_address;
+    printk(KERN_INFO "\t IRQ status AFTER:\t\t\t%08x Bit 4 should be 0\n", *p);
 
 
-  /* Test Software interrupt  */
-  p = (unsigned int *) sotware_int_new_address;
-  printk(KERN_INFO "\t TEST Read soft int :\t\t%08x \n", *p);
-/*  *p |= IRQ_GPIO_MASK;*/
-/*  printk(KERN_INFO "\t TEST Read soft int :\t\t%08x \n", *p);*/
+    /* TEST read */
+    p = (unsigned int *) int_trigger_level_new_address;
+    printk(KERN_INFO "\t TEST trigger level Before:\t\t%08x 3.23.6 \n", *p);
+    *p |= IRQ_GPIO_MASK;
+    printk(KERN_INFO "\t TEST trigger level Before:\t\t%08x Error should change from previous\n", *p);
+
+    /*  Test VIC */
+    p = (unsigned int *) vic_control_new_address;
+    printk(KERN_INFO "\t TEST VIC CONTROL Before:\t\t%08x \n", *p);
 
 
-
+    /* Test Software interrupt  */
+    p = (unsigned int *) sotware_int_new_address;
+    printk(KERN_INFO "\t TEST Read soft int :\t\t%08x \n", *p);
+    /*  *p |= IRQ_GPIO_MASK;*/
+    /*  printk(KERN_INFO "\t TEST Read soft int :\t\t%08x \n", *p);*/
 }
 
 void print_priorities()
@@ -255,7 +271,7 @@ void print_priorities()
   for(i=0;i<32;i++)
     {
       p = (unsigned int *) (irq_priorities_new_address + i*4);
-/*      printk(KERN_EMERG "\t\t\tReading address %x %p",(irq_priorities_new_address + i), p);*/
+      /*      printk(KERN_EMERG "\t\t\tReading address %x %p",(irq_priorities_new_address + i), p);*/
 
       printk(KERN_INFO "\t\t\tReading priority %p:\t\t%08x \n", p, *p);
     }
@@ -271,17 +287,17 @@ int init(void)
   request_memory_regions();
   register_handle_interruption();
   enable_gpio_interruptions();
-/*  print_priorities();*/
-  
+  /*  print_priorities();*/
+
   test_interrupts();
 
   return 0;
 }
 
 void test_interrupts(void){
-  unsigned int * p;
-  p = (unsigned int *) gpio_data_input_new_address;
-  printk(KERN_INFO "\t GPIO Input register:\t\t\t%08x Is losing value each time\n", *p);
+    unsigned int * p;
+    p = (unsigned int *) gpio_data_input_new_address;
+    printk(KERN_INFO "\t GPIO Input register:\t\t\t%08x Is losing value each time\n", *p);
 
 }
 
