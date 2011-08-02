@@ -112,7 +112,7 @@ unsigned int counter_scl = 0;
 irqreturn_t interrupt(int irq, void *dev_id)
 {
   volatile unsigned int *p; // The volatile is extremely important here
-  /*  printk(KERN_INFO "Inside the interruption %d\n", irq);*/
+/*   printk(KERN_INFO "Inside the interruption %d\n", irq);*/
   /*  printk(KERN_EMERG "Inside the interruption %d\n", irq);*/
 
   /* Check what the interruption was*/
@@ -120,6 +120,8 @@ irqreturn_t interrupt(int irq, void *dev_id)
 /*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x %08x\n", *p, (*p & (SCL_MASK | SDA_MASK)));*/
   if(SCL_MASK & *p){
     counter_scl++;
+      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);
+      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);
   }
 
 
@@ -135,10 +137,10 @@ irqreturn_t interrupt(int irq, void *dev_id)
   p = (unsigned int *) gpio_int_clear_new_address;
   *p |= GPIOA_EN_MASK;
 
-  if(!((counter_sda + counter_scl) % 100)){
-      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);
-      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);
-  }
+/*  if(!((counter_scl) % 2)){*/
+/*      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);*/
+/*      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);*/
+/*  }*/
 
   return IRQ_HANDLED;
 }
