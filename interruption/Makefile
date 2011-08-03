@@ -1,4 +1,4 @@
-obj-m := int.o chardev.o
+obj-m := int.o sbus.o
 KDIR := /lib/modules/2.6.24.4/build/ 
 PWD := $(shell pwd)
 
