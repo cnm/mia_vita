@@ -306,3 +306,8 @@ Compile the ts7500ctl tool::
 
 Load the new FPGA::
     ./ts7500ctl -l ts7500_opencore-rev5-8XUART.vme.gz
+
+Test::
+    arm3:~# ./spictl -l 1 -w 0B:00:20:00:00 -r 32 | hexdump -C
+    00000000  20 94 e0 d4 30 03 e0 07  60 07 e0 64 00 08 e0 07  | ...0...`..d....|
+    00000010  a0 03 e0 83 74 37 e0 a0  00 10 23 00 13 40 9f e4  |....t7....#..@..|
