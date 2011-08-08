@@ -60,35 +60,8 @@ extern unsigned char xbuf1[512];
 int cavium_spi_lun(int n);
 void cavium_spi_read(int octets,char *buf,int de_cs);
 void cavium_spi_write(int octets,char *buf,int de_cs);
-void cavium_spi_readwrite(int octets,char *wbuf,char *rbuf,int de_cs);
-void cavium_flash_fastread(unsigned int adr, unsigned char *dat, unsigned int len);
 void cavium_disable_cs();
 
-#ifdef DEBUG
-#define CAVIUM_SPI_LUN(lun) \
-  buslock();\
-cavium_spi_lun(lun);\
-busunlock();
-#define CAVIUM_SPI_SPEED(clk,edge) \
-  buslock();\
-cavium_spi_speed(clk,edge);\
-busunlock();
-#define CAVIUM_SPI_READ(len1,retbuf,de_cs)\
-  buslock();\
-cavium_spi_read(len1,retbuf,de_cs);\
-busunlock();
-#define CAVIUM_SPI_WRITE(len1,buf,de_cs) \
-  buslock();\
-cavium_spi_write(len1,buf,de_cs);\
-busunlock();
-#define CAVIUM_DISABLE_CS() \
-  buslock();\
-cavium_disable_cs();\
-busunlock();
-#define DEBUGMSG(msg,...)\
-  printf(msg,__VA_ARGS__);
-
-#else
 #define CAVIUM_SPI_LUN(lun) \
   cavium_spi_lun(lun);
 #define CAVIUM_SPI_SPEED(clk,edge) \
@@ -100,7 +73,6 @@ busunlock();
 #define CAVIUM_DISABLE_CS() \
   cavium_disable_cs();
 #define DEBUGMSG(msg,...)
-#endif
 
 // takes: length of buffer, and buffer with command stream
 // and pointer to integer to put the length of buffered returned
@@ -136,9 +108,6 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
     if (did) *did = 0;
     buslock();
     lun = cavium_spi_lun(-1);
-#ifdef DEBUG
-    busunlock();
-#endif
 
     printf("interpretting %d bytes, buf=%p, end=%p\n\n",len,buf,end);
 
@@ -221,20 +190,6 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             }
             de_cs = (next < end) && ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
             printf("buf=%p,next=%p, len1=%d, len=%d\n",buf,next,len1,len);
-#ifdef DEBUG
-            //      if (de_cs == 0 && len1 > 1) {
-            //	printf("COND1=%d\n",(next > buf + len1));
-            //	printf("COND2=%d\n",(next[0] & SPI_CMD_MASK) == 0);
-            //	printf("COND3=%d\n",(next[0] & SPI_CS_AMASK) == 0);
-            //	printf("next[0]=%X, SPI_CS_AMASK=%X\n",next[0],SPI_CS_AMASK);
-            //      }
-              {
-                int i;
-                printf("write %d, de_cs=%d\n",len1,de_cs);
-                for (i=0;i<len1;i++) printf("%02X ",buf[i+1]);
-                printf("\n");
-              }
-#endif
             CAVIUM_SPI_WRITE(len1,buf+1,de_cs);
             buf += (len1+1);
             if (did) *did += (len1 + 1);
@@ -255,13 +210,7 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             printf("buf=%p,next=%p, len1=%d\n",buf,next,len1);
             printf("readwrite %d\n",len1);
             retbuf = realloc(retbuf,retlen+len1);
-#ifdef DEBUG
-            buslock();
-#endif
             cavium_spi_readwrite(len1,buf+1,retbuf+retlen,de_cs);
-#ifdef DEBUG
-            busunlock();
-#endif
             retlen += len1;
             buf += (len1+1);
             if (did) *did += (len1+1);
@@ -269,13 +218,17 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             break;
         }
     }
-#ifndef DEBUG
     busunlock();
-#endif
     if (n) *n = retlen;
 
     printf("Ended SPI\n");
     return retbuf;
+}
+
+int gotHUP = 0;
+
+void do_hup() {
+    gotHUP = 1;
 }
 
 int bufsize = 0,bufn = 0, expected=0;
@@ -314,7 +267,7 @@ int spi_assert_cs_config(int cs,int clock,int edge) {
     buf_largen(2);
     if (cs > 3) return 0;
     if (clock > 2048*65535) return 0;
-    edgelogic = (edge == 0) ? 0 
+    edgelogic = (edge == 0) ? 0
       : SPI_CS_CHEDGE | (edge>0 ? SPI_CS_EDGE_POS : SPI_CS_EDGE_NEG);
     buf[bufn++] = SPI_CS|SPI_CS_ASSERT|edgelogic|((cs>=0)?(cs|SPI_CS_DOASSERT):0);
     clock /= 2048;
@@ -354,11 +307,8 @@ void spi_readstream(int bytes) {
         bytes -= n;
     }
 
-
     printf("Ended reading spi stream??\n");
     printf("---------------------------\n\n");
-
-
 }
 
 void spi_writestream(unsigned bytes,unsigned char *buf1) {
@@ -398,25 +348,11 @@ unsigned char *spi_execute(int *n) {
 
 }
 
-
-// read device id
-void spi_read_device_id(unsigned *manufacturer, unsigned *devid) {
-    unsigned char *result;
-    spi_init();
-    spi_assert_cs(1);
-    spi_write(0x9F);
-    spi_readstream(4);
-    spi_deassert_cs(1);
-    result = spi_execute(0);
-    assert(result);
-    if (manufacturer) *manufacturer = result[1];
-    if (devid) *devid = (((unsigned)result[0]) << 8) + result[3];
-}
-
 int init_cavium();
 
 int opt_int(char *arg,int *target,int opt) {
-    return 0;
+    // JONAS TO REMOVE */
+    return 1;
 }
 
 char *parse_hex_octets(char *buf,int *n) {
@@ -476,12 +412,6 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
         break;
     }
     return 1;
-}
-
-int gotHUP = 0;
-
-void do_hup() {
-    gotHUP = 1;
 }
 
 
