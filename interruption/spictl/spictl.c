@@ -409,7 +409,6 @@ int main(int argc, char **argv) {
     buslock();
     cavium_spi_getparms(&ext,&clk,&edge,&lun);
     busunlock();
-    opt_cli_defaultport = 7552;
     printf("Ended init ---- 2\n");
     printf("-------------------------------\n");
 
