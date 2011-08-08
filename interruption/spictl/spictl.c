@@ -59,6 +59,7 @@ extern unsigned char xbuf1[512];
 
 int cavium_spi_lun(int n);
 void cavium_spi_read(int octets,char *buf,int de_cs);
+void cavium_spi_write(int octets,char *buf,int de_cs);
 void cavium_disable_cs();
 
 #define CAVIUM_SPI_LUN(lun) \
@@ -169,9 +170,9 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             de_cs = (len > 1) && ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
             retbuf = realloc(retbuf,retlen+len1);
             printf("read %d to %p, de_cs=%d\n",len1,retbuf+retlen,de_cs);
-/*            printf("----> BEFORE %08X\n", *(retbuf+retlen));*/
+            /*            printf("----> BEFORE %08X\n", *(retbuf+retlen));*/
             CAVIUM_SPI_READ(len1,retbuf+retlen,de_cs);
-/*            printf("--->HERE %08X\n", *(retbuf+retlen));*/
+            /*            printf("--->HERE %08X\n", *(retbuf+retlen));*/
             retlen += len1; //Updates the size of the return
             buf++;
             if (did) *did += 1;
@@ -266,7 +267,7 @@ int spi_assert_cs_config(int cs,int clock,int edge) {
     buf_largen(2);
     if (cs > 3) return 0;
     if (clock > 2048*65535) return 0;
-    edgelogic = (edge == 0) ? 0 
+    edgelogic = (edge == 0) ? 0
       : SPI_CS_CHEDGE | (edge>0 ? SPI_CS_EDGE_POS : SPI_CS_EDGE_NEG);
     buf[bufn++] = SPI_CS|SPI_CS_ASSERT|edgelogic|((cs>=0)?(cs|SPI_CS_DOASSERT):0);
     clock /= 2048;
@@ -280,6 +281,11 @@ int spi_assert_cs(int cs) {
     return spi_assert_cs_config(cs,0,0);
 }
 
+void spi_write(unsigned char value) {
+    buf_largen(2);
+    buf[bufn++] = SPI_WRITE|SPI_SIZE_1;
+    buf[bufn++] = value;
+}
 
 /* Creates the buf command */
 void spi_readstream(int bytes) {
@@ -305,6 +311,28 @@ void spi_readstream(int bytes) {
     printf("---------------------------\n\n");
 }
 
+void spi_writestream(unsigned bytes,unsigned char *buf1) {
+    int n,i,j;
+    unsigned ii;
+
+    while (bytes) {
+        i = n = (bytes > 8191) ? 8191 : bytes;
+        j = 1;
+        while (i) {
+            if (i & 1) {
+                buf_largen(1+bytes);
+                buf[bufn++] = SPI_WRITE|(j-1);
+                for (ii=0;ii<(1<<(j-1));ii++) {
+                    buf[bufn++] = *buf1++;
+                }
+            }
+            i >>= 1;
+            j++;
+        }
+        bytes -= n;
+    }
+}
+
 void spi_deassert_cs(int cs) {
     buf_largen(1);
     buf[bufn++] = SPI_CS|SPI_CS_DEASSERT|SPI_CS_3;
@@ -324,9 +352,30 @@ int init_cavium();
 
 int opt_int(char *arg,int *target,int opt) {
     // JONAS TO REMOVE */
-    return 0;
+    return 1;
 }
 
+char *parse_hex_octets(char *buf,int *n) {
+    char *ret,*s;
+    int i,len = strlen(buf),count=0;
+    *n = 0;
+    for (i=0;i<len;i++) {
+        if (buf[i] == ':') {
+            count++;
+        }
+    }
+    ret = malloc(2+count);
+    while (buf) {
+        s = strchr(buf,':');
+        if (s) {
+            *s++ = 0;
+        }
+        ret[n[0]] = strtoul(buf,0,16);
+        n[0]++;
+        buf = s;
+    }
+    return ret;
+}
 
 int opt_spiseq(char *arg,unsigned *target,int opt) {
     char *buf;
@@ -334,11 +383,15 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
 
     target[0]++;
     switch(opt) {
+      case 'l':
+        spi_assert_cs(atoi(arg));
+        break;
       case 'r':
         spi_readstream(atoi(arg));
         break;
-      case 'l':
-        spi_assert_cs(atoi(arg));
+      case 'w':
+        buf = parse_hex_octets(arg,&n);
+        spi_writestream(n,buf);
         break;
       case 'c':
         i = atoi(arg);
@@ -360,6 +413,7 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
     }
     return 1;
 }
+
 
 void print_octal(char * rbuf, unsigned int bytes){
     int i = 0;
@@ -438,4 +492,3 @@ int main(int argc, char **argv) {
         printf("\n");
     }
 }
-
