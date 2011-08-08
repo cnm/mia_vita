@@ -125,9 +125,12 @@ busunlock();
  * did = ???
  */
 unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int *did) {
-    unsigned char *next,*retbuf=0,*end,*buf0=buf;
+    unsigned char *next = 0; //The next command
+    unsigned char *retbuf=0,*end,*buf0=buf;
     int retlen=0,lun,clk,edge;
-    int de_cs,len1,pending=0;
+    int de_cs = 0;
+    int len1 = 0;
+    int pending=0;
 
     end = buf + len;
     if (did) *did = 0;
@@ -329,21 +332,6 @@ void spi_write(unsigned char value) {
     buf_largen(2);
     buf[bufn++] = SPI_WRITE|SPI_SIZE_1;
     buf[bufn++] = value;
-}
-
-void spi_readwrite(unsigned char value) {
-    buf_largen(2);
-    buf[bufn++] = SPI_READWRITE|SPI_SIZE_1;
-    buf[bufn++] = value;
-    expected++;
-}
-
-void spi_readwrite2(unsigned char val1,unsigned char val2) {
-    buf_largen(2);
-    buf[bufn++] = SPI_READWRITE|SPI_SIZE_2;
-    buf[bufn++] = val1;
-    buf[bufn++] = val2;
-    expected += 2;
 }
 
 /* Creates the buf command */
