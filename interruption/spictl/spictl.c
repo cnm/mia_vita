@@ -59,36 +59,8 @@ extern unsigned char xbuf1[512];
 
 int cavium_spi_lun(int n);
 void cavium_spi_read(int octets,char *buf,int de_cs);
-void cavium_spi_write(int octets,char *buf,int de_cs);
-void cavium_spi_readwrite(int octets,char *wbuf,char *rbuf,int de_cs);
-void cavium_flash_fastread(unsigned int adr, unsigned char *dat, unsigned int len);
 void cavium_disable_cs();
 
-#ifdef DEBUG
-#define CAVIUM_SPI_LUN(lun) \
-  buslock();\
-cavium_spi_lun(lun);\
-busunlock();
-#define CAVIUM_SPI_SPEED(clk,edge) \
-  buslock();\
-cavium_spi_speed(clk,edge);\
-busunlock();
-#define CAVIUM_SPI_READ(len1,retbuf,de_cs)\
-  buslock();\
-cavium_spi_read(len1,retbuf,de_cs);\
-busunlock();
-#define CAVIUM_SPI_WRITE(len1,buf,de_cs) \
-  buslock();\
-cavium_spi_write(len1,buf,de_cs);\
-busunlock();
-#define CAVIUM_DISABLE_CS() \
-  buslock();\
-cavium_disable_cs();\
-busunlock();
-#define DEBUGMSG(msg,...)\
-  printf(msg,__VA_ARGS__);
-
-#else
 #define CAVIUM_SPI_LUN(lun) \
   cavium_spi_lun(lun);
 #define CAVIUM_SPI_SPEED(clk,edge) \
@@ -100,7 +72,6 @@ busunlock();
 #define CAVIUM_DISABLE_CS() \
   cavium_disable_cs();
 #define DEBUGMSG(msg,...)
-#endif
 
 // takes: length of buffer, and buffer with command stream
 // and pointer to integer to put the length of buffered returned
@@ -115,27 +86,33 @@ busunlock();
    3. commands are length denoted strings
    4. if we can look ahead to the next command and see that is it a
    de-assertion, we can optimize.
-
-
+ */
+/*
+ * Executes the SPI commands present in the buf var
+ * 
+ * len = lenght in bytes ??
+ * buf = buf of commands
+ * n   = ???
+ * did = ???
  */
 unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int *did) {
-    unsigned char *next,*retbuf=0,*end,*buf0=buf;
+    unsigned char *next = 0; //The next command
+    unsigned char *retbuf=0,*end,*buf0=buf;
     int retlen=0,lun,clk,edge;
-    int de_cs,len1,pending=0;
+    int de_cs = 0;
+    int len1 = 0;
+    int pending=0;
 
     end = buf + len;
     if (did) *did = 0;
     buslock();
     lun = cavium_spi_lun(-1);
-#ifdef DEBUG
-    busunlock();
-#endif
 
     printf("interpretting %d bytes, buf=%p, end=%p\n\n",len,buf,end);
 
     while (len > 0) {
         printf("\t%d bytes left, buf[0]=%02X\n",len,buf[0]);
-        switch ((buf[0] & SPI_CMD_MASK) >> 6) {
+        switch ((buf[0] & SPI_CMD_MASK) >> 6) { //buf[0] & b1100_0000
 
 
           case 0: // SPI_CS
@@ -189,12 +166,13 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             printf("\nSPI_READ\n");
             len1 = (1 << ((unsigned)buf[0] & SPI_SIZE_MASK));
             next = buf+1;
-            de_cs = (len > 1) &&
-              ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
+            de_cs = (len > 1) && ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
             retbuf = realloc(retbuf,retlen+len1);
             printf("read %d to %p, de_cs=%d\n",len1,retbuf+retlen,de_cs);
+/*            printf("----> BEFORE %08X\n", *(retbuf+retlen));*/
             CAVIUM_SPI_READ(len1,retbuf+retlen,de_cs);
-            retlen += len1;
+/*            printf("--->HERE %08X\n", *(retbuf+retlen));*/
+            retlen += len1; //Updates the size of the return
             buf++;
             if (did) *did += 1;
             len--;
@@ -209,23 +187,8 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
                 if (n) *n = retlen;
                 return retbuf;
             }
-            de_cs = (next < end) &&
-              ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
+            de_cs = (next < end) && ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
             printf("buf=%p,next=%p, len1=%d, len=%d\n",buf,next,len1,len);
-#ifdef DEBUG
-            //      if (de_cs == 0 && len1 > 1) {
-            //	printf("COND1=%d\n",(next > buf + len1));
-            //	printf("COND2=%d\n",(next[0] & SPI_CMD_MASK) == 0);
-            //	printf("COND3=%d\n",(next[0] & SPI_CS_AMASK) == 0);
-            //	printf("next[0]=%X, SPI_CS_AMASK=%X\n",next[0],SPI_CS_AMASK);
-            //      }
-              {
-                int i;
-                printf("write %d, de_cs=%d\n",len1,de_cs);
-                for (i=0;i<len1;i++) printf("%02X ",buf[i+1]);
-                printf("\n");
-              }
-#endif
             CAVIUM_SPI_WRITE(len1,buf+1,de_cs);
             buf += (len1+1);
             if (did) *did += (len1 + 1);
@@ -246,13 +209,7 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             printf("buf=%p,next=%p, len1=%d\n",buf,next,len1);
             printf("readwrite %d\n",len1);
             retbuf = realloc(retbuf,retlen+len1);
-#ifdef DEBUG
-            buslock();
-#endif
             cavium_spi_readwrite(len1,buf+1,retbuf+retlen,de_cs);
-#ifdef DEBUG
-            busunlock();
-#endif
             retlen += len1;
             buf += (len1+1);
             if (did) *did += (len1+1);
@@ -260,13 +217,17 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             break;
         }
     }
-#ifndef DEBUG
     busunlock();
-#endif
     if (n) *n = retlen;
 
     printf("Ended SPI\n");
     return retbuf;
+}
+
+int gotHUP = 0;
+
+void do_hup() {
+    gotHUP = 1;
 }
 
 int bufsize = 0,bufn = 0, expected=0;
@@ -319,27 +280,8 @@ int spi_assert_cs(int cs) {
     return spi_assert_cs_config(cs,0,0);
 }
 
-void spi_write(unsigned char value) {
-    buf_largen(2);
-    buf[bufn++] = SPI_WRITE|SPI_SIZE_1;
-    buf[bufn++] = value;
-}
 
-void spi_readwrite(unsigned char value) {
-    buf_largen(2);
-    buf[bufn++] = SPI_READWRITE|SPI_SIZE_1;
-    buf[bufn++] = value;
-    expected++;
-}
-
-void spi_readwrite2(unsigned char val1,unsigned char val2) {
-    buf_largen(2);
-    buf[bufn++] = SPI_READWRITE|SPI_SIZE_2;
-    buf[bufn++] = val1;
-    buf[bufn++] = val2;
-    expected += 2;
-}
-
+/* Creates the buf command */
 void spi_readstream(int bytes) {
     printf("Reading the spi stream??\n");
     int n,i,j;
@@ -359,33 +301,8 @@ void spi_readstream(int bytes) {
         bytes -= n;
     }
 
-
     printf("Ended reading spi stream??\n");
     printf("---------------------------\n\n");
-
-
-}
-
-void spi_writestream(unsigned bytes,unsigned char *buf1) {
-    int n,i,j;
-    unsigned ii;
-
-    while (bytes) {
-        i = n = (bytes > 8191) ? 8191 : bytes;
-        j = 1;
-        while (i) {
-            if (i & 1) {
-                buf_largen(1+bytes);
-                buf[bufn++] = SPI_WRITE|(j-1);
-                for (ii=0;ii<(1<<(j-1));ii++) {
-                    buf[bufn++] = *buf1++;
-                }
-            }
-            i >>= 1;
-            j++;
-        }
-        bytes -= n;
-    }
 }
 
 void spi_deassert_cs(int cs) {
@@ -403,60 +320,13 @@ unsigned char *spi_execute(int *n) {
 
 }
 
-void spi_stop() {
-    /* Close connection */
-    if (server > 0) {
-        NOSIG(close(server));
-        server = -1;
-    }
-}
-
-// read device id
-void spi_read_device_id(unsigned *manufacturer, unsigned *devid) {
-    unsigned char *result;
-    spi_init();
-    spi_assert_cs(1);
-    spi_write(0x9F);
-    spi_readstream(4);
-    spi_deassert_cs(1);
-    result = spi_execute(0);
-    assert(result);
-    if (manufacturer) *manufacturer = result[1];
-    if (devid) *devid = (((unsigned)result[0]) << 8) + result[3];
-}
-
 int init_cavium();
 
 int opt_int(char *arg,int *target,int opt) {
-    if (!arg) {
-        *target = 7575;
-    } else {
-        *target = atoi(arg);
-    }
-    return 1;
+    // JONAS TO REMOVE */
+    return 0;
 }
 
-char *parse_hex_octets(char *buf,int *n) {
-    char *ret,*s;
-    int i,len = strlen(buf),count=0;
-    *n = 0;
-    for (i=0;i<len;i++) {
-        if (buf[i] == ':') {
-            count++;
-        }
-    }
-    ret = malloc(2+count);
-    while (buf) {
-        s = strchr(buf,':');
-        if (s) {
-            *s++ = 0;
-        }
-        ret[n[0]] = strtoul(buf,0,16);
-        n[0]++;
-        buf = s;
-    }
-    return ret;
-}
 
 int opt_spiseq(char *arg,unsigned *target,int opt) {
     char *buf;
@@ -464,34 +334,11 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
 
     target[0]++;
     switch(opt) {
-      case 'p':
-        if (opt_cli(arg,&i,opt)) {
-            if (server != -1) {
-                unsigned char *buf = spi_execute(&i);
-                write(1,buf,i);
-                NOSIG(close(server));
-            }
-            server = i;
-        }
-        break;
-      case 'l':
-        spi_assert_cs(atoi(arg));
-        break;
       case 'r':
         spi_readstream(atoi(arg));
         break;
-      case 'w':
-        buf = parse_hex_octets(arg,&n);
-        spi_writestream(n,buf);
-        break;
-      case 'd':
-        buf = parse_hex_octets(arg,&n);
-        for (i=0;i<n-1;i+=2) {
-            spi_readwrite2(buf[i],buf[i+1]);
-        }
-        if (i < n) {
-            spi_readwrite(buf[i]);
-        }
+      case 'l':
+        spi_assert_cs(atoi(arg));
         break;
       case 'c':
         i = atoi(arg);
@@ -514,59 +361,17 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
     return 1;
 }
 
-/*
- * This function records a PID so that ts7500ctl --loadfpga will send
- * a SIGHUP to the PID after FPGA reconfiguration.
- *
- * Predefined slots:
- *  0 - sdctl NBD service
- *  1 - nand NBD service
- *  2 - SPI flash NBD service
- *  3 - xuartctl --server service
- *  4 - canctl --server service
- *  5 - dmxctl --server service
- *  6 - spictl --server service
- *  7 - reserved
- *  8 - reserved
- *  >= 9 is invalid
- *
- * Before calling, application should setup or ignore the SIGHUP signal. 
- * e.g. signal(SIGHUP, SIG_IGN);
- */
-record_daemon_pid(int slot) {
-    key_t shmkey;
-    int shmid;
-    unsigned int *sbus_shm;
-
-    shmkey = 0x75000000;
-    shmid = shmget(shmkey, 0x1000, IPC_CREAT);
-    assert(shmid != -1);
-    sbus_shm = shmat(shmid, NULL, 0);
-    sbus_shm += (slot * 32);
-    sbus_shm[0] = getpid();
-
-    shmdt(sbus_shm);
-    return 0;
-}
-
-int gotHUP = 0;
-
-void do_hup() {
-    gotHUP = 1;
-}
-
-
 void print_octal(char * rbuf, unsigned int bytes){
     int i = 0;
 
-while(i<=bytes){
-  printf(" %X ", rbuf+i);
-  i += 4;
-}
+    while(i<=bytes){
+        printf(" %08X ", *(rbuf+i));
+        i += 4;
+    }
 
-printf("\n");
+    printf("\n");
 
-return;
+    return;
 }
 
 int main(int argc, char **argv) {
@@ -578,15 +383,15 @@ int main(int argc, char **argv) {
     unsigned char buf[512],*rbuf;
 
     struct option2 opts[] = {
-          { 1, (opt_func)opt_spiseq,&opt_doseq  ,"<c>lock", "frequency    SPI clock frequency" },
-          { 1, (opt_func)opt_spiseq,&opt_doseq  ,"<e>dge", "value         set clock edge (positive for > 0, negative for < 0)" },
-          { 1, (opt_func)opt_spiseq ,&opt_doseq ,"<w>ritestream", "data   write colon delimited hex octets to SPI" },
-          { 1, (opt_func)opt_spiseq ,&opt_doseq ,"rea<d>write", "data     write colon delimited hex octets to SPI while reading to stdout" },
-          { 1, (opt_func)opt_spiseq ,&opt_doseq ,"<r>eadstream", "bytes   read specified number of bytes from SPI to stdout" },
-          { 0, (opt_func)opt_bool  ,&opt_holdcs ,"h<o>ldcs", "            don't de-assert CS# when done" },
-          { 1, (opt_func)opt_spiseq,&opt_doseq  ,"<l>un", "id             Talk to specified chip number" },
-          { 2, (opt_func)opt_int   ,&opt_server ,"<s>erver", "<port>      Daemonize and run as server listening on port" },
-          { 1, (opt_func)opt_spiseq,&opt_client ,"<p>ort", "<host><:port> Talk to spictl server" },
+          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<c>lock", "frequency    SPI clock frequency" },
+          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<e>dge", "value         set clock edge (positive for > 0, negative for < 0)" },
+          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<w>ritestream", "data   write colon delimited hex octets to SPI" },
+          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"rea<d>write", "data     write colon delimited hex octets to SPI while reading to stdout" },
+          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<r>eadstream", "bytes   read specified number of bytes from SPI to stdout" },
+          { 0, (opt_func)opt_bool   ,&opt_holdcs ,"h<o>ldcs", "            don't de-assert CS# when done" },
+          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<l>un", "id             Talk to specified chip number" },
+          { 2, (opt_func)opt_int    ,&opt_server ,"<s>erver", "<port>      Daemonize and run as server listening on port" },
+          { 1, (opt_func)opt_spiseq ,&opt_client ,"<p>ort", "<host><:port> Talk to spictl server" },
           { 0,0,0,"Technologic Systems SPI controller manipulation.\n\nGeneral options:\n",
             "hex octets are hexadecimal bytes. for example,\n"
               "this command reads 32 bytes of CS#1 SPI flash from address 8192:\n"
@@ -630,7 +435,7 @@ int main(int argc, char **argv) {
 
         print_octal(rbuf, bytes);
 
-/*      write(1,rbuf,bytes);*/
+        /*      write(1,rbuf,bytes);*/
         printf("\n");
     }
 }

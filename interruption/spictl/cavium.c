@@ -202,7 +202,7 @@ void cavium_spi_read(int octets,char *buf,int de_cs) {
   }
   while (n >= 4) {
     s = cavium_peek16(0x0A); // pipelined read
-    printf("s1=%X\n",s);
+/*    printf("s1=%X\n",s);*/
     *buf++ = s & 0xff;
     *buf++ = s >> 8;
     n -= 2;
