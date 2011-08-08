@@ -14,7 +14,7 @@
 #define SPI_CMD_MASK            b1100_0000
 #define SPI_CS			b00xx_xxxx
 #define SPI_CS_AMASK            b0010_0000
-# define SPI_CS_ASSERT  	bxx1x_xxxx
+# define SPI_CS_ASSERT	        bxx1x_xxxx
 # define SPI_CS_DEASSERT	bxx0x_xxxx
 #define SPI_CS_DOMASK           b0001_0000
 # define SPI_CS_DOASSERT        bxxx1_0000
@@ -307,11 +307,12 @@ void spi_readstream(int bytes) {
         bytes -= n;
     }
 
-    printf("Ended reading spi stream??\n");
+    printf("Ended creating the command to read spi stream??\n");
     printf("---------------------------\n\n");
 }
 
 void spi_writestream(unsigned bytes,unsigned char *buf1) {
+    printf("Writing: %d \n", bytes);
     int n,i,j;
     unsigned ii;
 
@@ -322,8 +323,10 @@ void spi_writestream(unsigned bytes,unsigned char *buf1) {
             if (i & 1) {
                 buf_largen(1+bytes);
                 buf[bufn++] = SPI_WRITE|(j-1);
+                printf("$$$$$$$$$$$$$$$$ \t\t\t\ti:%d\tbuf:%x\n", i, SPI_WRITE|(j-1));
                 for (ii=0;ii<(1<<(j-1));ii++) {
                     buf[bufn++] = *buf1++;
+                    printf("################ \t\t\t\ti:%d\tbuf:%x\n", ii, buf[bufn-1]);
                 }
             }
             i >>= 1;
@@ -348,6 +351,7 @@ unsigned char *spi_execute(int *n) {
 
 }
 
+/* See chapter 5.7 in the manual  */
 int init_cavium();
 
 int opt_int(char *arg,int *target,int opt) {
