@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include "defbin.h"
 #include "opt.h"
-#include "sock.h"
 #include "file.h"
 //Stream protocol:
 #define SPI_CMD_MASK            b1100_0000
@@ -83,7 +82,6 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
     int retlen=0,lun,clk,edge;
     int de_cs = 0;
     int len1 = 0;
-    int pending=0;
 
     end = buf + len;
     if (did) *did = 0;
@@ -133,10 +131,10 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
 
             } else {
                 if (buf0 == buf) { // first command
-                    printf("CMD 0 deassert (forced)\n",0);
+                    printf("CMD 0 deassert (forced)\n");
                     CAVIUM_DISABLE_CS();
                 } else {
-                    printf("CMD 0 deassert\n",0);
+                    printf("CMD 0 deassert\n");
                 }
                 buf++;
                 if (did) *did += 1;
@@ -257,9 +255,6 @@ void spi_readstream(int bytes) {
 }
 
 unsigned char *spi_execute(int *n) {
-    char *buf1;
-    unsigned ms = 1000;
-    int got;
     printf("Executing SPI\n");
 
     return interpret_spi_commandstream(bufn,buf,n,0);
@@ -274,8 +269,7 @@ int opt_int(char *arg,int *target,int opt) {
 }
 
 int opt_spiseq(char *arg,unsigned *target,int opt) {
-    char *buf;
-    int i,n;
+    int i;
 
     target[0]++;
     switch(opt) {
@@ -319,12 +313,10 @@ void print_octal(char * rbuf, unsigned int bytes){
 }
 
 int main(int argc, char **argv) {
-    unsigned opt_bytes=512;
-    int opt_read=-1, opt_doseq = 0, opt_holdcs=0 , opt_lun=0;
-    int opt_server = 0, opt_client = -1, opt_verbose = 0;
-    int opt_ce = 0, opt_se = -1;
-    int manu=-1, dev=-1, bytes, total=0,ext=0;
-    unsigned char buf[512],*rbuf;
+    int opt_doseq = 0;
+    int opt_server = 0;
+    int bytes =0,ext=0;
+    unsigned char *rbuf;
 
     struct option2 opts[] = {
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<c>lock", "frequency    SPI clock frequency" },
@@ -332,18 +324,7 @@ int main(int argc, char **argv) {
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<r>eadstream", "bytes   read specified number of bytes from SPI to stdout" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<l>un", "id             Talk to specified chip number" },
           { 2, (opt_func)opt_int    ,&opt_server ,"<s>erver", "<port>      Daemonize and run as server listening on port" },
-          { 1, (opt_func)opt_spiseq ,&opt_client ,"<p>ort", "<host><:port> Talk to spictl server" },
-          { 0,0,0,"Technologic Systems SPI controller manipulation.\n\nGeneral options:\n",
-            "hex octets are hexadecimal bytes. for example,\n"
-              "this command reads 32 bytes of CS#1 SPI flash from address 8192:\n"
-              "./spictl -l 1 -w 0B:00:20:00:00 -r 32\n"
-              /*
-                 TS-4500 + TS-8200
-                 ./spictl -e 1 -c 2000000 -l 0 -w 04:00 -d 08:00:14:00:18:00:24:00:28:00:34:00:38:00 -r 2 | hexdump -C
-                 should return something close to this:
-                 6e 0a 76 0a 35 0d 29 06  78 0a aa 0b 70 0a 00 00
-               */
-          }
+          { 0,0,0,"Technologic Systems SPI controller manipulation.", "hex octets are hexadecimal bytes. for example,\n"}
     };
     printf("Initiating and locking\n");
     init_cavium();
@@ -360,4 +341,6 @@ int main(int argc, char **argv) {
     printf("Read bytes:\n");
     print_octal(rbuf, bytes);
     printf("\n");
+
+    return 0;
 }
