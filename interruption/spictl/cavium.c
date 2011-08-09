@@ -227,84 +227,7 @@ void cavium_spi_read(int octets,char *buf,int de_cs) {
   }
 }
 
-void cavium_spi_write(int octets,char *buf,int de_cs) {
-  int n = octets;
-  if (n > 16 && maxspeed) {
-    if (n % 2 == 0) {
-      DEBUGMSG("poke16_stream %X for %d\n",0xA,(n-2)/2);
-      cavium_poke16_stream(0x0A, (unsigned short *)buf, (n-2)/2);
-      n = 2;
-    } else {
-      DEBUGMSG("peek16_stream %X for %d\n",0xA,(n-3)/2);
-      cavium_poke16_stream(0x0A, (unsigned short *)buf, (n-3)/2);
-      n = 3;
-    }
-  }
-  while (n >= 4) {
-    cavium_poke16(0x08,buf[1]+(buf[0]<<8));
-    buf += 2;
-    n -= 2;
-  }
-  if (n > 2) { // n == 3
-    cavium_poke16(0x08,buf[1]+(buf[0]<<8));
-    buf += 2;
-    n -= 2;
-    cavium_poke8(de_cs?0xC:0x8,buf[0]);
-  } else if (n == 2) {
-    cavium_poke16(de_cs?0x0C:0x8,buf[1]+(buf[0]<<8));
-    buf += 2;
-    n -= 2;
-  } else if (n == 1) {
-    cavium_poke8(de_cs?0xC:0x8,buf[0]);
-  }
-}
 
-void cavium_spi_readwrite(int octets,char *wbuf,char *rbuf,int de_cs) {
-  unsigned s;
-  int n = octets;
-  while (n >= 4) {
-    cavium_poke16(0x08,wbuf[1]+(wbuf[0]<<8));
-    s = cavium_peek16(0x02);
-    wbuf += 2;
-    *rbuf++ = s & 0xff;
-    *rbuf++ = s >> 8;
-    n -= 2;
-  }
-  if (n > 2) { // n == 3
-    cavium_poke16(0x08,wbuf[1]+(wbuf[0]<<8));
-    s = cavium_peek16(0x08);
-    wbuf += 2;
-    *rbuf++ = s & 0xff;
-    *rbuf++ = s >> 8;
-    n -= 2;
-    cavium_poke8(de_cs?0xC:0x8,wbuf[0]);
-    *rbuf = cavium_peek8(0x2);
-  } else if (n == 2) {
-    cavium_poke16(de_cs?0x0C:0x8,wbuf[1]+(wbuf[0]<<8));
-    s = cavium_peek16(0x2);
-    *rbuf++ = s & 0xff;
-    *rbuf++ = s >> 8;
-    n -= 2;
-  } else if (n == 1) {
-    cavium_poke8(de_cs?0xC:0x8,wbuf[0]);
-    *rbuf = cavium_peek8(0x2);
-  }
-}
-/*
-static inline void rdid(unsigned int *manufacturer, unsigned int *devid) {
-  int i, j;
-
-  cavium_poke8(0x8, 0x9f);
-  i = cavium_peek16(0x8);
-  if (manufacturer) *manufacturer = i >> 8;
-  j = cavium_peek16(0xc);
-  if (devid) *devid = ((i & 0xff) << 8) | (j >> 8);
-}
-*/
-int rdsr(void) {
-  cavium_poke8(0x8, 0x5);
-  return cavium_peek16(0xc) >> 8;
-}
 
 unsigned char xbuf1[512];
 
@@ -618,16 +541,5 @@ void sbusunlock(void) {
 	sbuslocked = 0;
 }
 
-
-void sbuspreempt(void) {
-	int r;
-	r = semctl(semid, 0, GETNCNT);
-	assert (r != -1);
-	if (r) {
-		sbusunlock();
-		sched_yield();
-		sbuslock();
-	}
-}
 
 #endif

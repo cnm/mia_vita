@@ -202,10 +202,6 @@ void buf_largen(unsigned by) {
     }
 }
 
-void spi_start(char *ip,int port) {
-    server = create_client_socket(ip,port);
-}
-
 void spi_init() {
     if (buf) {
         free(buf);
@@ -233,7 +229,7 @@ int spi_assert_cs_config(int cs,int clock,int edge) {
 
 int use_lun1() {
     int lun1 = 1;
-    return spi_assert_cs_config(1,0,0);
+    return spi_assert_cs_config(lun1,0,0);
 }
 
 /* Creates the buf command */
