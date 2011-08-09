@@ -5,56 +5,6 @@
 #include <string.h>
 #include "opt.h"
 
-int opt_cli_defaultport = 7033;
-// "<host:>port" tries to open a socket; descriptor goes in *target
-// "<host> assumes port 7033 on the remote host
-// "port" assumes localhost
-// no option assumes localhost, port 7033
-// port 7033 can be overridden
-int opt_cli(char *arg,int *target,int opt) {
-  char *sport, *host;
-  int port;
-
-  if (!arg) {
-    host = "127.0.0.1";
-    port = opt_cli_defaultport;
-  } else {
-    sport = strchr(arg,':');
-    if (sport) { // <host>:<port>
-      *(sport++) = 0;
-      host = arg;
-      port = strtoul(sport, NULL, 0);
-    } else if (!strchr(arg,'.') && (port = atoi(arg))) {
-      host = "127.0.0.1";
-    } else {
-      host = arg;
-      port = opt_cli_defaultport;
-    }
-  }
-  *target = create_client_socket(host,port);
-  if (*target < 0) {
-    perror("create_client_socket:");
-    return 0;
-  }
-  return 1;
-}
-
-int opt_str(char *arg,char **target,int opt) {
-  *target = malloc(strlen(arg)+1);
-  strcpy(*target,arg);
-  return 1;
-}
-
-int opt_bool(char *arg,int *target,int opt) {
-  *target = 1;
-  return 1;
-}
-			
-int opt_long(char *arg,unsigned *target,int opt) {
-  *target = strtoul(arg,NULL,0);
-  return 1;
-}
-
 // replace the first occurence of <X> with X in str.
 // if this character is upper-case, make it lower-case
 char *unaccelerate(const char *str) {

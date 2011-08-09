@@ -330,7 +330,6 @@ int main(int argc, char **argv) {
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<c>lock", "frequency    SPI clock frequency" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<e>dge", "value         set clock edge (positive for > 0, negative for < 0)" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<r>eadstream", "bytes   read specified number of bytes from SPI to stdout" },
-          { 0, (opt_func)opt_bool   ,&opt_holdcs ,"h<o>ldcs", "            don't de-assert CS# when done" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<l>un", "id             Talk to specified chip number" },
           { 2, (opt_func)opt_int    ,&opt_server ,"<s>erver", "<port>      Daemonize and run as server listening on port" },
           { 1, (opt_func)opt_spiseq ,&opt_client ,"<p>ort", "<host><:port> Talk to spictl server" },
