@@ -314,7 +314,6 @@ void print_octal(char * rbuf, unsigned int bytes){
 
 int main(int argc, char **argv) {
     int opt_doseq = 0;
-    int opt_server = 0;
     int bytes =0,ext=0;
     unsigned char *rbuf;
 
@@ -323,7 +322,6 @@ int main(int argc, char **argv) {
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<e>dge", "value         set clock edge (positive for > 0, negative for < 0)" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<r>eadstream", "bytes   read specified number of bytes from SPI to stdout" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<l>un", "id             Talk to specified chip number" },
-          { 2, (opt_func)opt_int    ,&opt_server ,"<s>erver", "<port>      Daemonize and run as server listening on port" },
           { 0,0,0,"Technologic Systems SPI controller manipulation.", "hex octets are hexadecimal bytes. for example,\n"}
     };
     printf("Initiating and locking\n");

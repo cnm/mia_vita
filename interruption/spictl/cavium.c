@@ -106,7 +106,7 @@ int cavium_spi_detect_extsup() {
 }
 
 void cavium_spi_getparms(int *ext,int *clock,int *edge,int *lun) {
-  unsigned short val,val2,val3;
+  unsigned short val;
   int divisor;
 
   val = getR0(0);
@@ -247,7 +247,6 @@ void _init_cavium() {
 
 int init_cavium() {
   int devmem=-1;
-  int spi_ext=0;
 
   cvspiregs  = map_phys(0x71000000,&devmem);
   assert(devmem != -1);
@@ -275,8 +274,6 @@ void cavium_poke8(unsigned int adr, unsigned char dat) {
 void cavium_poke16(unsigned int adr, unsigned short dat) {
   unsigned int dummy;
   unsigned int d = dat;
-  volatile unsigned int *spi = cvspiregs;
-
 
   printf("POKE16 dat=%X,adr=%X\n",dat,adr);
   asm volatile (
@@ -315,7 +312,6 @@ unsigned char cavium_peek8(unsigned int adr) {
 
 unsigned short cavium_peek16(unsigned int adr) {
   unsigned short ret;
-  volatile unsigned int *spi = cvspiregs;
 
   asm volatile (
 		"mov %0, %1, lsl #18\n"
@@ -390,8 +386,6 @@ void cavium_poke16_stream(unsigned int adr, unsigned short *dat, unsigned int le
 
 void cavium_peek16_stream(unsigned int adr, unsigned short *dat, unsigned int len) {
   unsigned int dummy;
-  volatile unsigned int *spi = cvspiregs;
-  
 
   asm volatile(
 	       "mov %0, #0x0\n"

@@ -46,9 +46,8 @@ int accelerate(const char *str) {
 }
 
 void process_options(int argc,char **argv,struct option2 *opts) {
-  const struct option2 *opts0 = opts;
   struct option *long_options;
-  char *optstr,*helpstr;
+  char *optstr;
   const char *prolog="",*epilog="";
   int i,n,j,c;
 
