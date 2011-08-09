@@ -5,14 +5,7 @@
  *
  */
 
-#include <assert.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <signal.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 #include "defbin.h"
 #include "opt.h"
 #include "sock.h"
@@ -21,38 +14,18 @@
 #define SPI_CMD_MASK            b1100_0000
 #define SPI_CS			b00xx_xxxx
 #define SPI_CS_AMASK            b0010_0000
-# define SPI_CS_ASSERT	        bxx1x_xxxx
-# define SPI_CS_DEASSERT	bxx0x_xxxx
+#define SPI_CS_ASSERT	        bxx1x_xxxx
+#define SPI_CS_DEASSERT	        bxx0x_xxxx
 #define SPI_CS_DOMASK           b0001_0000
-# define SPI_CS_DOASSERT        bxxx1_0000
+#define SPI_CS_DOASSERT         bxxx1_0000
 #define SPI_CS_EMASK1           b0000_1000
 #define SPI_CS_EMASK2           b0000_0100
 #define SPI_CS_CHEDGE           bxxxx_1xxx
 #define SPI_CS_EDGE_POS         bxxxx_x1xx
 #define SPI_CS_EDGE_NEG         bxxxx_x0xx
 #define SPI_CS_NMASK            b0000_0011
-# define SPI_CS_0               bxxxx_xx00
-# define SPI_CS_1               bxxxx_xx01
-# define SPI_CS_2               bxxxx_xx10
-# define SPI_CS_3               bxxxx_xx11
 #define SPI_READ		b01xx_xxxx
-#define SPI_WRITE		b10xx_xxxx
-#define SPI_READWRITE		b11xx_xxxx
-# define SPI_SIZE_1             bxx00_0000
-# define SPI_SIZE_2             bxx00_0001
-# define SPI_SIZE_4             bxx00_0010
-# define SPI_SIZE_8             bxx00_0011
-# define SPI_SIZE_16            bxx00_0100
-# define SPI_SIZE_512           bxx00_1001
-# define SPI_SIZE_4096          bxx00_1100
 #define SPI_SIZE_MASK           b0011_1111
-
-#define NOSIG(expression)			\
-  (__extension__				\
-   ({ long int __result;			\
-    do __result = (long int) (expression);	\
-    while (__result == -1L && errno == EINTR);	\
-    __result; }))
 
 void print_octal(char * rbuf, unsigned int bytes);
 
@@ -249,8 +222,7 @@ int spi_assert_cs_config(int cs,int clock,int edge) {
     buf_largen(2);
     if (cs > 3) return 0;
     if (clock > 2048*65535) return 0;
-    edgelogic = (edge == 0) ? 0
-      : SPI_CS_CHEDGE | (edge>0 ? SPI_CS_EDGE_POS : SPI_CS_EDGE_NEG);
+    edgelogic = (edge == 0) ? 0 : SPI_CS_CHEDGE | (edge>0 ? SPI_CS_EDGE_POS : SPI_CS_EDGE_NEG);
     buf[bufn++] = SPI_CS|SPI_CS_ASSERT|edgelogic|((cs>=0)?(cs|SPI_CS_DOASSERT):0);
     clock /= 2048;
     printf("--clock=%d\n",clock);
@@ -259,8 +231,9 @@ int spi_assert_cs_config(int cs,int clock,int edge) {
     return 1;
 }
 
-int spi_assert_cs(int cs) {
-    return spi_assert_cs_config(cs,0,0);
+int use_lun1() {
+    int lun1 = 1;
+    return spi_assert_cs_config(1,0,0);
 }
 
 /* Creates the buf command */
@@ -287,11 +260,6 @@ void spi_readstream(int bytes) {
     printf("---------------------------\n\n");
 }
 
-void spi_deassert_cs(int cs) {
-    buf_largen(1);
-    buf[bufn++] = SPI_CS|SPI_CS_DEASSERT|SPI_CS_3;
-}
-
 unsigned char *spi_execute(int *n) {
     char *buf1;
     unsigned ms = 1000;
@@ -315,9 +283,6 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
 
     target[0]++;
     switch(opt) {
-      case 'l':
-        spi_assert_cs(atoi(arg));
-        break;
       case 'r':
         spi_readstream(atoi(arg));
         break;
@@ -359,7 +324,7 @@ void print_octal(char * rbuf, unsigned int bytes){
 
 int main(int argc, char **argv) {
     unsigned opt_bytes=512;
-    int opt_read=-1,opt_write=-1, opt_doseq = 0, opt_holdcs=0 , opt_lun=0;
+    int opt_read=-1, opt_doseq = 0, opt_holdcs=0 , opt_lun=0;
     int opt_server = 0, opt_client = -1, opt_verbose = 0;
     int opt_ce = 0, opt_se = -1;
     int manu=-1, dev=-1, bytes, total=0,ext=0;
@@ -368,8 +333,6 @@ int main(int argc, char **argv) {
     struct option2 opts[] = {
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<c>lock", "frequency    SPI clock frequency" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<e>dge", "value         set clock edge (positive for > 0, negative for < 0)" },
-          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<w>ritestream", "data   write colon delimited hex octets to SPI" },
-          { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"rea<d>write", "data     write colon delimited hex octets to SPI while reading to stdout" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<r>eadstream", "bytes   read specified number of bytes from SPI to stdout" },
           { 0, (opt_func)opt_bool   ,&opt_holdcs ,"h<o>ldcs", "            don't de-assert CS# when done" },
           { 1, (opt_func)opt_spiseq ,&opt_doseq  ,"<l>un", "id             Talk to specified chip number" },
@@ -395,7 +358,7 @@ int main(int argc, char **argv) {
     printf("Ended init ---- 2\n");
     printf("-------------------------------\n");
 
-
+    use_lun1();
     process_options(argc,argv,opts);
 
     rbuf = spi_execute(&bytes);
