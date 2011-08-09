@@ -1,3 +1,10 @@
+/*
+ * Command to work:
+ *
+ * ./spictl -l 1 -r 4
+ *
+ */
+
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -47,6 +54,8 @@
     while (__result == -1L && errno == EINTR);	\
     __result; }))
 
+void print_octal(char * rbuf, unsigned int bytes);
+
 struct instance_data {
     unsigned char *un;
     int bytes;
@@ -59,7 +68,6 @@ extern unsigned char xbuf1[512];
 
 int cavium_spi_lun(int n);
 void cavium_spi_read(int octets,char *buf,int de_cs);
-void cavium_spi_write(int octets,char *buf,int de_cs);
 void cavium_disable_cs();
 
 #define CAVIUM_SPI_LUN(lun) \
@@ -141,7 +149,7 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
                     }
                 } else {
                     edge = 0;
-                } 
+                }
                 printf("clk=%d, edge=%d\n",clk,edge);
                 if (clk || edge) {
                     CAVIUM_SPI_SPEED(clk,edge);
@@ -181,40 +189,14 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
 
           case 2: // SPI_WRITE
             printf("\nSPI_WRITE\n");
-            len1 = (1 << ((unsigned)buf[0] & SPI_SIZE_MASK));
-            next = buf+len1+1;
-            if (next > end) { // insufficient length to hold args
-                printf("%p > %p + %d\n",next,buf,len1);
-                if (n) *n = retlen;
-                return retbuf;
-            }
-            de_cs = (next < end) && ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
-            printf("buf=%p,next=%p, len1=%d, len=%d\n",buf,next,len1,len);
-            CAVIUM_SPI_WRITE(len1,buf+1,de_cs);
-            buf += (len1+1);
-            if (did) *did += (len1 + 1);
-            len -= (len1+1);
+            printf("\nERROR - Removed \n");
+            exit(1);
             break;
 
           case 3: // SPI_READWRITE
             printf("\nSPI_READWRITE\n");
-            len1 = (1 << ((unsigned)buf[0] & SPI_SIZE_MASK));
-            next = buf+len1+1;
-            if (next > end) { // insufficient length to hold args
-                printf("%p > %p + %d\n",next,buf,len1);
-                if (n) *n = retlen;
-                return retbuf;
-            }
-            de_cs = (next < end) &&
-              ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
-            printf("buf=%p,next=%p, len1=%d\n",buf,next,len1);
-            printf("readwrite %d\n",len1);
-            retbuf = realloc(retbuf,retlen+len1);
-            cavium_spi_readwrite(len1,buf+1,retbuf+retlen,de_cs);
-            retlen += len1;
-            buf += (len1+1);
-            if (did) *did += (len1+1);
-            len -= (len1+1);
+            printf("\nERROR - Removed \n");
+            exit(1);
             break;
         }
     }
@@ -281,12 +263,6 @@ int spi_assert_cs(int cs) {
     return spi_assert_cs_config(cs,0,0);
 }
 
-void spi_write(unsigned char value) {
-    buf_largen(2);
-    buf[bufn++] = SPI_WRITE|SPI_SIZE_1;
-    buf[bufn++] = value;
-}
-
 /* Creates the buf command */
 void spi_readstream(int bytes) {
     printf("Reading the spi stream??\n");
@@ -311,31 +287,6 @@ void spi_readstream(int bytes) {
     printf("---------------------------\n\n");
 }
 
-void spi_writestream(unsigned bytes,unsigned char *buf1) {
-    printf("Writing: %d \n", bytes);
-    int n,i,j;
-    unsigned ii;
-
-    while (bytes) {
-        i = n = (bytes > 8191) ? 8191 : bytes;
-        j = 1;
-        while (i) {
-            if (i & 1) {
-                buf_largen(1+bytes);
-                buf[bufn++] = SPI_WRITE|(j-1);
-                printf("$$$$$$$$$$$$$$$$ \t\t\t\ti:%d\tbuf:%x\n", i, SPI_WRITE|(j-1));
-                for (ii=0;ii<(1<<(j-1));ii++) {
-                    buf[bufn++] = *buf1++;
-                    printf("################ \t\t\t\ti:%d\tbuf:%x\n", ii, buf[bufn-1]);
-                }
-            }
-            i >>= 1;
-            j++;
-        }
-        bytes -= n;
-    }
-}
-
 void spi_deassert_cs(int cs) {
     buf_largen(1);
     buf[bufn++] = SPI_CS|SPI_CS_DEASSERT|SPI_CS_3;
@@ -348,7 +299,6 @@ unsigned char *spi_execute(int *n) {
     printf("Executing SPI\n");
 
     return interpret_spi_commandstream(bufn,buf,n,0);
-
 }
 
 /* See chapter 5.7 in the manual  */
@@ -357,28 +307,6 @@ int init_cavium();
 int opt_int(char *arg,int *target,int opt) {
     // JONAS TO REMOVE */
     return 1;
-}
-
-char *parse_hex_octets(char *buf,int *n) {
-    char *ret,*s;
-    int i,len = strlen(buf),count=0;
-    *n = 0;
-    for (i=0;i<len;i++) {
-        if (buf[i] == ':') {
-            count++;
-        }
-    }
-    ret = malloc(2+count);
-    while (buf) {
-        s = strchr(buf,':');
-        if (s) {
-            *s++ = 0;
-        }
-        ret[n[0]] = strtoul(buf,0,16);
-        n[0]++;
-        buf = s;
-    }
-    return ret;
 }
 
 int opt_spiseq(char *arg,unsigned *target,int opt) {
@@ -392,10 +320,6 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
         break;
       case 'r':
         spi_readstream(atoi(arg));
-        break;
-      case 'w':
-        buf = parse_hex_octets(arg,&n);
-        spi_writestream(n,buf);
         break;
       case 'c':
         i = atoi(arg);
@@ -422,9 +346,10 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
 void print_octal(char * rbuf, unsigned int bytes){
     int i = 0;
 
-    while(i<=bytes){
+    while(i<bytes){
         printf(" %08X ", *(rbuf+i));
-        i += 4;
+        /*        i += 4;*/
+        i++;
     }
 
     printf("\n");
@@ -473,26 +398,8 @@ int main(int argc, char **argv) {
 
     process_options(argc,argv,opts);
 
-    if (!ext && server < 0) {
-        if (!opt_server || opt_doseq > 0) {
-            printf("Error: FPGA bitstream is out of date.\n");
-            return 3;
-        } else {
-            printf("Warning: FPGA bitstream is out of date, will wait for reload...\n");
-        }
-    }
-
-    if (opt_doseq > 0) {
-        if (!opt_holdcs) {
-            spi_deassert_cs(0);
-            printf("HERE???");
-        }
-        rbuf = spi_execute(&bytes);
-        printf("Read bytes:\n");
-
-        print_octal(rbuf, bytes);
-
-        /*      write(1,rbuf,bytes);*/
-        printf("\n");
-    }
+    rbuf = spi_execute(&bytes);
+    printf("Read bytes:\n");
+    print_octal(rbuf, bytes);
+    printf("\n");
 }

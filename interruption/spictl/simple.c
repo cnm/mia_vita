@@ -29,6 +29,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+int * cvspiregs;
+int * cvgpioregs;
+
 void *map_phys(off_t addr,int *fd) {
     off_t page;
     unsigned char *start;
@@ -56,8 +59,6 @@ void _init_cavium() {
 int main(void){
     int *fd;
     int devmem = -1;
-    int * cvspiregs;
-    int * cvgpioregs;
 
     *fd = -1;
     *fd = open("/dev/mem", O_RDWR|O_SYNC);
