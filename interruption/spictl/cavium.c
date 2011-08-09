@@ -38,7 +38,6 @@ void cavium_poke16_stream(unsigned int adr, unsigned short *dat, unsigned int le
 void cavium_peek16_stream(unsigned int adr, unsigned short *dat, unsigned int len);
 void sbuslock(void);
 void sbusunlock(void);
-void sbuspreempt(void);
 
 extern int gotHUP;
 static volatile unsigned int *cvspiregs, *cvgpioregs;
@@ -259,7 +258,6 @@ int init_cavium() {
 
   buslock = sbuslock;
   busunlock = sbusunlock;
-  buspreempt = sbuspreempt;
   return 1;
 }
 
