@@ -212,7 +212,7 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
     printf("interpretting %d bytes, buf=%p, end=%p\n\n",len,buf,end);
 
     while (len > 0) {
-        printf("\t%d bytes left, buf[0]=%02X\n",len,buf[0]);
+/*        printf("\t%d bytes left, buf[0]=%02X\n",len,buf[0]);*/
         switch ((buf[0] & SPI_CMD_MASK) >> 6) { //buf[0] & b1100_0000
 
 
@@ -226,11 +226,12 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
                     return retbuf;
                 }
                 if ((buf[0] & SPI_CS_DOMASK) == SPI_CS_DOASSERT) {
-                    if (lun != (buf[0] & SPI_CS_NMASK)) {
+/*                    if (lun != (buf[0] & SPI_CS_NMASK)) {*/ // I'm forcing it
+                        printf("\tSetting the lun ");
                         lun = buf[0] & SPI_CS_NMASK;
                         printf("lun=%d\n",lun);
                         CAVIUM_SPI_LUN(lun);
-                    }
+/*                    }*/
                 }
                 clk = ((((unsigned)buf[1]) << 8) + buf[2]) * 2048;
                 if ((buf[0] & SPI_CS_EMASK1) == SPI_CS_CHEDGE) {
@@ -242,8 +243,9 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
                 } else {
                     edge = 0;
                 }
-                printf("clk=%d, edge=%d\n",clk,edge);
                 if (clk || edge) {
+                    printf("Setting speed and/or edge");
+                    printf("\tclk=%d, edge=%d\n",clk,edge);
                     CAVIUM_SPI_SPEED(clk,edge);
                 }
                 buf+=3;
@@ -269,7 +271,7 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             next = buf+1;
             de_cs = (len > 1) && ((next[0] & SPI_CMD_MASK) == 0) && ((next[0] & SPI_CS_AMASK) == 0);
             retbuf = realloc(retbuf,retlen+len1);
-            printf("read %d to %p, de_cs=%d\n",len1,retbuf+retlen,de_cs);
+            printf("\tread %d bytes to %p, de_cs=%d\n",len1,retbuf+retlen,de_cs);
             /*            printf("----> BEFORE %08X\n", *(retbuf+retlen));*/
             CAVIUM_SPI_READ(len1,retbuf+retlen,de_cs);
             /*            printf("--->HERE %08X\n", *(retbuf+retlen));*/
@@ -339,7 +341,7 @@ int spi_assert_cs_config(int cs,int clock,int edge) {
     if (clock > 2048*65535) return 0;
     edgelogic = (edge == 0) ? 0 : SPI_CS_CHEDGE | (edge>0 ? SPI_CS_EDGE_POS : SPI_CS_EDGE_NEG);
     buf[bufn++] = SPI_CS|SPI_CS_ASSERT|edgelogic|((cs>=0)?(cs|SPI_CS_DOASSERT):0);
-/*    clock /= 2048;*/
+    clock /= 2048;
     printf("Setted --clock to %d * 2048\n",clock);
     buf[bufn++] = clock >> 8;
     buf[bufn++] = clock & 0xFF;
