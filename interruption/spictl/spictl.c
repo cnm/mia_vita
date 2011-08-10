@@ -6,9 +6,10 @@
  */
 
 #include <stdio.h>
+#include <getopt.h>
 #include "defbin.h"
 #include "opt.h"
-#include "file.h"
+
 //Stream protocol:
 #define SPI_CMD_MASK            b1100_0000
 #define SPI_CS			b00xx_xxxx
@@ -42,6 +43,7 @@ int cavium_spi_lun(int n);
 void cavium_spi_read(int octets,char *buf,int de_cs);
 void cavium_disable_cs();
 
+
 #define CAVIUM_SPI_LUN(lun) \
   cavium_spi_lun(lun);
 #define CAVIUM_SPI_SPEED(clk,edge) \
@@ -53,6 +55,125 @@ void cavium_disable_cs();
 #define CAVIUM_DISABLE_CS() \
   cavium_disable_cs();
 #define DEBUGMSG(msg,...)
+
+// replace the first occurence of <X> with X in str.
+// if this character is upper-case, make it lower-case
+char *unaccelerate(const char *str) {
+  char *ret,*str2 = malloc(strlen(str)+1);
+  int found = 0;
+  
+  ret = str2;
+  while (*str) {
+    if (found == 0 && *str == '<') {
+      found = 1;
+      str++;
+    } else if (found == 1 && *str == '>') {
+      found = 2;
+      str++;
+    } else {
+      if (found != 1) {
+	*str2++ = *str++;
+      } else {
+	*str2++ = tolower(*str++);
+      }
+    }
+  }
+  return ret;
+}
+
+// return X for the first occurence of <X> in str
+// if there is none, return a special non-char value
+int accelerate(const char *str) {
+  static int nonchar = 0x1000;
+
+  while (*str && *str != '<') {
+    str++;
+  }
+  if (*str == '<') {
+    return *(str+1);
+  } else {
+    return nonchar++;
+  }
+}
+
+void process_options(int argc,char **argv,struct option2 *opts) {
+  struct option *long_options;
+  char *optstr;
+  const char *prolog="",*epilog="";
+  int i,n,j,c;
+
+  for (n=0;
+       opts[n].has_arg||opts[n].f||opts[n].target;
+       n++);
+  if (opts[n].name) {
+    prolog = opts[n].name;
+  }
+  if (opts[n].help) {
+    epilog = opts[n].help;
+  }
+  long_options = malloc(sizeof(struct option) * (n+2));
+  optstr = malloc(2+3*n);
+  j=0;
+  optstr[j] = 0;
+  for (i=0;i<n;i++) {
+    long_options[i].name = unaccelerate(opts[i].name);
+    long_options[i].has_arg = opts[i].has_arg;
+    long_options[i].flag = 0;
+    long_options[i].val = accelerate(opts[i].name);
+    if (long_options[i].val && long_options[i].val < 0xFF) {
+      optstr[j++] = long_options[i].val;
+      if (long_options[i].has_arg > 0) {
+	optstr[j++] = ':';
+      } 
+      if (long_options[i].has_arg > 1) {
+	optstr[j++] = ':';
+      }
+      optstr[j] = 0;
+    }
+  }
+  long_options[i].name = "help";
+  long_options[i].has_arg = 0;
+  long_options[i].flag = 0;
+  long_options[i].val = 0xFFF;
+  long_options[i+1].name = 0;
+  long_options[i+1].has_arg = 0;
+  long_options[i+1].flag = 0;
+  long_options[i+1].val = 0;
+  optstr[j++] = 'h';
+  optstr[j] = 0;
+
+  while ((c = getopt_long(argc,argv,optstr,long_options,NULL)) != -1) {
+    for (i=0;i<=n;i++) {
+      if (c == long_options[i].val) {
+	if (c == 0xFFF) {
+	  fprintf(stderr,"%s",prolog);
+	  for (j=0;j<n;j++) {
+	    if (opts[j].help) {
+	      if (long_options[j].val < 0x100) {
+		fprintf(stderr,"-%c | --%s%s%s\n",long_options[j].val,
+			long_options[j].name, 
+			(long_options[j].has_arg>0 ? "=" : " "),
+			opts[j].help);
+		/*
+		  To do: if has_arg == 2, then the parameter is optional.
+		  we should show that somehow.
+		 */
+	      } else {
+		fprintf(stderr,"--%s  %s\n",long_options[j].name, opts[j].help);
+	      }
+	    }
+	  }
+	  fprintf(stderr,"%s",epilog);
+	} else if (!opts[i].f(optarg,opts[i].target,c)) {
+	  return;
+	}
+      }
+    }
+  }
+  free(long_options);
+  free(optstr);
+}
+
 
 // takes: length of buffer, and buffer with command stream
 // and pointer to integer to put the length of buffered returned
@@ -218,8 +339,8 @@ int spi_assert_cs_config(int cs,int clock,int edge) {
     if (clock > 2048*65535) return 0;
     edgelogic = (edge == 0) ? 0 : SPI_CS_CHEDGE | (edge>0 ? SPI_CS_EDGE_POS : SPI_CS_EDGE_NEG);
     buf[bufn++] = SPI_CS|SPI_CS_ASSERT|edgelogic|((cs>=0)?(cs|SPI_CS_DOASSERT):0);
-    clock /= 2048;
-    printf("--clock=%d\n",clock);
+/*    clock /= 2048;*/
+    printf("Setted --clock to %d * 2048\n",clock);
     buf[bufn++] = clock >> 8;
     buf[bufn++] = clock & 0xFF;
     return 1;
@@ -285,9 +406,9 @@ int opt_spiseq(char *arg,unsigned *target,int opt) {
         // frequency than we requested.  but if we don't do this, we can't
         // hit 75MHz, since we have a remainder and will get dropped to
         // 37.5MHz
-        if (i % 2048 > 0) {
-            i += 2048;
-        }
+/*        if (i % 2048 > 0) {*/
+/*            i += 2048;*/
+/*        }*/
         spi_assert_cs_config(-1,i,0);
         break;
       case 'e':
@@ -327,6 +448,7 @@ int main(int argc, char **argv) {
     printf("Initiating and locking\n");
     init_cavium();
     buslock();
+    printf("Previous parameters ---> ");
     cavium_spi_getparms(&ext,&clk,&edge,&lun);
     busunlock();
     printf("Ended init ---- 2\n");
