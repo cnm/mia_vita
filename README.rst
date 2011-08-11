@@ -165,7 +165,7 @@ How to compile a user program in another machine for ts-7500
 
     $ rm arm-unknown-linux-gnu-cc
 
-    $ ln -s `pwd`/arm-unknown-linux-gnu-gcc arm-unknown-linux-gnu-cc
+    $ ln -s \`pwd\`/arm-unknown-linux-gnu-gcc arm-unknown-linux-gnu-cc
 
 * Now to compile programs for the ts-7500 just use ``arm-unknown-linux-gnu-gcc`` instead of ``gcc``
 
