@@ -114,17 +114,6 @@ Automatically boot into Debian linux
 In linux busy-box in the root directory issue:
 ln -sf linuxrc-sdroot linuxrc; save
 
-Translation table
-=================
-
-+------+-----------------+----------+
-| card |        ip       | Register |
-+======+=================+==========+
-|  1   | 192.168.0.1     |   MV-25  |
-|  2   | 192.168.0.2     |   MV-26  |
-|  3   | 192.168.0.3     |   MV-27  |
-+======+=================+==========+
-
 Changes done in the Operating System
 ====================================
 
@@ -162,16 +151,29 @@ and /root/adhoc.sh should contain:
     iwconfig $1 rate 1M
     ifconfig $1 $2
 
+How to compile a user program in another machine for ts-7500
+============================================================
+* First setup the cross-compile. Download it from: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/cross-toolchains/crosstool-linux-gcc-4.2.1-glibc-2.7-oabi.tar.gz
 
+* Untar it: tar xvzf crosstool-linux-gcc-4.2.1-glibc-2.7-oabi.tar.gz
 
+* cd into usr/local/arm-oabi-toolchain/arm-unknown-linux-gnu/bin/ 
 
-How to compile kernel in the TS-7500 node
-=========================================
+* Check if you have a broken link. In my case ``ls -l`` gives me this broken link: arm-unknown-linux-gnu-cc -> /usr/local/arm-oabi-toolchain/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
+
+* Fix it: 
+    $ rm arm-unknown-linux-gnu-cc
+    $ ln -s `pwd`/arm-unknown-linux-gnu-gcc arm-unknown-linux-gnu-cc
+
+* Now to compile programs for the ts-7500 just use ``arm-unknown-linux-gnu-gcc`` instead of ``gcc``
+
+How to compile kernel for the TS-7500 node
+==========================================
 
 * Download the kernel from: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/linux-2.6.24-ts-src-aug102009.tar.gz
  (or fetch it from: http://github.com/joninvski/ts_7500_kernel )
 
-* Download the crosstool chain: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/cross-toolchains/crosstool-linux-arm-uclibc-3.4.6.tar.gz
+* Download the crosstool chain: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/cross-toolchains/crosstool-linux-gcc-4.2.1-glibc-2.7-oabi.tar.gz
  (or fetch it from: http://github.com/joninvski/arm-uclibc-3.4.6 )
 
 * Download the module for the wireless card: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/wifi-g-usb-2_rt2501usb-sources.tar.gz
