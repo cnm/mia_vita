@@ -162,7 +162,9 @@ How to compile a user program in another machine for ts-7500
 * Check if you have a broken link. In my case ``ls -l`` gives me this broken link: arm-unknown-linux-gnu-cc -> /usr/local/arm-oabi-toolchain/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
 
 * Fix it: 
+
     $ rm arm-unknown-linux-gnu-cc
+
     $ ln -s `pwd`/arm-unknown-linux-gnu-gcc arm-unknown-linux-gnu-cc
 
 * Now to compile programs for the ts-7500 just use ``arm-unknown-linux-gnu-gcc`` instead of ``gcc``
