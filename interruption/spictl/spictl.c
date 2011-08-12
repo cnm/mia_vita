@@ -282,6 +282,19 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             if (did) *did += 1;
             len--;
             break;
+
+          case 2: // SPI_WRITE
+            printf("\nSPI_WRITE\n");
+            printf("\nERROR - Removed \n");
+            exit(1);
+            break;
+
+          case 3: // SPI_READWRITE
+            printf("\nSPI_READWRITE\n");
+            printf("\nERROR - Removed \n");
+            exit(1);
+            break;
+        }
     }
     busunlock();
     if (n) *n = retlen;
