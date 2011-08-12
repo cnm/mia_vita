@@ -425,7 +425,7 @@ void print_octal(char * rbuf, unsigned int bytes){
     int i = 0;
 
     while(i<bytes){
-        printf(" %08X ", *(rbuf+i));
+        printf("##### %02X ", *(rbuf+i));
         /*        i += 4;*/
         i++;
     }
@@ -433,6 +433,16 @@ void print_octal(char * rbuf, unsigned int bytes){
     printf("\n");
 
     return;
+}
+
+void print_int(char * rbuf){
+    int n = 0;
+    int r = 0;
+
+    printf("## Normal %u\n", htonl(*((unsigned int*) rbuf)));
+    printf("## HTONL: %u\n", *((unsigned int*) rbuf));
+  
+
 }
 
 int main(int argc, char **argv) {
@@ -461,7 +471,8 @@ int main(int argc, char **argv) {
 
     rbuf = spi_execute(&bytes);
     printf("Read bytes:\n");
-    print_octal(rbuf, bytes);
+    print_octal(rbuf, (unsigned int) bytes);
+    print_int(rbuf);
     printf("\n");
 
     return 0;
