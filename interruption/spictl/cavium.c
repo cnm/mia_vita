@@ -67,7 +67,7 @@ unsigned short getR0(int force) {
 
 void setR0(unsigned short val) {
   if (spiR0valid && spiR0 == val){
-    printf("\tNot needed to update R0"); 
+    printf("\tNot needed to update R0\n"); 
     return;
   }
   spiR0valid = 1;
@@ -162,9 +162,12 @@ void cavium_spi_read(int octets,char *buf,int de_cs) {
   unsigned s;
   int i,n = octets;
 
-  if (n > 16 && maxspeed) {
-    if (n % 2 == 0) {
-      DEBUGMSG("peek16_stream %X for %d\n",0xA,(n-2)/2);
+  printf("N: %d Max speed: %d\n", n, maxspeed);
+  if (n > 16 && maxspeed) { // More than 16 bytes (octets)
+    if (n % 2 == 0) { //Pair number of bytes
+
+      printf("Pair\n");
+      printf("peek16_stream %X for %d\n",0xA,(n-2)/2);
       cavium_peek16_stream(0x0A, (unsigned short *)buf, (n-2)/2);
       for (i=0;i<n-2;i+=2) { // swap byte order
 	unsigned char b;
@@ -176,7 +179,8 @@ void cavium_spi_read(int octets,char *buf,int de_cs) {
       buf += (n-2);
       n = 2;
     } else {
-      DEBUGMSG("peek16_stream %X for %d\n",0xA,(n-3)/2);
+      printf("Odd\n");
+      printf("peek16_stream %X for %d\n",0xA,(n-3)/2);
       cavium_peek16_stream(0x0A, (unsigned short *)buf, (n-3)/2);
       for (i=0;i<n-2;i+=2) { // swap byte order
 	unsigned char b;
@@ -190,6 +194,7 @@ void cavium_spi_read(int octets,char *buf,int de_cs) {
     }
   }
   while (n >= 4) {
+      printf("\tStill more than 4 octects to read. missing: %d\n", n);
     s = cavium_peek16(0x0A); // pipelined read
 /*    printf("s1=%X\n",s);*/
     *buf++ = s & 0xff;
@@ -197,6 +202,7 @@ void cavium_spi_read(int octets,char *buf,int de_cs) {
     n -= 2;
   }
   if (n > 2) { // n == 3
+    printf("\tStill more than 2 octects to read. missing: %d\n", n);
     s = cavium_peek16(0x08); // read, leave CS# asserted
     printf("s2=%X\n",s);
     *buf++ = s & 0xff;
@@ -205,12 +211,14 @@ void cavium_spi_read(int octets,char *buf,int de_cs) {
     cavium_poke8(de_cs?0xC:0x8,0);
     *buf = cavium_peek16(0x2) >> 8;
   } else if (n == 2) {
+    printf("\tone last octect to read.\n", n);
     s = cavium_peek16(de_cs?0x0C:0x8);
-    printf("\ts3=%X\n",s);
+/*    printf("\ts3=%X\n",s);*/
     *buf++ = s & 0xff;
     *buf++ = s >> 8;
     n -= 2;
   } else if (n == 1) {
+      printf("\tReading 0 %d", n);
     cavium_poke8(de_cs?0xC:0x8,0);
     *buf = cavium_peek16(0x2) >> 8;
   }
@@ -316,7 +324,7 @@ unsigned short cavium_peek16(unsigned int adr) {
 		"beq 2b\n" 
 		: "+r"(ret) : "r"(adr), "r"(cvspiregs) : "r1", "cc"
 		);
-  printf("\tPEEK16 dat=%04X,adr=%04X,\n",adr,ret);
+  printf("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);
   return ret;
 }
 

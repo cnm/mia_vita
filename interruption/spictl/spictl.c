@@ -9,6 +9,8 @@
 #include <getopt.h>
 #include "defbin.h"
 #include "opt.h"
+#include <netinet/in.h>
+
 
 //Stream protocol:
 #define SPI_CMD_MASK            b1100_0000
@@ -280,25 +282,22 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             if (did) *did += 1;
             len--;
             break;
-
-          case 2: // SPI_WRITE
-            printf("\nSPI_WRITE\n");
-            printf("\nERROR - Removed \n");
-            exit(1);
-            break;
-
-          case 3: // SPI_READWRITE
-            printf("\nSPI_READWRITE\n");
-            printf("\nERROR - Removed \n");
-            exit(1);
-            break;
-        }
     }
     busunlock();
     if (n) *n = retlen;
 
     printf("Ended SPI\n");
     return retbuf;
+}
+
+
+unsigned int cavium_peek32(unsigned int adr) {
+  unsigned int ret;
+  unsigned short l, h;
+  l = cavium_peek16(adr);
+  h = cavium_peek16(adr + 2);
+  ret = (l|(h<<16));
+  return ret;
 }
 
 int gotHUP = 0;
@@ -425,7 +424,7 @@ void print_octal(char * rbuf, unsigned int bytes){
     int i = 0;
 
     while(i<bytes){
-        printf(" %08X ", *(rbuf+i));
+        printf("##### %02X ", *(rbuf+i));
         /*        i += 4;*/
         i++;
     }
@@ -433,6 +432,16 @@ void print_octal(char * rbuf, unsigned int bytes){
     printf("\n");
 
     return;
+}
+
+void print_int(char * rbuf){
+    int n = 0;
+    int r = 0;
+
+    printf("## Normal %u\n", htonl(*((unsigned int*) rbuf)));
+    printf("## HTONL: %u\n", *((unsigned int*) rbuf));
+  
+
 }
 
 int main(int argc, char **argv) {
@@ -460,8 +469,10 @@ int main(int argc, char **argv) {
     process_options(argc,argv,opts);
 
     rbuf = spi_execute(&bytes);
-    printf("Read bytes:\n");
-    print_octal(rbuf, bytes);
+    printf("#Read bytes:\n");
+    print_octal(rbuf, (unsigned int) bytes);
+    print_int(rbuf);
+
     printf("\n");
 
     return 0;
