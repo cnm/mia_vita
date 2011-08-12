@@ -304,14 +304,14 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
 }
 
 
-unsigned int cavium_peek32(unsigned int adr) {
-  unsigned int ret;
-  unsigned short l, h;
-  l = cavium_peek16(adr);
-  h = cavium_peek16(adr + 2);
-  ret = (l|(h<<16));
-  return ret;
-}
+/*unsigned int cavium_peek32(unsigned int adr) {*/
+/*  unsigned int ret;*/
+/*  unsigned short l, h;*/
+/*  l = cavium_peek16(adr);*/
+/*  h = cavium_peek16(adr + 2);*/
+/*  ret = (l|(h<<16));*/
+/*  return ret;*/
+/*}*/
 
 int gotHUP = 0;
 
