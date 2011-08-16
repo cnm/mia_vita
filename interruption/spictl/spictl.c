@@ -45,6 +45,7 @@ int cavium_spi_lun(int n);
 void cavium_spi_read(int octets,char *buf,int de_cs);
 void cavium_disable_cs();
 
+int result = 0;
 
 #define CAVIUM_SPI_LUN(lun) \
   cavium_spi_lun(lun);
@@ -276,6 +277,11 @@ unsigned char *interpret_spi_commandstream(int len,unsigned char *buf,int *n,int
             printf("\tread %d bytes to %p, de_cs=%d\n",len1,retbuf+retlen,de_cs);
             /*            printf("----> BEFORE %08X\n", *(retbuf+retlen));*/
             CAVIUM_SPI_READ(len1,retbuf+retlen,de_cs);
+
+            printf("TESTING CAVIUM \n");
+            result = (cavium_peek16(0x0008) << 16) ;
+            result |= cavium_peek16(0x0008);
+
             /*            printf("--->HERE %08X\n", *(retbuf+retlen));*/
             retlen += len1; //Updates the size of the return
             buf++;
@@ -485,6 +491,7 @@ int main(int argc, char **argv) {
     printf("#Read bytes:\n");
     print_octal(rbuf, (unsigned int) bytes);
     print_int(rbuf);
+    printf("Teste: %u\n", result);
 
     printf("\n");
 
