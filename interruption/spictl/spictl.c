@@ -7,6 +7,12 @@
 
 #include <stdio.h>
 #include <getopt.h>
+#include <stdlib.h> /*  For malloc  */
+#include <string.h> /* For strlen */
+#include <ctype.h> /* For tolower  */
+
+
+
 #include "defbin.h"
 #include "opt.h"
 #include <netinet/in.h>
@@ -454,13 +460,8 @@ void print_octal(char * rbuf, unsigned int bytes){
 }
 
 void print_int(char * rbuf){
-    int n = 0;
-    int r = 0;
-
     printf("## Normal %u\n", htonl(*((unsigned int*) rbuf)));
     printf("## HTONL: %u\n", *((unsigned int*) rbuf));
-  
-
 }
 
 int main(int argc, char **argv) {
