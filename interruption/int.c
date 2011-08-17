@@ -106,27 +106,40 @@ unsigned int gpio_int_status_new_address = 0;
 unsigned int counter_sda = 0;
 unsigned int counter_scl = 0;
 
+extern void release_mem_spi(void);
+extern unsigned int read_32_bits(void);
+extern void prepare(void);
+
 /*
  * Functions to handle the interruption
  */
 irqreturn_t interrupt(int irq, void *dev_id)
 {
   volatile unsigned int *p; // The volatile is extremely important here
-/*   printk(KERN_INFO "Inside the interruption %d\n", irq);*/
+  unsigned int value;
+  /*   printk(KERN_INFO "Inside the interruption %d\n", irq);*/
   /*  printk(KERN_EMERG "Inside the interruption %d\n", irq);*/
 
   /* Check what the interruption was*/
   p = (unsigned int *) gpio_int_status_new_address;
-/*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x %08x\n", *p, (*p & (SCL_MASK | SDA_MASK)));*/
+  /*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x %08x\n", *p, (*p & (SCL_MASK | SDA_MASK)));*/
   if(SCL_MASK & *p){
-    counter_scl++;
-      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);
-      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);
+      counter_scl++;
+
+
+
+      if((counter_scl % 1000) ==0){
+          printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);
+          printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);
+
+          value = read_32_bits();
+          printk("Result %u\n", value);
+      }
   }
 
 
   else if(SDA_MASK & *p){
-    counter_sda++;
+      counter_sda++;
   }
 
   else{
@@ -137,10 +150,10 @@ irqreturn_t interrupt(int irq, void *dev_id)
   p = (unsigned int *) gpio_int_clear_new_address;
   *p |= GPIOA_EN_MASK;
 
-/*  if(!((counter_scl) % 2)){*/
-/*      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);*/
-/*      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);*/
-/*  }*/
+  /*  if(!((counter_scl) % 2)){*/
+  /*      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);*/
+  /*      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);*/
+  /*  }*/
 
   return IRQ_HANDLED;
 }
@@ -305,6 +318,8 @@ int init(void)
 
   test_interrupts();
 
+  prepare();
+
   return 0;
 }
 
@@ -328,6 +343,8 @@ void cleanup(void)
 
   unregister_memory_region();
 
+
+  release_mem_spi();
   printk(KERN_INFO "Unregister module interruption.\n");
 }
 

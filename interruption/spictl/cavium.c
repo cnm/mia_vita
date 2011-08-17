@@ -322,6 +322,7 @@ unsigned char cavium_peek8(unsigned int adr) {
 
 unsigned short cavium_peek16(unsigned int adr) {
     unsigned short ret;
+    printf("PEEK Start %p\n", cvspiregs);
 
     asm volatile (
                   "mov %0, %1, lsl #18\n"

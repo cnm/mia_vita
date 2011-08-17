@@ -1,4 +1,5 @@
-obj-m := int.o sbus.o
+obj-m := int_mod.o
+int_mod-objs := int.o caller.o
 KDIR := /lib/modules/2.6.24.4/build/ 
 PWD := $(shell pwd)
 
