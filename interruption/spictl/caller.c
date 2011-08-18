@@ -16,75 +16,16 @@
  * =====================================================================================
  */
 
-#define SPI_MEM_ADDRESS     0x71000000
-#define GPIO_MEM_ADDRESS    0x7C000000
-
-#define LUN_CS_ERASE_MASK   (0x700)      /* The bit 8 and 9 is 1 the rest is 0 */
-#define LUN_CS_BIT_MASK     (1<<8)      /* The bit 9 is 1 the rest is 0 */
-#define SPEED_MASK          (7<<10)     /* Mask to reset the speed          */
-#define EDGE_MASK           (1<<14)     /* The edge is set in the 14 bit    */
-#define SPEED_SHIFT         10          /* 10 bits to 13 set the speed      */
-
-#define MOD 1
-
-#ifndef MOD
-#include <stdio.h> /* For printf */
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h> /* For getpagesize  */
-
-#define print printf
-
-void *map_phys(off_t addr) {
-    off_t page;
-    unsigned char *start;
-    int fd;
-
-    fd = open("/dev/mem", O_RDWR|O_SYNC);
-    page = addr & 0xfffff000;
-    start = mmap(0, getpagesize(), PROT_READ|PROT_WRITE, MAP_SHARED, fd, page);
-    if (start == MAP_FAILED) {
-        print("Error");
-        return 0;
-    }
-
-    start = start + (addr & 0xfff);
-    print("Start %p\n", start);
-    return start;
-}
-
-
-#else
-
 #include <linux/module.h>
 #include <linux/kernel.h>       /* printk() */
+#include "mem_addr.h"
 
-#define print printk
 
 extern int request_mem(volatile unsigned int mem_addr, unsigned int size);
 extern void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void release_mem_spi(void);
 
-void *map_phys(int addr) {
-    if(addr == GPIO_MEM_ADDRESS){
-        return (void*) request_mem(GPIO_MEM_ADDRESS, 4);
-    }
 
-    else if(addr == SPI_MEM_ADDRESS){
-        return (void*) request_mem(SPI_MEM_ADDRESS, 0x6c);
-    }
-    else{
-        print("Error\n");
-        return NULL;
-    }
-}
-
-
-#endif
-
-
-
-static volatile unsigned int * spi_new_mem, *gpio_new_mem;
 void set_lun_speed_edge(void);
 unsigned short getR0(void);
 void cavium_disable_cs(void);
@@ -92,10 +33,19 @@ int dostuff(void);
 void prepare_registers(void);
 void release_mem_spi(void);
 
+unsigned int gpio_new_mem;
+unsigned int spi_cfg_new_mem;
+unsigned int spi_fifo_rx_cfd_new_mem;
+unsigned int spi_fifo_tx_ctrl_new_mem;
+unsigned int spi_intr_ena_new_mem;
+unsigned int spi_tx_ctrl_new_mem;
+unsigned int spi_rx_data_new_mem;
+
+
+
 void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
     unsigned int d = dat;
-    print("POKE Start %p\n", spi_new_mem);
 
     asm volatile (
                   "mov %0, %1, lsl #18\n"
@@ -117,12 +67,11 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
                   : "r1","cc"
     );
 
-    print("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);
+    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);
 }
 
 unsigned short cavium_peek16(unsigned int adr) {
     unsigned short ret = -1;
-    print("PEEK Start %p\n", spi_new_mem);
 
     asm volatile (
                   "mov %0, %1, lsl #18\n"
@@ -139,7 +88,7 @@ unsigned short cavium_peek16(unsigned int adr) {
                   : "r"(adr), "r"(spi_new_mem) 
                   : "r1", "cc"
     );
-    print("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);
+    printk("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);
     return ret;
 }
 
@@ -157,47 +106,65 @@ void cavium_disable_cs() {
     unsigned short val = getR0();
 
     if (val & (1<<7)) {
-        print("cavium_disable_cs:%04X\n",val);
+        printk("cavium_disable_cs:%04X\n",val);
         setR0(val & ~(1<<7));
         setR0((val & ~(1<<7)) ^ (1 << 14));
     }
     else {
-        print("cavium_disable_cs:%04X (NOP)\n",val);
+        printk("cavium_disable_cs:%04X (NOP)\n",val);
     }
 }
 
 void prepare_registers() {
     int i;
+    volatile unsigned int *p; // The volatile is extremely important here
 
-    spi_new_mem[0x64 / 4] = 0x0;        /* RX IRQ threshold 0 */
-    spi_new_mem[0x40 / 4] = 0x80000c02; /* 24-bit mode, no byte swap */
-    spi_new_mem[0x60 / 4] = 0x0;        /* 0 clock inter-transfer delay */
-    spi_new_mem[0x6c / 4] = 0x0;        /* disable interrupts */
-    spi_new_mem[0x4c / 4] = 0x4;        /* deassert CS# */
+    p = (unsigned int *) spi_fifo_rx_cfd_new_mem;
+    *p = 0x0;        /* RX IRQ threshold 0 */
 
-    for (i = 0; i < 8; i++) spi_new_mem[0x58 / 4];
+    p = (unsigned int *) spi_cfg_new_mem;
+    *p = 0x80000c02; /* 24-bit mode, no byte swap */
 
-    gpio_new_mem[0] = (2<<15|1<<17|1<<3);
+    p = (unsigned int *) spi_fifo_tx_ctrl_new_mem;
+    *p  = 0x0;        /* 0 clock inter-transfer delay */
+
+    p = (unsigned int *) spi_intr_ena_new_mem;
+    *p = 0x0;        /* disable interrupts */
+
+    p = (unsigned int *) spi_tx_ctrl_new_mem;
+    *p = 0x4;        /* deassert CS# */
+
+    p = (unsigned int *) spi_rx_data_new_mem;
+    for (i = 0; i < 8; i++) *p;
+
+    p = (unsigned int *) gpio_new_mem;
+    *p = (2<<15|1<<17|1<<3);
 
     cavium_disable_cs(); // force CS# deassertion just in case
 }
 
 
 void reserve_memory(void){
-    spi_new_mem  = map_phys(SPI_MEM_ADDRESS);
-    gpio_new_mem = map_phys(GPIO_MEM_ADDRESS);
+    gpio_new_mem = request_mem(GPIOA_REGISTER, WORD_SIZE);
+
+    spi_cfg_new_mem = request_mem(SPI_CFG, WORD_SIZE);
+    spi_fifo_rx_cfd_new_mem =  request_mem(SPI_FIFO_RX_CFG, WORD_SIZE);
+    spi_fifo_tx_ctrl_new_mem = request_mem(SPI_FIFO_TX_CTRL, WORD_SIZE);
+    spi_intr_ena_new_mem = request_mem(SPI_INTR_ENA, WORD_SIZE);
+    spi_tx_ctrl_new_mem = request_mem(SPI_TX_CTRL, WORD_SIZE);
+    spi_rx_data_new_mem = request_mem(SPI_RX_DATA, WORD_SIZE);
 }
 
 void prepare(void){
     reserve_memory();
-    print("Preparing registers\n");
+    printk("Preparing registers\n");
     prepare_registers();
-    print("Ended Preparing registers\n");
+    printk("Ended Preparing registers\n");
 
 
-    print("Setting parameters\n");
+    printk("Setting parameters\n");
     set_lun_speed_edge();
-    print("End setting parameters\n");
+    printk("End setting parameters\n");
 }
 
 
@@ -213,7 +180,7 @@ void set_lun_speed_edge(){
       mask |= EDGE_MASK;
     else if (edge == 0)
       mask &= ~EDGE_MASK;
-    print("Writing the edge\n");
+    printk("Writing the edge\n");
     setR0(conf | mask);
 
     /* Set the lun  */
@@ -223,12 +190,12 @@ void set_lun_speed_edge(){
     /* Set the speed  */
     mask |= clock << SPEED_SHIFT;
 
-    print("Writing the speed and lun\n");
+    printk("Writing the speed and lun\n");
     setR0(conf | mask);
 
 
-    print("MASCARA %X\n", mask);
-    print("CONF: %X\n", conf);
+    printk("MASCARA %X\n", mask);
+    printk("CONF: %X\n", conf);
 }
 
 unsigned int read_32_bits(void){
@@ -254,9 +221,9 @@ int main(int argc, char **argv) {
     result = read_32_bits();
 
     /* Print results  */
-    print("Resultado %u\n", result);
+    printk("Resultado %u\n", result);
 
-    print("\n");
+    printk("\n");
 
     return 0;
 }
@@ -273,14 +240,20 @@ int dostuff() {
     result = read_32_bits();
 
     /* Print results  */
-    print("Resultado %u\n", result);
-    print("\n");
+    printk("Resultado %u\n", result);
+    printk("\n");
 
     return 0;
 }
 
 void release_mem_spi(){
-    release_mem(GPIO_MEM_ADDRESS, 4);
-    release_mem(SPI_MEM_ADDRESS, 0x6c);
+    release_mem(GPIOA_REGISTER, WORD_SIZE);
+
+    release_mem(SPI_CFG, WORD_SIZE);
+    release_mem(SPI_TX_CTRL, WORD_SIZE);
+    release_mem(SPI_RX_DATA, WORD_SIZE);
+    release_mem(SPI_FIFO_TX_CTRL, WORD_SIZE);
+    release_mem(SPI_FIFO_RX_CFG, WORD_SIZE);
+    release_mem(SPI_INTR_ENA, WORD_SIZE);
 }
 #endif
