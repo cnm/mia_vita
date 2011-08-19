@@ -72,7 +72,7 @@ unsigned int counter_scl = 0;
 
 extern void release_mem_spi(void);
 extern unsigned int read_32_bits(void);
-extern void prepare(void);
+extern void prepare_spi(void);
 
 /*
  * Functions to handle the interruption
@@ -81,6 +81,7 @@ irqreturn_t interrupt(int irq, void *dev_id)
 {
   volatile unsigned int *p; // The volatile is extremely important here
   unsigned int value;
+
   /*   printk(KERN_INFO "Inside the interruption %d\n", irq);*/
   /*  printk(KERN_EMERG "Inside the interruption %d\n", irq);*/
 
@@ -91,13 +92,16 @@ irqreturn_t interrupt(int irq, void *dev_id)
       counter_scl++;
 
 
-
-      if((counter_scl % 1000) ==0){
-          printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);
-          printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);
-
+      if((counter_scl % 100) == 0){
           value = read_32_bits();
-          printk("Result %u\n", value);
+      }
+
+      if((counter_scl % 10000) == 0){
+          printk(KERN_INFO "Number of sda interruptions: %u \n" KERN_EMERG, counter_sda);
+          printk(KERN_INFO "Number of scl interruptions: %u \n" KERN_EMERG, counter_scl);
+
+/*          value = read_32_bits();*/
+/*          printk("Result %u\n" KERN_EMERG, value);*/
       }
   }
 
@@ -271,17 +275,18 @@ void print_priorities()
 /*
  * Function which runs when the module is initiated
  * */
-int init(void)
+int init(void){
   printk(KERN_INFO "starting interruption module.\n");
+
+  prepare_spi();
 
   request_memory_regions();
   register_handle_interruption();
   enable_gpio_interruptions();
   /*  print_priorities();*/
 
-  test_interrupts();
+/*  test_interrupts();*/
 
-  prepare();
 
   return 0;
 }
@@ -305,7 +310,6 @@ void cleanup(void)
   printk(KERN_INFO "\t IRQ Mask AFTER:\t\t\t%08x Is losing value each time\n", *p);
 
   unregister_memory_region();
-
 
   release_mem_spi();
   printk(KERN_INFO "Unregister module interruption.\n");

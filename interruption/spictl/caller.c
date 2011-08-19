@@ -31,17 +31,9 @@ unsigned short getR0(void);
 void cavium_disable_cs(void);
 int dostuff(void);
 void prepare_registers(void);
-void release_mem_spi(void);
 
-unsigned int gpio_new_mem;
-unsigned int spi_cfg_new_mem;
-unsigned int spi_fifo_rx_cfd_new_mem;
-unsigned int spi_fifo_tx_ctrl_new_mem;
-unsigned int spi_intr_ena_new_mem;
-unsigned int spi_tx_ctrl_new_mem;
-unsigned int spi_rx_data_new_mem;
-
-
+static volatile unsigned int gpio_new_mem;
+static volatile unsigned int spi_register;
 
 void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
@@ -63,11 +55,11 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
                   "moveq %0, #0x0\n"
                   "beq 3b\n"
                   : "+r"(dummy) 
-                  : "r"(adr), "r"(d), "r"(spi_new_mem) 
+                  : "r"(adr), "r"(d), "r"(spi_register)
                   : "r1","cc"
     );
 
-    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);
+/*    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);*/
 }
 
 unsigned short cavium_peek16(unsigned int adr) {
@@ -85,10 +77,10 @@ unsigned short cavium_peek16(unsigned int adr) {
                   "moveq %0, #0x0\n"
                   "beq 2b\n" 
                   : "+r"(ret) 
-                  : "r"(adr), "r"(spi_new_mem) 
+                  : "r"(adr), "r"(spi_register) 
                   : "r1", "cc"
     );
-    printk("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);
+/*    printk("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);*/
     return ret;
 }
 
@@ -119,22 +111,22 @@ void prepare_registers() {
     int i;
     volatile unsigned int *p; // The volatile is extremely important here
 
-    p = (unsigned int *) spi_fifo_rx_cfd_new_mem;
+    p = (unsigned int *) (spi_register + SPI_FIFO_RX_CFG);
     *p = 0x0;        /* RX IRQ threshold 0 */
 
-    p = (unsigned int *) spi_cfg_new_mem;
+    p = (unsigned int *) (spi_register + SPI_CFG);
     *p = 0x80000c02; /* 24-bit mode, no byte swap */
 
-    p = (unsigned int *) spi_fifo_tx_ctrl_new_mem;
+    p = (unsigned int *) (spi_register + SPI_FIFO_TX_CTRL);
     *p  = 0x0;        /* 0 clock inter-transfer delay */
 
-    p = (unsigned int *) spi_intr_ena_new_mem;
+    p = (unsigned int *) (spi_register + SPI_FIFO_TX_CTRL);
     *p = 0x0;        /* disable interrupts */
 
-    p = (unsigned int *) spi_tx_ctrl_new_mem;
+    p = (unsigned int *) (spi_register + SPI_INTR_ENA);
     *p = 0x4;        /* deassert CS# */
 
-    p = (unsigned int *) spi_rx_data_new_mem;
+    p = (unsigned int *) (spi_register + SPI_RX_DATA);
     for (i = 0; i < 8; i++) *p;
 
     p = (unsigned int *) gpio_new_mem;
@@ -146,16 +138,10 @@ void prepare_registers() {
 
 void reserve_memory(void){
     gpio_new_mem = request_mem(GPIOA_REGISTER, WORD_SIZE);
-
-    spi_cfg_new_mem = request_mem(SPI_CFG, WORD_SIZE);
-    spi_fifo_rx_cfd_new_mem =  request_mem(SPI_FIFO_RX_CFG, WORD_SIZE);
-    spi_fifo_tx_ctrl_new_mem = request_mem(SPI_FIFO_TX_CTRL, WORD_SIZE);
-    spi_intr_ena_new_mem = request_mem(SPI_INTR_ENA, WORD_SIZE);
-    spi_tx_ctrl_new_mem = request_mem(SPI_TX_CTRL, WORD_SIZE);
-    spi_rx_data_new_mem = request_mem(SPI_RX_DATA, WORD_SIZE);
+    spi_register = request_mem(SPI_REGISTER,   0x6C + WORD_SIZE);
 }
 
-void prepare(void){
+void prepare_spi(void){
     reserve_memory();
     printk("Preparing registers\n");
     prepare_registers();
@@ -170,7 +156,7 @@ void prepare(void){
 
 void set_lun_speed_edge(){
     int clock = 15;
-    int edge = 1;
+    int edge = 0;
 
     unsigned int mask = 0;
     unsigned int conf = getR0();
@@ -210,50 +196,7 @@ unsigned int read_32_bits(void){
     return ret;
 }
 
-#ifndef MOD
-int main(int argc, char **argv) {
-    int result = 0;
-
-    /* Prepare ???  */
-    prepare();
-
-    /* Execute things  */
-    result = read_32_bits();
-
-    /* Print results  */
-    printk("Resultado %u\n", result);
-
-    printk("\n");
-
-    return 0;
-}
-#else
-int dostuff() {
-    int result = 0;
-
-    printk("Doing stuff");
-
-    /* Prepare ???  */
-    prepare();
-
-    /* Execute things  */
-    result = read_32_bits();
-
-    /* Print results  */
-    printk("Resultado %u\n", result);
-    printk("\n");
-
-    return 0;
-}
-
-void release_mem_spi(){
+void release_mem_spi(void){
     release_mem(GPIOA_REGISTER, WORD_SIZE);
-
-    release_mem(SPI_CFG, WORD_SIZE);
-    release_mem(SPI_TX_CTRL, WORD_SIZE);
-    release_mem(SPI_RX_DATA, WORD_SIZE);
-    release_mem(SPI_FIFO_TX_CTRL, WORD_SIZE);
-    release_mem(SPI_FIFO_RX_CFG, WORD_SIZE);
-    release_mem(SPI_INTR_ENA, WORD_SIZE);
+    release_mem(SPI_REGISTER,   0x6C + WORD_SIZE);
 }
-#endif
