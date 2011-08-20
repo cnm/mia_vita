@@ -296,6 +296,12 @@ The udev rule for multiple adapters becomes::
 The udev will give the name ttyUSB0 to the usb adapter with id 0001 and ttyUSB1 to the usb adapter with id 0002.
 
 
+Compile spictl
+==============
+
+Erase the LD_FLAGS variable from the Makefile
+
+
 Update the FPGA
 ===============
 
