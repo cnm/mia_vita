@@ -35,6 +35,9 @@ void prepare_registers(void);
 static volatile unsigned int gpio_new_mem;
 static volatile unsigned int spi_register;
 
+static volatile unsigned int *cvspiregs;
+
+
 void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
     unsigned int d = dat;
@@ -55,11 +58,11 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
                   "moveq %0, #0x0\n"
                   "beq 3b\n"
                   : "+r"(dummy) 
-                  : "r"(adr), "r"(d), "r"(spi_register)
+                  : "r"(adr), "r"(d), "r"(cvspiregs)
                   : "r1","cc"
     );
 
-/*    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);*/
+    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);
 }
 
 unsigned short cavium_peek16(unsigned int adr) {
@@ -77,10 +80,10 @@ unsigned short cavium_peek16(unsigned int adr) {
                   "moveq %0, #0x0\n"
                   "beq 2b\n" 
                   : "+r"(ret) 
-                  : "r"(adr), "r"(spi_register) 
+                  : "r"(adr), "r"(cvspiregs) 
                   : "r1", "cc"
     );
-/*    printk("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);*/
+    printk("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);
     return ret;
 }
 
@@ -139,6 +142,7 @@ void prepare_registers() {
 void reserve_memory(void){
     gpio_new_mem = request_mem(GPIOA_REGISTER, WORD_SIZE);
     spi_register = request_mem(SPI_REGISTER,   0x6C + WORD_SIZE);
+    cvspiregs = (void*) spi_register;
 }
 
 void prepare_spi(void){
@@ -189,7 +193,7 @@ unsigned int read_32_bits(void){
     unsigned short l, h;
 
     l = cavium_peek16(0x0A);
-    h = cavium_peek16(0x8);
+    h = cavium_peek16(0x0C);
 
     ret = (l|(h<<16));
 

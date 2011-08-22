@@ -91,20 +91,14 @@ irqreturn_t interrupt(int irq, void *dev_id)
   if(SCL_MASK & *p){
       counter_scl++;
 
-
-      if((counter_scl % 100) == 0){
-          value = read_32_bits();
-      }
-
       if((counter_scl % 10000) == 0){
-          printk(KERN_INFO "Number of sda interruptions: %u \n" KERN_EMERG, counter_sda);
-          printk(KERN_INFO "Number of scl interruptions: %u \n" KERN_EMERG, counter_scl);
+/*          printk(KERN_EMERG "Number of sda interruptions: %u \n" , counter_sda);*/
+/*          printk(KERN_EMERG "Number of scl interruptions: %u \n" , counter_scl);*/
 
-/*          value = read_32_bits();*/
-/*          printk("Result %u\n" KERN_EMERG, value);*/
+                    value = read_32_bits();
+                    printk(KERN_EMERG "Result %u\n", value);
       }
   }
-
 
   else if(SDA_MASK & *p){
       counter_sda++;
@@ -117,11 +111,6 @@ irqreturn_t interrupt(int irq, void *dev_id)
   /* Clear the GPIO interruption */
   p = (unsigned int *) gpio_int_clear_new_address;
   *p |= GPIOA_EN_MASK;
-
-  /*  if(!((counter_scl) % 2)){*/
-  /*      printk(KERN_INFO "Number of sda interruptions: %u \n", counter_sda);*/
-  /*      printk(KERN_INFO "Number of scl interruptions: %u \n", counter_scl);*/
-  /*  }*/
 
   return IRQ_HANDLED;
 }
@@ -276,19 +265,19 @@ void print_priorities()
  * Function which runs when the module is initiated
  * */
 int init(void){
-  printk(KERN_INFO "starting interruption module.\n");
+    printk(KERN_INFO "starting interruption module.\n");
 
-  prepare_spi();
+    prepare_spi();
 
-  request_memory_regions();
-  register_handle_interruption();
-  enable_gpio_interruptions();
-  /*  print_priorities();*/
+    request_memory_regions();
+    register_handle_interruption();
+    enable_gpio_interruptions();
+    /*  print_priorities();*/
 
-/*  test_interrupts();*/
+    /*  test_interrupts();*/
 
 
-  return 0;
+    return 0;
 }
 
 void test_interrupts(void){
