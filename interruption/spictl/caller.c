@@ -160,7 +160,7 @@ void prepare_spi(void){
 
 void set_lun_speed_edge(){
     int clock = 15;
-    int edge = 0;
+    int edge = 1;
 
     unsigned int mask = 0;
     unsigned int conf = getR0();
@@ -196,7 +196,9 @@ unsigned int read_32_bits(void){
     set_lun_speed_edge();
 
     l = cavium_peek16(0x0A);
+    printk(KERN_EMERG "l:%02X\n", l);
     h = cavium_peek16(0x0C);
+    printk(KERN_EMERG "h:%02X\n", h);
 
     ret = (l|(h<<16));
 
