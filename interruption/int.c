@@ -93,10 +93,9 @@ irqreturn_t interrupt(int irq, void *dev_id)
 
       if((counter_scl % 10000) == 0){
 /*          printk(KERN_EMERG "Number of sda interruptions: %u \n" , counter_sda);*/
+          value = read_32_bits();
 /*          printk(KERN_EMERG "Number of scl interruptions: %u \n" , counter_scl);*/
-
-                    value = read_32_bits();
-                    printk(KERN_EMERG "Result %u\n", value);
+          printk(KERN_EMERG "Result %u\n", value);
       }
   }
 
@@ -266,7 +265,6 @@ void print_priorities()
  * */
 int init(void){
     printk(KERN_INFO "starting interruption module.\n");
-
     prepare_spi();
 
     request_memory_regions();
@@ -276,6 +274,9 @@ int init(void){
 
     /*  test_interrupts();*/
 
+    /*    printk(KERN_EMERG "HERE\n");*/
+
+          read_32_bits();
 
     return 0;
 }

@@ -62,7 +62,7 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
                   : "r1","cc"
     );
 
-    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);
+/*    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);*/
 }
 
 unsigned short cavium_peek16(unsigned int adr) {
@@ -83,7 +83,7 @@ unsigned short cavium_peek16(unsigned int adr) {
                   : "r"(adr), "r"(cvspiregs) 
                   : "r1", "cc"
     );
-    printk("\tPEEK16 dat=%04X,adr=%04X,\n",ret,adr);
+/*    printk(KERN_EMERG "\tPEEK16 dat=%04X,adr=%04X,mem=%p\n",ret,adr,cvspiregs);*/
     return ret;
 }
 
@@ -101,12 +101,12 @@ void cavium_disable_cs() {
     unsigned short val = getR0();
 
     if (val & (1<<7)) {
-        printk("cavium_disable_cs:%04X\n",val);
+/*        printk("cavium_disable_cs:%04X\n",val);*/
         setR0(val & ~(1<<7));
         setR0((val & ~(1<<7)) ^ (1 << 14));
     }
     else {
-        printk("cavium_disable_cs:%04X (NOP)\n",val);
+/*        printk("cavium_disable_cs:%04X (NOP)\n",val);*/
     }
 }
 
@@ -170,7 +170,7 @@ void set_lun_speed_edge(){
       mask |= EDGE_MASK;
     else if (edge == 0)
       mask &= ~EDGE_MASK;
-    printk("Writing the edge\n");
+/*    printk("Writing the edge\n");*/
     setR0(conf | mask);
 
     /* Set the lun  */
@@ -180,17 +180,20 @@ void set_lun_speed_edge(){
     /* Set the speed  */
     mask |= clock << SPEED_SHIFT;
 
-    printk("Writing the speed and lun\n");
+/*    printk("Writing the speed and lun\n");*/
     setR0(conf | mask);
 
 
-    printk("MASCARA %X\n", mask);
-    printk("CONF: %X\n", conf);
+/*    printk("MASCARA %X\n", mask);*/
+/*    printk("CONF: %X\n", conf);*/
 }
 
 unsigned int read_32_bits(void){
     unsigned int ret;
     unsigned short l, h;
+
+    prepare_registers();
+    set_lun_speed_edge();
 
     l = cavium_peek16(0x0A);
     h = cavium_peek16(0x0C);
