@@ -325,3 +325,46 @@ Test::
     arm3:~# ./spictl -l 1 -w 0B:00:20:00:00 -r 32 | hexdump -C
     00000000  20 94 e0 d4 30 03 e0 07  60 07 e0 64 00 08 e0 07  | ...0...`..d....|
     00000010  a0 03 e0 83 74 37 e0 a0  00 10 23 00 13 40 9f e4  |....t7....#..@..|
+
+How to add a system call on arm
+===============================
+
+Adding a system call is not as straight forward as creating a kernel module. The issue is that the system call table is a static table that resides inside
+the kernel. Therefore it cannot be modified dynamically. More specifically you can modify the table but it is impossible to extend it. As a result, adding 
+a system call requires recompiling the kernel itself.
+
+First thing first, download the kernel sources for the ts7500 board. cd into the downloaded sources and lets begin.
+Adding a system call can be done in four steps::
+
+* Edit the file ``arch/arm/kernel/calls.S`` and add a ``CALL`` statement::
+
+    CALL(sys_mycall)
+
+  Note: The syscall will be called ``mycall``, but here it is necessary to 
+  prefix it with ``sys``. Another thing to consider is that the system call
+  table size must be a multiple of 4. For example if it has 352 calls you 
+  need to add 4 more calls. Use ``CALL(sys_ni_syscall)`` to add dummy system 
+  calls. When you're finished take note of your system call number, in our 
+  case we added 4 calls and suppose that our call is the last one, its number
+  will be 356.
+
+* Edit the file ``include/asm/unistd.h`` and add a ``define`` statement to the ones already in there::
+
+    #define __NR_mycall       (__NR_SYSCALL_BASE+356)
+
+  Note: The define constant must be prefixed with ``__NR_`` and notice the
+  number 356.
+
+* Create your system call. You'll need to decide which folder to put your .c file. There are a lot of choices here - fd, ipc, drivers, etc. No matter where you decide to put it you'll need to change the Makefile in it to compile your file. Suppose your file is named ``mysyscall.c``, add ``mysyscall.o`` to one of the object targets in the Makefile. Make sure that target will run, that is, if that option is enabled in the kernel. The ``mysyscall.c`` file will look something like::
+
+    #include <linux/linkage.h>
+    #include <linux/kernel.h>
+
+    asmlinkage int sys_mysyscall(void){
+     printk(KERN_EMERG "MY SYSCALL\n");
+     return 1;
+    }
+
+* Finally, edit the file ``include/linux/syscalls.h`` and add your call header::
+
+    asmlinkage int sys_mysyscall(void);
