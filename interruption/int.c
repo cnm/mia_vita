@@ -69,10 +69,6 @@ unsigned int gpio_int_status_new_address = 0;
 unsigned int counter_sda = 0;
 unsigned int counter_scl = 0;
 
-extern void release_mem_spi(void);
-extern unsigned int read_32_bits(void);
-extern void prepare_spi(void);
-
 /*
  * Functions to handle the interruption
  */
@@ -246,16 +242,12 @@ void enable_irq_interruptions(void){
  * */
 int init(void){
     printk(KERN_INFO "starting interruption module.\n");
-    prepare_spi();
 
     request_memory_regions();
     register_handle_interruption();
     enable_gpio_interruptions();
 
-
     /*    printk(KERN_EMERG "HERE\n");*/
-
-          read_32_bits();
 
     return 0;
 }
@@ -273,7 +265,6 @@ void cleanup(void)
 
   unregister_memory_region();
 
-  release_mem_spi();
   printk(KERN_INFO "Unregister module interruption.\n");
 }
 
