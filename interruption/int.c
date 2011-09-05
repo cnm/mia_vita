@@ -34,7 +34,6 @@ MODULE_LICENSE("GPL");
 /*#define GPIOA_EN_ADDRESS TEST_ADDR */
 
 /* Function Headers*/
-void print_priorities(void);
 void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void request_memory_regions(void);
 irqreturn_t interrupt(int irq, void *dev_id);
@@ -45,8 +44,8 @@ int request_mem(volatile unsigned int mem_addr, unsigned int size);
 int request_port(unsigned int port_addr, unsigned int size);
 void enable_gpio_interruptions(void);
 void enable_irq_interruptions(void);
-void test_interrupts(void);
 void cleanup(void);
+void handle_gps_int();
 
 /* Io remap addresses  */
 unsigned int gpioa_en_new_address = 0;
@@ -82,29 +81,25 @@ irqreturn_t interrupt(int irq, void *dev_id)
   volatile unsigned int *p; // The volatile is extremely important here
   unsigned int value;
 
-  /*   printk(KERN_INFO "Inside the interruption %d\n", irq);*/
-  /*  printk(KERN_EMERG "Inside the interruption %d\n", irq);*/
-
   /* Check what the interruption was*/
   p = (unsigned int *) gpio_int_status_new_address;
-  /*  printk(KERN_INFO "\t\t\t\t Interruptions: \t\t\t%08x %08x\n", *p, (*p & (SCL_MASK | SDA_MASK)));*/
+
+  /* If scl interruption */
   if(SCL_MASK & *p){
       counter_scl++;
 
-      if((counter_scl % 10000) == 0){
-/*          printk(KERN_EMERG "Number of sda interruptions: %u \n" , counter_sda);*/
-          value = read_32_bits();
-/*          printk(KERN_EMERG "Number of scl interruptions: %u \n" , counter_scl);*/
-          printk(KERN_EMERG "Result %u\n", value);
+      if((counter_scl % 1) == 0){
+          handle_gps_int();
       }
   }
 
+  /* If sda interruption */
   else if(SDA_MASK & *p){
       counter_sda++;
   }
 
-  else{
-      printk(KERN_INFO "-------------SOMETHING ELSE ------------------- ??");
+  else{ // should not happen
+      printk(KERN_INFO "-------------ERROR SOMETHING ELSE ------------------- ??\n");
   }
 
   /* Clear the GPIO interruption */
@@ -246,20 +241,6 @@ void enable_irq_interruptions(void){
     /*  printk(KERN_INFO "\t TEST Read soft int :\t\t%08x \n", *p);*/
 }
 
-void print_priorities()
-{
-  volatile unsigned int *p; // The volatile is extremely important here
-  unsigned int i;
-
-  for(i=0;i<32;i++)
-    {
-      p = (unsigned int *) (irq_priorities_new_address + i*4);
-      /*      printk(KERN_EMERG "\t\t\tReading address %x %p",(irq_priorities_new_address + i), p);*/
-
-      printk(KERN_INFO "\t\t\tReading priority %p:\t\t%08x \n", p, *p);
-    }
-}
-
 /*
  * Function which runs when the module is initiated
  * */
@@ -270,22 +251,13 @@ int init(void){
     request_memory_regions();
     register_handle_interruption();
     enable_gpio_interruptions();
-    /*  print_priorities();*/
 
-    /*  test_interrupts();*/
 
     /*    printk(KERN_EMERG "HERE\n");*/
 
           read_32_bits();
 
     return 0;
-}
-
-void test_interrupts(void){
-    unsigned int * p;
-    p = (unsigned int *) gpio_data_input_new_address;
-    printk(KERN_INFO "\t GPIO Input register:\t\t\t%08x Is losing value each time\n", *p);
-
 }
 
 /*
@@ -362,7 +334,14 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
   release_mem_region(mem_addr, byte_size);
 }
 
+
 /******************************** End of auxiliary functions **************************/
+
+void handle_gps_int(){
+    /* TODO - FRED THIS IS YOUR PLACE  */
+
+    return;
+}
 
 
 module_init(init);
