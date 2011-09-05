@@ -334,7 +334,7 @@ the kernel. Therefore it cannot be modified dynamically. More specifically you c
 a system call requires recompiling the kernel itself.
 
 First thing first, download the kernel sources for the ts7500 board. cd into the downloaded sources and lets begin.
-Adding a system call can be done in four steps::
+Adding a system call can be done in four steps:
 
 * Edit the file ``arch/arm/kernel/calls.S`` and add a ``CALL`` statement::
 
