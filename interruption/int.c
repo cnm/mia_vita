@@ -333,8 +333,7 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 
 void handle_gps_int(void){
   pulse_miavita_xtime();
-
-    return;
+  return;
 }
 
 
