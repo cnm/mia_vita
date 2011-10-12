@@ -32,7 +32,7 @@ void cavium_disable_cs(void);
 int dostuff(void);
 void prepare_registers(void);
 
-static volatile unsigned int gpio_new_mem;
+static volatile unsigned int gpio_a_new_mem;
 static volatile unsigned int spi_register;
 
 static volatile unsigned int *cvspiregs;
@@ -131,21 +131,29 @@ void prepare_registers() {
     p = (unsigned int *) (spi_register + SPI_RX_DATA);
     for (i = 0; i < 8; i++) *p;
 
-    p = (unsigned int *) gpio_new_mem;
-    *p = (2<<15|1<<17|1<<3);
+    p = (unsigned int *) gpio_a_new_mem;
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
 
     cavium_disable_cs(); // force CS# deassertion just in case
 }
 
+void prepare_registers2() {
+    volatile unsigned int *p; // The volatile is extremely important here
+
+    p = (unsigned int *) gpio_a_new_mem;
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+}
 
 void reserve_memory(void){
-    gpio_new_mem = request_mem(GPIOA_REGISTER, WORD_SIZE);
+    gpio_a_new_mem = request_mem(GPIOA_REGISTER, WORD_SIZE);
     spi_register = request_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
     cvspiregs = (void*) spi_register;
 }
 
 void prepare_spi(void){
+    printk("Reserving memory\n");
     reserve_memory();
+
     printk("Preparing registers\n");
     prepare_registers();
     printk("Ended Preparing registers\n");
@@ -191,16 +199,16 @@ unsigned int read_32_bits(void){
     unsigned int ret;
     unsigned short l, h;
 
-    prepare_registers();
-    set_lun_speed_edge();
+    prepare_registers2();
+/*    set_lun_speed_edge();*/
 
     l = cavium_peek16(0x0A);
-    printk(KERN_EMERG "l:%02X\n", l);
+/*    printk(KERN_EMERG "l:%04X\n", l);*/
     h = cavium_peek16(0x0C);
-    printk(KERN_EMERG "h:%02X\n", h);
+/*    printk(KERN_EMERG "h:%04X\n", h);*/
 
     ret = (l|(h<<16));
-
+/*    printk(KERN_EMERG "ret:%08X\n", ret);*/
     return ret;
 }
 
