@@ -368,3 +368,30 @@ Adding a system call can be done in four steps:
 * Finally, edit the file ``include/linux/syscalls.h`` and add your call header::
 
     asmlinkage int sys_mysyscall(void);
+
+Mac Addresses
+=============
+
+Ethernet
+########
+
+
+    MV-47 - 00:d0:69:43:3f:ce - 158
+
+    MV-34 - 00:d0:69:43:3f:c0 - 109
+
+    MV-58 - 00:d0:69:43:3f:b9 - 174
+
+    MV-?? - 00:d0:69:43:3f:c7 - 138
+
+
+Wireless cards
+##############
+
+
+    MV-61 94:0c:6d:e1:85:e5
+
+    MV-41 e0:cb:4e:a6:5a:be
+
+    Simao 94:44:52:01:95:b3
+
