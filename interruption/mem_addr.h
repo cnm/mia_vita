@@ -26,7 +26,7 @@
 #define SPI_INTR_ENA                    0x6C   /* See page 151 */
 
 #define LUN_CS_ERASE_MASK               (0x700)     /* The bit 8 and 9 is 1 the rest is 0   */
-#define LUN_CS_BIT_MASK                 (1<<8)      /* The bit 9 is 1 the rest is 0         */
+#define LUN_CS_BIT_MASK                 (1<<9)      /* The bit 9 is 1 the rest is 0         */
 #define SPEED_MASK                      (7<<10)     /* Mask to reset the speed              */
 #define EDGE_MASK                       (1<<14)     /* The edge is set in the 14 bit        */
 #define SPEED_SHIFT                     10          /* 10 bits to 13 set the speed          */

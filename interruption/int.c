@@ -74,10 +74,10 @@ extern void release_mem_spi(void);
 extern unsigned int read_32_bits(void);
 extern void prepare_spi(void);
 
-void wait(){
+void wait(void){
   volatile unsigned int a = 0;
 
-  for(;a<= 100000; a++){
+  for(;a<= 1; a++){
       a++;
   }
 }
@@ -263,6 +263,7 @@ int init(void){
     request_memory_regions();
     register_handle_interruption();
     enable_gpio_interruptions();
+
     return 0;
 }
 
@@ -353,18 +354,11 @@ void handle_gps_int(void){
 void handle_adc_int(){
     unsigned int value;
 /*    printk(KERN_EMERG "Handle ADC\n");*/
-    int i = 0;
-    i++;
-    printk(KERN_EMERG "AQUI");
 
     /* Read the adc  */
     value = read_32_bits();
 
-if((i % 1) == 0){
-    printk(KERN_EMERG "Value: %04X\n", value);
-    i=0;
-}
-
+    printk(KERN_EMERG "Value: %08X\n", value);
     return;
 }
 

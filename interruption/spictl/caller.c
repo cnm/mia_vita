@@ -191,7 +191,7 @@ void set_lun_speed_edge(){
     setR0(conf | mask);
 
 
-/*    printk("MASCARA %X\n", mask);*/
+/*    printk(KERN_EMERG "MASCARA %X\n", mask);*/
 /*    printk("CONF: %X\n", conf);*/
 }
 
