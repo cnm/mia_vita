@@ -20,18 +20,15 @@
 #include <linux/kernel.h>       /* printk() */
 #include "mem_addr.h"
 
-
 extern int request_mem(volatile unsigned int mem_addr, unsigned int size);
 extern void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void release_mem_spi(void);
-
 
 void set_lun_speed_edge(void);
 unsigned short getR0(void);
 void cavium_disable_cs(void);
 int dostuff(void);
 void prepare_registers(void);
-
 static volatile unsigned int gpio_a_new_mem;
 static volatile unsigned int spi_register;
 
@@ -203,12 +200,9 @@ unsigned int read_32_bits(void){
 /*    set_lun_speed_edge();*/
 
     l = cavium_peek16(0x0A);
-/*    printk(KERN_EMERG "l:%04X\n", l);*/
     h = cavium_peek16(0x0C);
-/*    printk(KERN_EMERG "h:%04X\n", h);*/
 
-    ret = (l|(h<<16));
-/*    printk(KERN_EMERG "ret:%08X\n", ret);*/
+    ret = (h|(l<<16));
     return ret;
 }
 

@@ -29,10 +29,6 @@ MODULE_AUTHOR ("Joao Trindade");
 MODULE_LICENSE("GPL");
 
 
-/* For testing purposes  */
-/*#undef GPIOA_EN_ADDRESS*/
-/*#define GPIOA_EN_ADDRESS TEST_ADDR */
-
 /* Function Headers*/
 void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void request_memory_regions(void);
@@ -47,6 +43,8 @@ void enable_irq_interruptions(void);
 void cleanup(void);
 void handle_gps_int(void);
 void handle_adc_int(void);
+
+void print_buffer(void);
 
 /* Io remap addresses  */
 unsigned int gpioa_en_new_address = 0;
@@ -74,12 +72,16 @@ extern void release_mem_spi(void);
 extern unsigned int read_32_bits(void);
 extern void prepare_spi(void);
 
-void wait(void){
-  volatile unsigned int a = 0;
+#define BUFFER_N    500
+unsigned int buffer[BUFFER_N];
+int buffer_i = 0;
 
-  for(;a<= 1; a++){
-      a++;
-  }
+void wait(void){
+    volatile unsigned int a = 0;
+
+    for(;a<= 1; a++){
+        a++;
+    }
 }
 
 /*
@@ -105,7 +107,7 @@ irqreturn_t interrupt(int irq, void *dev_id)
   else if(SDA_MASK & *p){
       counter_sda++;
 
-      if((counter_sda % 50000) == 0){
+      if((counter_sda % 100) == 0){
           wait();
           handle_adc_int();
       }
@@ -142,10 +144,6 @@ void request_memory_regions(void){
     gpio_int_clear_new_address  = request_mem(GPIO_INT_CLEAR, WORD_SIZE);
     gpio_int_status_new_address = request_mem(GPIO_INT_STATUS, WORD_SIZE);
 
-    /* Just for tests */
-    /*    unsigned int i;*/
-    /*    i = *(unsigned int *)(gpioa_en_new_address);*/
-    /*    printk(KERN_INFO "Testing with address: %p --------> %x\n", (void *) gpioa_en_new_address, i);*/
     return;
 }
 
@@ -274,11 +272,13 @@ void cleanup(void)
 {
   unsigned int * p;
   p = (unsigned int *) int_mask_new_address;
-  printk(KERN_INFO "\t IRQ Mask AFTER:\t\t\t%08x Is losing value each time\n", *p);
   unregister_handle_interruption();
-  printk(KERN_INFO "\t IRQ Mask AFTER:\t\t\t%08x Is losing value each time\n", *p);
 
+  printk(KERN_INFO "ANTES DE MEMORIA.\n");
   unregister_memory_region();
+  printk(KERN_INFO "DEPOIS DE MEMORIA.\n");
+
+  print_buffer();
 
   release_mem_spi();
   printk(KERN_INFO "Unregister module interruption.\n");
@@ -353,13 +353,27 @@ void handle_gps_int(void){
 
 void handle_adc_int(){
     unsigned int value;
-/*    printk(KERN_EMERG "Handle ADC\n");*/
 
     /* Read the adc  */
     value = read_32_bits();
 
-    printk(KERN_EMERG "Value: %08X\n", value);
+/*    printk(KERN_INFO"Value: %06X %08u\n", value >> 8, value>>8);*/
+
+    buffer[buffer_i % BUFFER_N] = value>>8;
+    buffer_i++;
+
     return;
+}
+
+void print_buffer(void){
+    int i;
+    printk(KERN_INFO "FINAL: ");
+
+    for (i=0;i<BUFFER_N;i++){
+        printk("%08u ", buffer[i]);
+        if(!(i % 20)) printk("\nFINAL: ");
+    }
+    printk("\n");
 }
 
 module_init(init);
