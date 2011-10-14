@@ -357,7 +357,7 @@ void handle_adc_int(){
     /* Read the adc  */
     value = read_32_bits();
 
-/*    printk(KERN_INFO"Value: %06X %08u\n", value >> 8, value>>8);*/
+/*    printk(KERN_EMERG "Value: %06X %08u\n", value >> 8, value>>8);*/
 
     buffer[buffer_i % BUFFER_N] = value>>8;
     buffer_i++;

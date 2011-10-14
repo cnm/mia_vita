@@ -164,7 +164,7 @@ void prepare_spi(void){
 
 void set_lun_speed_edge(){
     int clock = 15;
-    int edge = 0; /* It must reads on the rising edge */
+    int edge = 1; /* It must reads on the rising edge */
 
     unsigned int mask = 0;
     unsigned int conf = getR0();
