@@ -28,7 +28,6 @@
 MODULE_AUTHOR ("Joao Trindade");
 MODULE_LICENSE("GPL");
 
-
 /* Function Headers*/
 void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void request_memory_regions(void);
@@ -72,7 +71,8 @@ extern void release_mem_spi(void);
 extern unsigned int read_32_bits(void);
 extern void prepare_spi(void);
 
-#define BUFFER_N    500
+#define DIVISOR 1
+#define BUFFER_N 10000
 unsigned int buffer[BUFFER_N];
 int buffer_i = 0;
 
@@ -107,7 +107,7 @@ irqreturn_t interrupt(int irq, void *dev_id)
   else if(SDA_MASK & *p){
       counter_sda++;
 
-      if((counter_sda % 100) == 0){
+      if((counter_sda % DIVISOR) == 0){
           wait();
           handle_adc_int();
       }

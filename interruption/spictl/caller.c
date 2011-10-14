@@ -155,7 +155,6 @@ void prepare_spi(void){
     prepare_registers();
     printk("Ended Preparing registers\n");
 
-
     printk("Setting parameters\n");
     set_lun_speed_edge();
     printk("End setting parameters\n");
@@ -174,7 +173,6 @@ void set_lun_speed_edge(){
       mask |= EDGE_MASK;
     else if (edge == 0)
       mask &= ~EDGE_MASK;
-/*    printk("Writing the edge\n");*/
     setR0(conf | mask);
 
     /* Set the lun  */
@@ -186,10 +184,6 @@ void set_lun_speed_edge(){
 
 /*    printk("Writing the speed and lun\n");*/
     setR0(conf | mask);
-
-
-/*    printk(KERN_EMERG "MASCARA %X\n", mask);*/
-/*    printk("CONF: %X\n", conf);*/
 }
 
 unsigned int read_32_bits(void){
@@ -197,7 +191,7 @@ unsigned int read_32_bits(void){
     unsigned short l, h;
 
     prepare_registers2();
-/*    set_lun_speed_edge();*/
+/*    set_lun_speed_edge();*/ /* VOLTAR A METER  */
 
     l = cavium_peek16(0x0A);
     h = cavium_peek16(0x0C);
