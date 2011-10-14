@@ -71,10 +71,9 @@ extern void release_mem_spi(void);
 extern unsigned int read_32_bits(void);
 extern void prepare_spi(void);
 
+extern void write_to_buffer(unsigned int);
+
 #define DIVISOR 1
-#define BUFFER_N 10000
-unsigned int buffer[BUFFER_N];
-int buffer_i = 0;
 
 void wait(void){
     volatile unsigned int a = 0;
@@ -357,23 +356,8 @@ void handle_adc_int(){
     /* Read the adc  */
     value = read_32_bits();
 
-/*    printk(KERN_EMERG "Value: %06X %08u\n", value >> 8, value>>8);*/
-
-    buffer[buffer_i % BUFFER_N] = value>>8;
-    buffer_i++;
-
+    write_to_buffer(value>>8);
     return;
-}
-
-void print_buffer(void){
-    int i;
-    printk(KERN_INFO "FINAL: ");
-
-    for (i=0;i<BUFFER_N;i++){
-        printk("%08u ", buffer[i]);
-        if(!(i % 20)) printk("\nFINAL: ");
-    }
-    printk("\n");
 }
 
 module_init(init);
