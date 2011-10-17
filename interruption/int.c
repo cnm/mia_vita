@@ -75,14 +75,6 @@ extern void write_to_buffer(unsigned int);
 
 #define DIVISOR 1
 
-void wait(void){
-    volatile unsigned int a = 0;
-
-    for(;a<= 1; a++){
-        a++;
-    }
-}
-
 /*
  * Functions to handle the interruption
  */
@@ -107,7 +99,6 @@ irqreturn_t interrupt(int irq, void *dev_id)
       counter_sda++;
 
       if((counter_sda % DIVISOR) == 0){
-          wait();
           handle_adc_int();
       }
   }
