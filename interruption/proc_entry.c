@@ -36,27 +36,45 @@ unsigned int last_write = 0;
 
 #define BUFFER_SIZE 10000
 unsigned int DATA[BUFFER_SIZE];
-unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over);
+unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
 
-unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over){
+unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length){
+    unsigned int can_copy = 0;
     *over = 0;
+
     if(last_r < last_w){
-        return  last_w - last_r;
+        can_copy = last_w - last_r;
+
+        if(can_copy > buffer_length){
+            can_copy = buffer_length;
+        }
     }
 
     else if(last_r > last_w){
-        *over = last_w;
-        return (BUFFER_SIZE - last_r);
+        *over = last_w + 1;
+        can_copy = (BUFFER_SIZE - last_r);
+
+        if(can_copy + *over > buffer_length){
+            if(can_copy > buffer_length){ // The can copy alone is larger than the buffer
+                can_copy = buffer_length;
+            }
+
+            else { //Only the over is above the buffer size
+                *over = buffer_length - can_copy;
+            }
+        }
     }
 
     else if(last_r == last_w){
-        return 0;
+        can_copy = 0;
     }
 
     else{
         printk("Error: Should never happen");
         return 0;
     }
+
+    return can_copy;
 }
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
@@ -65,16 +83,16 @@ static int procfile_read(char *buffer, char **buffer_location, off_t offset,
     int how_many_can_we_cpy;
     unsigned int over = 0;
 
-    how_many_can_we_cpy = check_how_many_can_we_copy(last_read, last_write, &over);
+    how_many_can_we_cpy = check_how_many_can_we_copy(last_read, last_write, &over, buffer_length );
+
     memcpy(buffer + offset, (void*) (DATA + last_read + 1), how_many_can_we_cpy);
-    memcpy(buffer + offset + how_many_can_we_cpy, (void*) (DATA), over + 1);
+    memcpy(buffer + offset + how_many_can_we_cpy, (void*) (DATA), over);
 
     last_read = (last_read + how_many_can_we_cpy + over) % BUFFER_SIZE;
 
     printk(KERN_EMERG "Last read %u \tLast write %u READING: %d OVER: %d\n", last_read % BUFFER_SIZE, last_write % BUFFER_SIZE, how_many_can_we_cpy, over);
 
     *eof = 0;
-
     *buffer_location = buffer;
 
     return (how_many_can_we_cpy + over) * sizeof(unsigned int);
@@ -88,7 +106,7 @@ void write_to_buffer(unsigned int value){
 
     DATA[last_write % BUFFER_SIZE] = last_write;
 
-/*    printk(KERN_EMERG "Last read %u \tLast write %u\n",last_read % BUFFER_SIZE, last_write % BUFFER_SIZE );*/
+    /*    printk(KERN_EMERG "Last read %u \tLast write %u\n",last_read % BUFFER_SIZE, last_write % BUFFER_SIZE );*/
 }
 
 void create_proc_file(void) {
