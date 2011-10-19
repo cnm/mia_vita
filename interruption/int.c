@@ -24,6 +24,7 @@
 #include <asm/io.h>             /* ioremap */
 
 #include "mem_addr.h"
+#include "proc_entry.h"
 
 MODULE_AUTHOR ("Joao Trindade");
 MODULE_LICENSE("GPL");
@@ -42,8 +43,6 @@ void enable_irq_interruptions(void);
 void cleanup(void);
 void handle_gps_int(void);
 void handle_adc_int(void);
-
-void print_buffer(void);
 
 /* Io remap addresses  */
 unsigned int gpioa_en_new_address = 0;
@@ -252,6 +251,8 @@ int init(void){
     register_handle_interruption();
     enable_gpio_interruptions();
 
+    create_proc_file();
+
     return 0;
 }
 
@@ -267,8 +268,6 @@ void cleanup(void)
   printk(KERN_INFO "ANTES DE MEMORIA.\n");
   unregister_memory_region();
   printk(KERN_INFO "DEPOIS DE MEMORIA.\n");
-
-  print_buffer();
 
   release_mem_spi();
   printk(KERN_INFO "Unregister module interruption.\n");
@@ -336,13 +335,15 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
-    printk(KERN_EMERG "I'm in the GPS");
+/*   printk(KERN_EMERG "I'm in the GPS\n");*/
 
     return;
 }
 
 void handle_adc_int(){
     unsigned int value;
+
+/*    printk(KERN_EMERG "I'm in the ADC\n");*/
 
     /* Read the adc  */
     value = read_32_bits();

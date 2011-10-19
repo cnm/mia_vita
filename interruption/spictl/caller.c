@@ -33,6 +33,7 @@ static volatile unsigned int gpio_a_new_mem;
 static volatile unsigned int spi_register;
 
 static volatile unsigned int *cvspiregs;
+static void prepare_registers2(void);
 
 
 void cavium_poke16(unsigned int adr, unsigned short dat) {

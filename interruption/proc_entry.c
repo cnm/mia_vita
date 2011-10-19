@@ -31,36 +31,67 @@
 
 struct proc_dir_entry *proc_file_entry;
 
-int last_read = 0;
-int last_write = 0;
+unsigned int last_read = 0;
+unsigned int last_write = 0;
 
 #define BUFFER_SIZE 10000
-unsigned int buffer[BUFFER_SIZE];
+unsigned int DATA[BUFFER_SIZE];
+unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over);
+
+unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over){
+    *over = 0;
+    if(last_r < last_w){
+        return  last_w - last_r;
+    }
+
+    else if(last_r > last_w){
+        *over = last_w;
+        return (BUFFER_SIZE - last_r);
+    }
+
+    else if(last_r == last_w){
+        return 0;
+    }
+
+    else{
+        printk("Error: Should never happen");
+        return 0;
+    }
+}
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
 static int procfile_read(char *buffer, char **buffer_location, off_t offset,
                          int buffer_length, int *eof, void *data) {
     int how_many_can_we_cpy;
-    how_many_can_we_cpy = 1;
+    unsigned int over = 0;
 
-    memcpy(buffer, last_read + 1, how_many_can_we_cpy);
+    how_many_can_we_cpy = check_how_many_can_we_copy(last_read, last_write, &over);
+    memcpy(buffer + offset, (void*) (DATA + last_read + 1), how_many_can_we_cpy);
+    memcpy(buffer + offset + how_many_can_we_cpy, (void*) (DATA), over + 1);
+
+    last_read = (last_read + how_many_can_we_cpy + over) % BUFFER_SIZE;
+
+    printk(KERN_EMERG "Last read %u \tLast write %u READING: %d OVER: %d\n", last_read % BUFFER_SIZE, last_write % BUFFER_SIZE, how_many_can_we_cpy, over);
+
+    *eof = 0;
+
     *buffer_location = buffer;
 
-    last_read = last_read + how_many_can_we_cpy;
-
-    return how_many_can_we_cpy;
+    return (how_many_can_we_cpy + over) * sizeof(unsigned int);
 }
 
 void write_to_buffer(unsigned int value){
-    last_write = (last_write + 1 % BUFFER_N)
+    last_write = ((last_write + 1) % BUFFER_SIZE);
 
     if (last_write == last_read) /* Just for a simple mark */
-      value = 0;
+      last_read++;
 
-    buffer[last_write % BUFFER_N] = value;
+    DATA[last_write % BUFFER_SIZE] = last_write;
+
+/*    printk(KERN_EMERG "Last read %u \tLast write %u\n",last_read % BUFFER_SIZE, last_write % BUFFER_SIZE );*/
 }
 
-static void create_proc_file(void) {
+void create_proc_file(void) {
     proc_file_entry = create_proc_entry(PROC_FILE_NAME, 0644, NULL);
 
     if (proc_file_entry == NULL) {
