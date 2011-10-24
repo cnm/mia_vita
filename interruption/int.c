@@ -69,6 +69,7 @@ unsigned int counter_scl = 0;
 extern void release_mem_spi(void);
 extern unsigned int read_32_bits(void);
 extern void prepare_spi(void);
+extern void prepare_spi2(void);
 
 extern void write_to_buffer(unsigned int);
 extern void write_dio26(bool b);
@@ -251,6 +252,7 @@ int init(void){
 
     prepare_spi();
     request_memory_regions();
+    prepare_spi2();
     register_handle_interruption();
     enable_gpio_interruptions();
 
