@@ -72,6 +72,8 @@ extern void prepare_spi(void);
 
 extern void write_to_buffer(unsigned int);
 
+unsigned int counter;
+
 #define DIVISOR 1
 
 /*
@@ -88,8 +90,8 @@ irqreturn_t interrupt(int irq, void *dev_id)
   if(SCL_MASK & *p){
       counter_scl++;
 
-      if((counter_scl % 1) == 0){
-          handle_gps_int();
+      if((counter_scl % DIVISOR) == 0){
+          handle_adc_int();
       }
   }
 
@@ -98,7 +100,7 @@ irqreturn_t interrupt(int irq, void *dev_id)
       counter_sda++;
 
       if((counter_sda % DIVISOR) == 0){
-          handle_adc_int();
+          handle_gps_int();
       }
   }
 
@@ -335,7 +337,7 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
-/*   printk(KERN_EMERG "I'm in the GPS\n");*/
+    printk(KERN_EMERG "I'm in the GPS second %u with ADC INTs: %u \n", counter_sda, counter_scl);
 
     return;
 }
@@ -343,12 +345,19 @@ void handle_gps_int(void){
 void handle_adc_int(){
     unsigned int value;
 
-/*    printk(KERN_EMERG "I'm in the ADC\n");*/
+    /*    printk(KERN_EMERG "I'm in the ADC\n");*/
 
     /* Read the adc  */
     value = read_32_bits();
 
     write_to_buffer(value>>8);
+
+    if(counter >= 100){
+        counter = 0;
+        printk(KERN_EMERG "Value read: %06X\n", value>>8);
+    }
+    else{counter++;}
+
     return;
 }
 

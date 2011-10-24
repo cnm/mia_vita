@@ -34,7 +34,7 @@ struct proc_dir_entry *proc_file_entry;
 unsigned int last_read = 0;
 unsigned int last_write = 0;
 
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 12000
 unsigned int DATA[BUFFER_SIZE];
 unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
 
@@ -80,31 +80,27 @@ unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
 static int procfile_read(char *buffer, char **buffer_location, off_t offset,
                          int buffer_length, int *eof, void *data) {
-    int how_many_can_we_cpy;
-    unsigned int over = 0;
 
-    how_many_can_we_cpy = check_how_many_can_we_copy(last_read, last_write, &over, buffer_length );
+    unsigned int remaining_buffer = buffer_length;
+    unsigned int how_many_we_copy = (remaining_buffer < (BUFFER_SIZE*4) - offset) ? remaining_buffer : (BUFFER_SIZE*4) - offset;
 
-    memcpy(buffer + offset, (void*) (DATA + last_read + 1), how_many_can_we_cpy);
-    memcpy(buffer + offset + how_many_can_we_cpy, (void*) (DATA), over);
+    memcpy(buffer, ((void*) DATA) + offset, how_many_we_copy * 4);
 
-    last_read = (last_read + how_many_can_we_cpy + over) % BUFFER_SIZE;
+    printk(KERN_EMERG "OFFSET: %d \t, Last read %u \tLast write %u READING: %d \n", offset, last_read % BUFFER_SIZE, last_write % BUFFER_SIZE, how_many_we_copy);
 
-    printk(KERN_EMERG "Last read %u \tLast write %u READING: %d OVER: %d\n", last_read % BUFFER_SIZE, last_write % BUFFER_SIZE, how_many_can_we_cpy, over);
-
-    *eof = 0;
+    *eof = 1;
     *buffer_location = buffer;
 
-    return (how_many_can_we_cpy + over) * sizeof(unsigned int);
+    return how_many_we_copy;
 }
 
 void write_to_buffer(unsigned int value){
     last_write = ((last_write + 1) % BUFFER_SIZE);
 
     if (last_write == last_read) /* Just for a simple mark */
-      last_read++;
+      last_read = last_write - 1;
 
-    DATA[last_write % BUFFER_SIZE] = last_write;
+    DATA[last_write % BUFFER_SIZE] = value;
 
     /*    printk(KERN_EMERG "Last read %u \tLast write %u\n",last_read % BUFFER_SIZE, last_write % BUFFER_SIZE );*/
 }
