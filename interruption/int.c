@@ -339,6 +339,13 @@ void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
     printk(KERN_EMERG "I'm in the GPS second %u with ADC INTs: %u \n", counter_sda, counter_scl);
 
+    if (counter_sda % 2){
+      write_dio26(0);
+    }
+    else{
+      write_dio26(1);
+    }
+
     return;
 }
 

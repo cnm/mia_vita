@@ -25,6 +25,8 @@ extern void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void write_dio26(bool b);
 void release_mem_spi(void);
 
+extern unsigned int gpioa_en_new_address;
+
 void set_lun_speed_edge(void);
 unsigned short getR0(void);
 void cavium_disable_cs(void);
@@ -60,8 +62,9 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
                   : "r1","cc"
     );
 
-/*    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);*/
+    /*    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);*/
 }
+
 
 unsigned short cavium_peek16(unsigned int adr) {
     unsigned short ret = -1;
@@ -81,7 +84,7 @@ unsigned short cavium_peek16(unsigned int adr) {
                   : "r"(adr), "r"(cvspiregs)
                   : "r1", "cc"
     );
-/*    printk(KERN_EMERG "\tPEEK16 dat=%04X,adr=%04X,mem=%p\n",ret,adr,cvspiregs);*/
+    /*    printk(KERN_EMERG "\tPEEK16 dat=%04X,adr=%04X,mem=%p\n",ret,adr,cvspiregs);*/
     return ret;
 }
 
@@ -98,12 +101,12 @@ void cavium_disable_cs() {
     unsigned short val = getR0();
 
     if (val & (1<<7)) {
-/*        printk("cavium_disable_cs:%04X\n",val);*/
+        /*        printk("cavium_disable_cs:%04X\n",val);*/
         setR0(val & ~(1<<7));
         setR0((val & ~(1<<7)) ^ (1 << 14));
     }
     else {
-/*        printk("cavium_disable_cs:%04X (NOP)\n",val);*/
+        /*        printk("cavium_disable_cs:%04X (NOP)\n",val);*/
     }
 }
 
@@ -183,7 +186,7 @@ void set_lun_speed_edge(){
     /* Set the speed  */
     mask |= clock << SPEED_SHIFT;
 
-/*    printk("Writing the speed and lun\n");*/
+    /*    printk("Writing the speed and lun\n");*/
     setR0(conf | mask);
 }
 
@@ -192,7 +195,7 @@ unsigned int read_32_bits(void){
     unsigned short l, h;
 
     prepare_registers2();
-/*    set_lun_speed_edge();*/ /* VOLTAR A METER  */
+    /*    set_lun_speed_edge();*/ /* VOLTAR A METER  */
 
     l = cavium_peek16(0x0A);
     h = cavium_peek16(0x0C);
@@ -206,8 +209,77 @@ void release_mem_spi(void){
     release_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
 }
 
+
+unsigned short sbus_peek16(unsigned int adr) {
+    unsigned short ret = 0;
+    volatile unsigned int *p; // The volatile is extremely important here
+    p = (unsigned int *) gpioa_en_new_address;
+
+    *p = (3<<14); /* Enable I2SWS, I2SCLK and I2SDR */
+
+    adr &= 0x1f;
+
+    asm volatile (
+                  "mov %0, %1, lsl #18\n"
+                  "2: str %0, [%2, #0x50]\n"
+                  "1: ldr r1, [%2, #0x64]\n"
+                  "cmp r1, #0x0\n"
+                  "beq 1b\n"
+                  "ldr %0, [%2, #0x58]\n"
+                  "ands r1, %0, #0x10000\n"
+                  "bicne %0, %0, #0xff0000\n"
+                  "moveq %0, #0x0\n"
+                  "beq 2b\n" 
+                  : "+r"(ret) : "r"(adr), "r"(cvspiregs) : "r1", "cc"
+    );
+
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+
+    return ret;
+}
+
+void sbus_poke16(unsigned int adr, unsigned short dat) {
+    unsigned int dummy = 0;
+    unsigned int d = dat;
+
+    volatile unsigned int *p; // The volatile is extremely important here
+    p = (unsigned int *) gpioa_en_new_address;
+
+    *p = (3<<14); /* Enable I2SWS, I2SCLK and I2SDR */
+
+    asm volatile (
+                  "mov %0, %1, lsl #18\n"
+                  "orr %0, %0, #0x800000\n"
+                  "orr %0, %0, %2, lsl #3\n"
+                  "3: ldr r1, [%3, #0x64]\n"
+                  "cmp r1, #0x0\n"
+                  "bne 3b\n"
+                  "2: str %0, [%3, #0x50]\n"
+                  "1: ldr r1, [%3, #0x64]\n"
+                  "cmp r1, #0x0\n"
+                  "beq 1b\n"
+                  "ldr %0, [%3, #0x58]\n"
+                  "ands r1, %0, #0x1\n"
+                  "moveq %0, #0x0\n"
+                  "beq 3b\n"
+                  : "+r"(dummy) : "r"(adr), "r"(d), "r"(cvspiregs) : "r1","cc"
+    );
+
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+}
+
 void write_dio26(bool b){
-  sbus_poke16(0x6c, sbus_peek16(0x6c) & ~(1 << 5));
+    int pinOffSet = 5;
+
+    if(b){
+        sbus_poke16(0x6a, (sbus_peek16(0x6a) | (1 << pinOffSet)));
+    }
+    else{
+        sbus_poke16(0x6a, (sbus_peek16(0x6a) & ~(1 << pinOffSet)));
+    }
+
+    // Make the specified pin into an output in direction register
+    sbus_poke16(0x6c, sbus_peek16(0x6c) | (1 << pinOffSet)); ///
 }
 
 
