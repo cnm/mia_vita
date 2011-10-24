@@ -71,6 +71,7 @@ extern unsigned int read_32_bits(void);
 extern void prepare_spi(void);
 
 extern void write_to_buffer(unsigned int);
+extern void write_dio26(bool b);
 
 unsigned int counter;
 
@@ -331,7 +332,6 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
   iounmap((void __iomem *)mem_addr);
   release_mem_region(mem_addr, byte_size);
 }
-
 
 /******************************** End of auxiliary functions **************************/
 

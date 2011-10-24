@@ -22,6 +22,7 @@
 
 extern int request_mem(volatile unsigned int mem_addr, unsigned int size);
 extern void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
+void write_dio26(bool b);
 void release_mem_spi(void);
 
 void set_lun_speed_edge(void);
@@ -34,7 +35,6 @@ static volatile unsigned int spi_register;
 
 static volatile unsigned int *cvspiregs;
 static void prepare_registers2(void);
-
 
 void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
@@ -205,3 +205,9 @@ void release_mem_spi(void){
     release_mem(GPIOA_REGISTER, WORD_SIZE);
     release_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
 }
+
+void write_dio26(bool b){
+  sbus_poke16(0x6c, sbus_peek16(0x6c) & ~(1 << 5));
+}
+
+
