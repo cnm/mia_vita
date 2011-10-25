@@ -339,14 +339,13 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
-    printk(KERN_EMERG "I'm in the GPS second %u with ADC INTs: %u \n", counter_sda, counter_scl);
+    unsigned int value;
 
-    if (counter_sda % 2){
-      write_dio26(0);
-    }
-    else{
-      write_dio26(1);
-    }
+    write_dio26(0);
+    printk(KERN_EMERG "COUNTER: %u\n", counter);
+    counter = 0;
+
+    value = read_32_bits();
 
     return;
 }
@@ -359,13 +358,26 @@ void handle_adc_int(){
     /* Read the adc  */
     value = read_32_bits();
 
-    write_to_buffer(value>>8);
+    /*    write_to_buffer(value>>8);*/
 
-    if(counter >= 100){
-        counter = 0;
-        printk(KERN_EMERG "Value read: %06X\n", value>>8);
+    if(counter >= 48){
+        write_dio26(0);
+
+        if(counter >= 49){
+            /*           printk(KERN_EMERG "LKeitura do COUNTER: %u\n", counter);*/
+
+            if(counter >= 57){
+                printk(KERN_EMERG "LKeitura do COUNTER: %u\n", counter);
+            }
+        }
+        /*    printk(KERN_EMERG "COUNTER: %u\n", counter);*/
+        /*        printk(KERN_EMERG "Value read: %06X\n", value>>8);*/
     }
-    else{counter++;}
+    else{
+        write_dio26(1);
+    }
+
+    counter++;
 
     return;
 }

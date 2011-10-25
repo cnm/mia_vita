@@ -26,7 +26,6 @@ void write_dio26(bool b);
 void release_mem_spi(void);
 
 extern unsigned int gpioa_en_new_address;
-static int last_gpio_adr = 0;
 
 void set_lun_speed_edge(void);
 unsigned short getR0(void);
