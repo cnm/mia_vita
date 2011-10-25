@@ -45,10 +45,10 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
     unsigned int d = dat;
 
-    if (last_gpio_adr != adr >> 5) {
-        last_gpio_adr = adr >> 5;
-/*        *cvgpioregs = (*cvgpioregs & ~(0x3<<15))|((adr>>5)<<15);*/
-    }
+    volatile unsigned int *p; // The volatile is extremely important here
+    p = (unsigned int *) gpio_a_new_mem;
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+
     adr &= 0x1f;
 
     asm volatile (
@@ -71,17 +71,17 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
                   : "r1","cc"
     );
 
-    /*    printk("\tPOKE16 dat=%04X,adr=%04X\n",dat,adr);*/
 }
 
 
 unsigned short cavium_peek16(unsigned int adr) {
     unsigned short ret = -1;
 
-    if (last_gpio_adr != adr >> 5) {
-        last_gpio_adr = adr >> 5;
-/*        *cvgpioregs = ((adr>>5)<<15|1<<3|1<<17);*/
-    }
+    volatile unsigned int *p; // The volatile is extremely important here
+    p = (unsigned int *) gpio_a_new_mem;
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+
+
     adr &= 0x1f;
 
     asm volatile (
@@ -99,7 +99,7 @@ unsigned short cavium_peek16(unsigned int adr) {
                   : "r"(adr), "r"(cvspiregs)
                   : "r1", "cc"
     );
-    /*    printk(KERN_EMERG "\tPEEK16 dat=%04X,adr=%04X,mem=%p\n",ret,adr,cvspiregs);*/
+
     return ret;
 }
 
@@ -168,12 +168,8 @@ void reserve_memory(void){
 
 void prepare_spi2(void){
     cvgpioregs = (void*) gpioa_en_new_address;
-    *cvgpioregs = (*cvgpioregs & ~(0x3<<15))|(last_gpio_adr<<15);
-}
 
-void prepare_spi(void){
-    printk("Reserving memory\n");
-    reserve_memory();
+    /*    *cvgpioregs = (*cvgpioregs & ~(0x3<<15))|(last_gpio_adr<<15);*/
 
     printk("Preparing registers\n");
     prepare_registers();
@@ -182,9 +178,13 @@ void prepare_spi(void){
     printk("Setting parameters\n");
     set_lun_speed_edge();
     printk("End setting parameters\n");
-
 }
 
+void prepare_spi(void){
+    printk("Reserving memory\n");
+    reserve_memory();
+
+}
 
 void set_lun_speed_edge(){
     int clock = 15;
@@ -216,7 +216,6 @@ unsigned int read_32_bits(void){
     unsigned short l, h;
 
     prepare_registers2();
-    /*    set_lun_speed_edge();*/ /* VOLTAR A METER  */
 
     l = cavium_peek16(0x4A);
     h = cavium_peek16(0x4C);
@@ -230,18 +229,76 @@ void release_mem_spi(void){
     release_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
 }
 
+void serial_poke16(unsigned int adr, unsigned short dat) {
+    unsigned int dummy = 0;
+    unsigned int d = dat;
+
+    volatile unsigned int *p; // The volatile is extremely important here
+    p = (unsigned int *) gpio_a_new_mem;
+    *p = (3<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+
+    adr &= 0x1f;
+
+    asm volatile (
+                  "mov %0, %1, lsl #18\n"
+                  "orr %0, %0, #0x800000\n"
+                  "orr %0, %0, %2, lsl #3\n"
+                  "3: ldr r1, [%3, #0x64]\n"
+                  "cmp r1, #0x0\n"
+                  "bne 3b\n"
+                  "2: str %0, [%3, #0x50]\n"
+                  "1: ldr r1, [%3, #0x64]\n"
+                  "cmp r1, #0x0\n"
+                  "beq 1b\n"
+                  "ldr %0, [%3, #0x58]\n"
+                  "ands r1, %0, #0x1\n"
+                  "moveq %0, #0x0\n"
+                  "beq 3b\n"
+                  : "+r"(dummy) : "r"(adr), "r"(d), "r"(cvspiregs) : "r1","cc"
+    );
+
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+}
+
+unsigned short serial_peek16(unsigned int adr) {
+    unsigned short ret = 0;
+
+    volatile unsigned int *p; // The volatile is extremely important here
+    p = (unsigned int *) gpio_a_new_mem;
+    *p = (3<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+
+    adr &= 0x1f;
+
+    asm volatile (
+                  "mov %0, %1, lsl #18\n"
+                  "2: str %0, [%2, #0x50]\n"
+                  "1: ldr r1, [%2, #0x64]\n"
+                  "cmp r1, #0x0\n"
+                  "beq 1b\n"
+                  "ldr %0, [%2, #0x58]\n"
+                  "ands r1, %0, #0x10000\n"
+                  "bicne %0, %0, #0xff0000\n"
+                  "moveq %0, #0x0\n"
+                  "beq 2b\n" 
+                  : "+r"(ret) : "r"(adr), "r"(cvspiregs) : "r1", "cc"
+    );
+
+    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+
+    return ret;
+}
+
 void write_dio26(bool b){
     int pinOffSet = 5;
 
     if(b){
-        cavium_poke16(0x6a, (cavium_peek16(0x6a) | (1 << pinOffSet)));
+        serial_poke16(0x6a, (serial_peek16(0x6a) | (1 << pinOffSet)));
     }
     else{
-        cavium_poke16(0x6a, (cavium_peek16(0x6a) & ~(1 << pinOffSet)));
+        serial_poke16(0x6a, (serial_peek16(0x6a) & ~(1 << pinOffSet)));
     }
 
     // Make the specified pin into an output in direction register
-    cavium_poke16(0x6c, cavium_peek16(0x6c) | (1 << pinOffSet)); ///
+    serial_poke16(0x6c, serial_peek16(0x6c) | (1 << pinOffSet)); ///
 }
-
 
