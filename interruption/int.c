@@ -342,10 +342,12 @@ void handle_gps_int(void){
     unsigned int value;
 
     write_dio26(0);
-    printk(KERN_EMERG "COUNTER: %u\n", counter);
+/*    printk(KERN_EMERG "COUNTER: %u\n", counter);*/
     counter = 0;
 
     value = read_32_bits();
+
+    printk(KERN_EMERG "Value read: %06X\n", value>>8);
 
     return;
 }
@@ -367,7 +369,8 @@ void handle_adc_int(){
             /*           printk(KERN_EMERG "LKeitura do COUNTER: %u\n", counter);*/
 
             if(counter >= 57){
-                printk(KERN_EMERG "LKeitura do COUNTER: %u\n", counter);
+/*                printk(KERN_EMERG "LKeitura do COUNTER: %u\n", counter);*/
+                printk(KERN_EMERG "Value read: %06X\n", value>>8);
             }
         }
         /*    printk(KERN_EMERG "COUNTER: %u\n", counter);*/
