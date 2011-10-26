@@ -379,7 +379,8 @@ void handle_adc_int(){
     /* Read the adc  */
     value = read_32_bits();
 
-    /*    write_to_buffer(value>>8);*/
+    /* Save to a buffer the value */
+    write_to_buffer(value>>8);
 
     counter++;
 
