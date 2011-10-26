@@ -31,8 +31,6 @@
 #define EDGE_MASK                       (1<<14)     /* The edge is set in the 14 bit        */
 #define SPEED_SHIFT                     10          /* 10 bits to 13 set the speed          */
 
-
-
 /* For interruption */
 #define IRQ_NUMBER                      4
 #define WORD_SIZE                       4
@@ -54,6 +52,10 @@
 #define GPIO_INT_STATUS                 ((GPIOA_REGISTER) + 0x28)   /* See page 225 */
 #define INTRMASK_ADDRESS                ((GPIOA_REGISTER) + 0x2C)   /* See page 225 */
 #define GPIO_INT_CLEAR                  ((GPIOA_REGISTER) + 0x30)   /* See page 225 */
+#define INTRTRIGGER_ADDRESS             ((GPIOA_REGISTER) + 0x34)   /* See page 225 */
+#define INTRBOTH_ADDRESS                ((GPIOA_REGISTER) + 0x38)   /* See page 226 */
+#define INTRRISE_ADDRESS                ((GPIOA_REGISTER) + 0x3C)   /* See page 226 */
+
 
 #define VIC                             0xFFFFF000
 #define INT_STATUS_ADDRESS              ((VIC) + 0x00)          /* See page 291 */

@@ -16,8 +16,6 @@
  * =====================================================================================
  */
 
-#include <linux/module.h>
-#include <linux/kernel.h>       /* printk() */
 #include <linux/delay.h>        /* udelay */
 #include <linux/ioport.h>
 #include <linux/interrupt.h>
@@ -49,6 +47,9 @@ unsigned int gpioa_en_new_address = 0;
 unsigned int intr_en_new_address = 0;
 unsigned int pin_dir_new_address = 0;
 unsigned int intrmask_new_address = 0;
+unsigned int intr_trigger_new_address = 0;
+unsigned int intr_both_new_address = 0;
+unsigned int intr_rise_neg_new_address = 0;
 unsigned int int_status_new_address = 0;
 unsigned int int_mask_new_address = 0;
 unsigned int int_mask_clear_new_address = 0;
@@ -125,6 +126,9 @@ void request_memory_regions(void){
     intrmask_new_address = request_mem(INTRMASK_ADDRESS, WORD_SIZE);
     int_status_new_address = request_mem(INT_STATUS_ADDRESS, WORD_SIZE);
     int_mask_new_address = request_mem(INT_MASK_ADDRESS, WORD_SIZE);
+    intr_trigger_new_address = request_mem(INTRTRIGGER_ADDRESS, WORD_SIZE);
+    intr_both_new_address = request_mem(INTRBOTH_ADDRESS, WORD_SIZE);
+    intr_rise_neg_new_address = request_mem(INTRRISE_ADDRESS, WORD_SIZE);
     int_mask_clear_new_address  = request_mem(INT_MASK_CLEAR_ADDRESS, WORD_SIZE);
     irq_status_new_address = request_mem(IRQ_STATUS, WORD_SIZE);
     fiq_select_new_address = request_mem(FIQ_SELECT_ADDRESS, WORD_SIZE);
@@ -147,6 +151,9 @@ void unregister_memory_region()
   release_mem(PIN_DIR_ADDRESS, WORD_SIZE);
   release_mem(INTRENABLE_ADDRESS, WORD_SIZE);
   release_mem(INTRMASK_ADDRESS, WORD_SIZE);
+  release_mem(INTRTRIGGER_ADDRESS, WORD_SIZE);
+  release_mem(INTRBOTH_ADDRESS, WORD_SIZE);
+  release_mem(INTRRISE_ADDRESS, WORD_SIZE);
   release_mem(INT_STATUS_ADDRESS, WORD_SIZE);
   release_mem(INT_MASK_ADDRESS, WORD_SIZE);
   release_mem(INT_MASK_CLEAR_ADDRESS, WORD_SIZE);
@@ -178,6 +185,24 @@ void enable_gpio_interruptions(void)
   printk(KERN_INFO "\t IntrMask BEFORE: \t\t\t%08x \n", *p);
   *p &= ~GPIOA_EN_MASK;
   printk(KERN_INFO "\t IntrMask AFTER:  \t\t\t%08x \n", *p);
+
+  /* Puts Intrtrigger bits 13 and 14 to 0 (edge trigger) -  3.15.11 */
+  p = (unsigned int *) intr_trigger_new_address;
+  printk(KERN_INFO "\t IntrTrigger BEFORE: \t\t\t%08x \n", *p);
+  *p &= ~GPIOA_EN_MASK;
+  printk(KERN_INFO "\t IntrTrigger AFTER:  \t\t\t%08x \n", *p);
+
+  /* Puts Intrtrigger bits 13 and 14 to 0 (edge trigger) -  3.15.12 */
+  p = (unsigned int *) intr_both_new_address;
+  printk(KERN_INFO "\t IntrBoth BEFORE: \t\t\t%08x \n", *p);
+  *p &= ~GPIOA_EN_MASK;
+  printk(KERN_INFO "\t IntrBoth AFTER:  \t\t\t%08x \n", *p);
+
+  /* Puts Intrtrigger bits 13 and 14 to 0 (rising edge) -  3.15.13 */
+  p = (unsigned int *) intr_rise_neg_new_address;
+  printk(KERN_INFO "\t IntrRise BEFORE: \t\t\t%08x \n", *p);
+  *p &= ~GPIOA_EN_MASK;
+  printk(KERN_INFO "\t IntrRise AFTER:  \t\t\t%08x \n", *p);
 
   /* Puts INTR_EN bits 13 and 14 to 1 - 3.15.16*/
   p = (unsigned int *) intr_en_new_address;
