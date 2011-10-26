@@ -15,7 +15,8 @@
  *
  * =====================================================================================
  */
-
+#include <linux/module.h>
+#include <linux/kernel.h>       /*  printk() */
 #include <linux/delay.h>        /* udelay */
 #include <linux/ioport.h>
 #include <linux/interrupt.h>
@@ -24,7 +25,7 @@
 #include "mem_addr.h"
 #include "proc_entry.h"
 
-MODULE_AUTHOR ("Joao Trindade");
+MODULE_AUTHOR("Joao Trindade");
 MODULE_LICENSE("GPL");
 
 /* Function Headers*/
@@ -364,50 +365,27 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
-    unsigned int value;
 
     write_dio26(0);
-/*    printk(KERN_EMERG "COUNTER: %u\n", counter);*/
     counter = 0;
-
-    value = read_32_bits();
-
-    printk(KERN_EMERG "Value read: %06X\n", value>>8);
 
     return;
 }
 
 void handle_adc_int(){
     unsigned int value;
-
-    /*    printk(KERN_EMERG "I'm in the ADC\n");*/
+    write_dio26(1);
 
     /* Read the adc  */
     value = read_32_bits();
 
     /*    write_to_buffer(value>>8);*/
 
-    if(counter >= 48){
-        write_dio26(0);
-
-        if(counter >= 49){
-            /*           printk(KERN_EMERG "LKeitura do COUNTER: %u\n", counter);*/
-
-            if(counter >= 57){
-/*                printk(KERN_EMERG "LKeitura do COUNTER: %u\n", counter);*/
-                printk(KERN_EMERG "Value read: %06X\n", value>>8);
-            }
-        }
-        /*    printk(KERN_EMERG "COUNTER: %u\n", counter);*/
-        /*        printk(KERN_EMERG "Value read: %06X\n", value>>8);*/
-    }
-    else{
-        write_dio26(1);
-    }
-
     counter++;
 
-    return;
+    if(counter >= 50){
+        printk(KERN_EMERG "Value read: %06X\t Counter: %u\n", value>>8, counter);
+    }
 }
 
 module_init(init);
