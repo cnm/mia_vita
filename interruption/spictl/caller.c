@@ -38,8 +38,6 @@ static volatile unsigned int spi_register;
 static volatile unsigned int *cvspiregs;
 static volatile unsigned int *cvgpioregs;
 
-static void prepare_registers2(void);
-
 void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
     unsigned int d = dat;
@@ -79,7 +77,6 @@ unsigned short cavium_peek16(unsigned int adr) {
     volatile unsigned int *p; // The volatile is extremely important here
     p = (unsigned int *) gpio_a_new_mem;
     *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
-
 
     adr &= 0x1f;
 
@@ -152,13 +149,6 @@ void prepare_registers() {
     cavium_disable_cs(); // force CS# deassertion just in case
 }
 
-void prepare_registers2() {
-    volatile unsigned int *p; // The volatile is extremely important here
-
-    p = (unsigned int *) gpio_a_new_mem;
-    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
-}
-
 void reserve_memory(void){
     gpio_a_new_mem = request_mem(GPIOA_REGISTER, WORD_SIZE);
     spi_register = request_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
@@ -214,8 +204,6 @@ void read_32_bits(unsigned int* read_buffer){
     unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
 
-    prepare_registers2();
-
 /*    a = cavium_peek16(0x4A);*/
 /*    b = cavium_peek16(0x4A);*/
 /*    c = cavium_peek16(0x4A);*/
@@ -263,8 +251,6 @@ void serial_poke16(unsigned int adr, unsigned short dat) {
                   "beq 3b\n"
                   : "+r"(dummy) : "r"(adr), "r"(d), "r"(cvspiregs) : "r1","cc"
     );
-
-    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
 }
 
 unsigned short serial_peek16(unsigned int adr) {
@@ -289,8 +275,6 @@ unsigned short serial_peek16(unsigned int adr) {
                   "beq 2b\n" 
                   : "+r"(ret) : "r"(adr), "r"(cvspiregs) : "r1", "cc"
     );
-
-    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
 
     return ret;
 }

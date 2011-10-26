@@ -366,10 +366,8 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
 
-    if (!counter){
-        write_dio26(1);
-    }
-    counter = 1;
+    write_dio26(0);
+    counter = 0;
 
     return;
 }
@@ -380,17 +378,19 @@ void handle_adc_int(){
     value_buffer[1] = 0;
     value_buffer[2] = 0;
 
-    /*    write_dio26(1);*/
+    if(counter == 0){
+      write_dio26(1);
+    }
 
     /* Read the adc  */
-    read_32_bits(value_buffer);
+     read_32_bits(value_buffer);
 
     /* Save to a buffer the value */
-    /*    write_to_buffer(value_buffer);*/
+/*    write_to_buffer(value_buffer);*/
 
     counter++;
 
-    if(counter % 50 == 0){
+    if(counter >= 50){
         printk(KERN_EMERG "Value read: %06X\t Counter: %u\n", value_buffer[0], counter);
     }
 }
