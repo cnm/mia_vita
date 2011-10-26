@@ -86,7 +86,7 @@ static int procfile_read(char *buffer, char **buffer_location, off_t offset,
 
     memcpy(buffer, ((void*) DATA) + offset, how_many_we_copy * 4);
 
-    printk(KERN_EMERG "OFFSET: %d \t, Last read %u \tLast write %u READING: %d \n", offset, last_read % BUFFER_SIZE, last_write % BUFFER_SIZE, how_many_we_copy);
+    printk(KERN_EMERG "OFFSET: %d \t, Last read %u \tLast write %u READING: %d \n", (int) offset, last_read % BUFFER_SIZE, last_write % BUFFER_SIZE, how_many_we_copy);
 
     *eof = 1;
     *buffer_location = buffer;
@@ -94,15 +94,15 @@ static int procfile_read(char *buffer, char **buffer_location, off_t offset,
     return how_many_we_copy;
 }
 
-void write_to_buffer(unsigned int value){
-    last_write = ((last_write + 1) % BUFFER_SIZE);
+void write_to_buffer(unsigned int * value){
+    last_write = ((last_write + 3) % BUFFER_SIZE);
 
-    if (last_write == last_read) /* Just for a simple mark */
+    if (last_write == last_read)
       last_read = last_write - 1;
 
-    DATA[last_write % BUFFER_SIZE] = value;
-
-    /*    printk(KERN_EMERG "Last read %u \tLast write %u\n",last_read % BUFFER_SIZE, last_write % BUFFER_SIZE );*/
+    DATA[last_write % BUFFER_SIZE] = *value;
+    DATA[last_write + 1 % BUFFER_SIZE] = *(value + 1);
+    DATA[last_write + 2 % BUFFER_SIZE] = *(value + 1);
 }
 
 void create_proc_file(void) {

@@ -210,17 +210,25 @@ void set_lun_speed_edge(){
     setR0(conf | mask);
 }
 
-unsigned int read_32_bits(void){
-    unsigned int ret;
-    unsigned short l, h;
+void read_32_bits(unsigned int* read_buffer){
+    unsigned int a,b,c,d,e,f;
+    a = b = c = d = e = f = 0;
 
     prepare_registers2();
 
-    l = cavium_peek16(0x4A);
-    h = cavium_peek16(0x4C);
+/*    a = cavium_peek16(0x4A);*/
+/*    b = cavium_peek16(0x4A);*/
+/*    c = cavium_peek16(0x4A);*/
+/*    d = cavium_peek16(0x4A);*/
+/*    e = cavium_peek16(0x4A);*/
 
-    ret = (h|(l<<16));
-    return ret;
+/*    f = cavium_peek16(0x4C);*/
+
+    read_buffer[0] = (a<<16|b);
+    read_buffer[1] = (c<<16|d);
+    read_buffer[2] = (e<<16|f);
+
+    return;
 }
 
 void release_mem_spi(void){

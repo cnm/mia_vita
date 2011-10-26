@@ -72,3 +72,7 @@
 #define IRQ_GPIO_MASK                   (1<<IRQ_GPIO)
 
 #define SOFT_INT_REGISTER               ((VIC) + 0x24)          /* See page 294  */
+
+#define CHANNELS                        3
+#define OCTECTS_PER_CHANEL              3
+#define SPI_16BITS_READS                (((CHANNELS * OCTECTS_PER_CHANEL) + 1) / 2 )

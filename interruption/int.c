@@ -69,11 +69,11 @@ unsigned int counter_sda = 0;
 unsigned int counter_scl = 0;
 
 extern void release_mem_spi(void);
-extern unsigned int read_32_bits(void);
+extern void read_32_bits(unsigned int * read_buffer);
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
 
-extern void write_to_buffer(unsigned int);
+extern void write_to_buffer(unsigned int * read_buffer);
 extern void write_dio26(bool b);
 
 unsigned int counter;
@@ -366,26 +366,32 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
 
-    write_dio26(0);
-    counter = 0;
+    if (!counter){
+        write_dio26(1);
+    }
+    counter = 1;
 
     return;
 }
 
 void handle_adc_int(){
-    unsigned int value;
-    write_dio26(1);
+    unsigned int value_buffer[3];
+    value_buffer[0] = 0;
+    value_buffer[1] = 0;
+    value_buffer[2] = 0;
+
+    /*    write_dio26(1);*/
 
     /* Read the adc  */
-    value = read_32_bits();
+    read_32_bits(value_buffer);
 
     /* Save to a buffer the value */
-    write_to_buffer(value>>8);
+    /*    write_to_buffer(value_buffer);*/
 
     counter++;
 
-    if(counter >= 50){
-        printk(KERN_EMERG "Value read: %06X\t Counter: %u\n", value>>8, counter);
+    if(counter % 50 == 0){
+        printk(KERN_EMERG "Value read: %06X\t Counter: %u\n", value_buffer[0], counter);
     }
 }
 
