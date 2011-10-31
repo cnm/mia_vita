@@ -134,10 +134,10 @@ void prepare_registers() {
     p = (unsigned int *) (spi_register + SPI_FIFO_TX_CTRL);
     *p  = 0x0;        /* 0 clock inter-transfer delay */
 
-    p = (unsigned int *) (spi_register + SPI_FIFO_TX_CTRL);
+    p = (unsigned int *) (spi_register + SPI_INTR_ENA);
     *p = 0x0;        /* disable interrupts */
 
-    p = (unsigned int *) (spi_register + SPI_INTR_ENA);
+    p = (unsigned int *) (spi_register + SPI_TX_CTRL);
     *p = 0x4;        /* deassert CS# */
 
     p = (unsigned int *) (spi_register + SPI_RX_DATA); //Read SPI BUFFER (to cleanup)
