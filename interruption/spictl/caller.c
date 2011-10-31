@@ -140,7 +140,7 @@ void prepare_registers() {
     p = (unsigned int *) (spi_register + SPI_INTR_ENA);
     *p = 0x4;        /* deassert CS# */
 
-    p = (unsigned int *) (spi_register + SPI_RX_DATA);
+    p = (unsigned int *) (spi_register + SPI_RX_DATA); //Read SPI BUFFER (to cleanup)
     for (i = 0; i < 8; i++) *p;
 
     p = (unsigned int *) gpio_a_new_mem;
@@ -204,13 +204,13 @@ void read_32_bits(unsigned int* read_buffer){
     unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
 
-/*    a = cavium_peek16(0x4A);*/
-/*    b = cavium_peek16(0x4A);*/
-/*    c = cavium_peek16(0x4A);*/
-/*    d = cavium_peek16(0x4A);*/
-/*    e = cavium_peek16(0x4A);*/
+    a = cavium_peek16(0x4A);
+    b = cavium_peek16(0x4A);
+    c = cavium_peek16(0x4A);
+    d = cavium_peek16(0x4A);
+    e = cavium_peek16(0x4A);
 
-/*    f = cavium_peek16(0x4C);*/
+    f = cavium_peek16(0x4C);
 
     read_buffer[0] = (a<<16|b);
     read_buffer[1] = (c<<16|d);
