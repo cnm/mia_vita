@@ -206,7 +206,7 @@ void enable_gpio_interruptions(void)
   *p &= ~GPIOA_EN_MASK;
   printk(KERN_INFO "\t IntrRise AFTER:  \t\t\t%08x \n", *p);
 
-  /* Puts INTR_EN bits 13 and 14 to 1 - 3.15.16*/
+  /* Puts INTR_EN bits 13 and 14 to 1 - 3.15.6*/
   p = (unsigned int *) intr_en_new_address;
   printk(KERN_INFO "\t INTR_EN BEFORE: \t\t\t%08x \n", *p);
   *p |= GPIOA_EN_MASK;
@@ -393,7 +393,7 @@ void handle_adc_int(){
     counter++;
 
     if(counter >= 50){
-        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", contador_segundos,value_buffer[0], counter);
+        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", contador_segundos, value_buffer[0] >>8, counter);
     }
 }
 

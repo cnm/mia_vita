@@ -25,8 +25,6 @@ extern void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void write_dio26(bool b);
 void release_mem_spi(void);
 
-extern unsigned int gpioa_en_new_address;
-
 void set_lun_speed_edge(void);
 unsigned short getR0(void);
 void cavium_disable_cs(void);
@@ -36,7 +34,6 @@ static volatile unsigned int gpio_a_new_mem;
 static volatile unsigned int spi_register;
 
 static volatile unsigned int *cvspiregs;
-static volatile unsigned int *cvgpioregs;
 
 void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
@@ -156,10 +153,6 @@ void reserve_memory(void){
 }
 
 void prepare_spi2(void){
-    cvgpioregs = (void*) gpioa_en_new_address;
-
-    /*    *cvgpioregs = (*cvgpioregs & ~(0x3<<15))|(last_gpio_adr<<15);*/
-
     printk("Preparing registers\n");
     prepare_registers();
     printk("Ended Preparing registers\n");
