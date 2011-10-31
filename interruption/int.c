@@ -67,6 +67,7 @@ unsigned int gpio_int_status_new_address = 0;
 
 unsigned int counter_sda = 0;
 unsigned int counter_scl = 0;
+unsigned int contador_segundos = 0;
 
 extern void release_mem_spi(void);
 extern void read_32_bits(unsigned int * read_buffer);
@@ -368,6 +369,7 @@ void handle_gps_int(void){
 
     write_dio26(0);
     counter = 0;
+    contador_segundos++;
 
     return;
 }
@@ -391,7 +393,7 @@ void handle_adc_int(){
     counter++;
 
     if(counter >= 50){
-        printk(KERN_EMERG "Value read: %06X\t Counter: %u\n", value_buffer[0], counter);
+        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", contador_segundos,value_buffer[0], counter);
     }
 }
 
