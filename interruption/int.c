@@ -85,7 +85,6 @@ irqreturn_t interrupt(int irq, void *dev_id)
   /* If scl interruption */
   if(SCL_MASK & *p){
       counter_scl++;
-
       if((counter_scl % 1) == 0){
           handle_gps_int();
       }
@@ -94,6 +93,9 @@ irqreturn_t interrupt(int irq, void *dev_id)
   /* If sda interruption */
   else if(SDA_MASK & *p){
       counter_sda++;
+      if((counter_sda % 1) == 0){
+          handle_gps_int();
+      }
   }
 
   else{ // should not happen
@@ -245,7 +247,6 @@ void enable_irq_interruptions(void){
 int init(void){
     printk(KERN_INFO "starting interruption module.\n");
 
-    init_miavita_xtime();
     request_memory_regions();
     register_handle_interruption();
     enable_gpio_interruptions();
@@ -332,6 +333,12 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 /******************************** End of auxiliary functions **************************/
 
 void handle_gps_int(void){
+  /*static uint8_t first = 1;
+  if(first){
+    init_miavita_xtime();
+    first = 0;
+    return;
+  }*/
   pulse_miavita_xtime();
   return;
 }
