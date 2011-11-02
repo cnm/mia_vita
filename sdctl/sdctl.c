@@ -291,7 +291,7 @@ static void sbuslock(void) {
     assert (r == 0);
 
     // Disable I2C Interruptions                                          
-/*    cvgpioregs[0x20/4] = 0;*/
+    cvgpioregs[0x20/4] = 0;
 
     cvgpioregs[0] = (1<<17|1<<3);
     assert((cvspiregs[0x5c/4] & 0xf) == 0);
@@ -308,7 +308,7 @@ static void sbusunlock(void) {
     assert (r == 0);
 
     // Enable I2C Interruptions
-/*    cvgpioregs[0x20/4] = ((1<<14)|(1<<13));*/
+    cvgpioregs[0x20/4] = ((1<<14)|(1<<13));
 
     sbuslocked = 0;
     killable++;
