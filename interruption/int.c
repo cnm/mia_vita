@@ -411,7 +411,7 @@ void handle_adc_int(){
 bool is_fpga_used(void){
     volatile unsigned int *p; // The volatile is extremely important here
 
-    p = intr_trigger_new_address;
+    p = (unsigned int *) intr_trigger_new_address;
     return (*p  &= 0x1);        /* 0 clock inter-transfer delay */
 }
 

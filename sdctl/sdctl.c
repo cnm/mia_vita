@@ -309,7 +309,7 @@ static void sbusunlock(void) {
     assert (r == 0);
 
     // Mark the FPGA bus as free
-    cvspiregs[0x34/4] ~=  FFFFFFFE;
+    cvspiregs[0x34/4] &=  0xFFFFFFFE;
 
     sbuslocked = 0;
     killable++;
