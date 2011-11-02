@@ -290,8 +290,9 @@ static void sbuslock(void) {
     r = TEMP_FAILURE_RETRY(semop(semid, &sop, 1));
     assert (r == 0);
 
-    // Disable I2C Interruptions                                          
-    cvgpioregs[0x20/4] = 0;
+    // Mark the FPGA bus as used
+    cvspiregs[0x34/4] |=  1;
+
 
     cvgpioregs[0] = (1<<17|1<<3);
     assert((cvspiregs[0x5c/4] & 0xf) == 0);
@@ -307,8 +308,8 @@ static void sbusunlock(void) {
     r = semop(semid, &sop, 1);
     assert (r == 0);
 
-    // Enable I2C Interruptions
-    cvgpioregs[0x20/4] = ((1<<14)|(1<<13));
+    // Mark the FPGA bus as free
+    cvspiregs[0x34/4] ~=  FFFFFFFE;
 
     sbuslocked = 0;
     killable++;

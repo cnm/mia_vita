@@ -77,6 +77,8 @@ extern void prepare_spi2(void);
 extern void write_to_buffer(unsigned int * read_buffer);
 extern void write_dio26(bool b);
 
+bool is_fpga_used(void);
+
 unsigned int counter;
 
 #define DIVISOR 1
@@ -366,8 +368,13 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
-
-    write_dio26(0);
+    if(is_fpga_used()){
+        printk(KERN_EMERG "Second %u\tFPGA being used", contador_segundos);
+        return;
+    }
+    else{
+        write_dio26(0);
+    }
     counter = 0;
     contador_segundos++;
 
@@ -380,21 +387,32 @@ void handle_adc_int(){
     value_buffer[1] = 0;
     value_buffer[2] = 0;
 
-    if(counter == 0){
-      write_dio26(1);
+    if(is_fpga_used()){
+        printk(KERN_EMERG "Second %u\tFPGA being used", contador_segundos);
+        return;
+    }
+    else if (counter == 0){
+        write_dio26(1);
     }
 
     /* Read the adc  */
-     read_32_bits(value_buffer);
+    read_32_bits(value_buffer);
 
     /* Save to a buffer the value */
-/*    write_to_buffer(value_buffer);*/
+    /*    write_to_buffer(value_buffer);*/
 
     counter++;
 
     if(counter >= 50){
         printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", contador_segundos, value_buffer[0] >>8, counter);
     }
+}
+
+bool is_fpga_used(void){
+    volatile unsigned int *p; // The volatile is extremely important here
+
+    p = intr_trigger_new_address;
+    return (*p  &= 0x1);        /* 0 clock inter-transfer delay */
 }
 
 module_init(init);

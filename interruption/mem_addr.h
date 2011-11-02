@@ -52,7 +52,7 @@
 #define GPIO_INT_STATUS                 ((GPIOA_REGISTER) + 0x28)   /* See page 225 */
 #define INTRMASK_ADDRESS                ((GPIOA_REGISTER) + 0x2C)   /* See page 225 */
 #define GPIO_INT_CLEAR                  ((GPIOA_REGISTER) + 0x30)   /* See page 225 */
-#define INTRTRIGGER_ADDRESS             ((GPIOA_REGISTER) + 0x34)   /* See page 225 */
+#define INTRTRIGGER_ADDRESS             ((GPIOA_REGISTER) + 0x34)   /* See page 225 */ /* We are using the first bit of the register to mark access to the FPGA */
 #define INTRBOTH_ADDRESS                ((GPIOA_REGISTER) + 0x38)   /* See page 226 */
 #define INTRRISE_ADDRESS                ((GPIOA_REGISTER) + 0x3C)   /* See page 226 */
 
