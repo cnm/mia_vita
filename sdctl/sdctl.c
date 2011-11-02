@@ -291,7 +291,7 @@ static void sbuslock(void) {
     assert (r == 0);
 
     // Mark the FPGA bus as used
-    cvspiregs[0x34/4] |=  1;
+    cvgpioregs[0x34/4] |=  1;
 
 
     cvgpioregs[0] = (1<<17|1<<3);
@@ -309,7 +309,7 @@ static void sbusunlock(void) {
     assert (r == 0);
 
     // Mark the FPGA bus as free
-    cvspiregs[0x34/4] &=  0xFFFFFFFE;
+    cvgpioregs[0x34/4] &=  0xFFFFFFFE;
 
     sbuslocked = 0;
     killable++;
