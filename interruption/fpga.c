@@ -37,13 +37,16 @@ static volatile unsigned int *cvspiregs;
 
 void write_watchdog(void);
 
-void cavium_poke16(unsigned int adr, unsigned short dat) {
+void poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
     unsigned int d = dat;
-
+    unsigned int a15_a16_addr_register; /*  See section 5.1 of the ts7500 manual */
     volatile unsigned int *p; // The volatile is extremely important here
+
+    a15_a16_addr_register = (adr>>5) << 15;
+
     p = (unsigned int *) gpio_a_new_mem;
-    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+    *p = (a15_a16_addr_register|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
 
     adr &= 0x1f;
 
@@ -69,12 +72,14 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
 
 }
 
-unsigned short cavium_peek16(unsigned int adr) {
+unsigned short peek16(unsigned int adr) {
     unsigned short ret = -1;
-
+    unsigned int a15_a16_addr_register; /*  See section 5.1 of the ts7500 manual */
     volatile unsigned int *p; // The volatile is extremely important here
+
+    a15_a16_addr_register = (adr>>5) << 15;
     p = (unsigned int *) gpio_a_new_mem;
-    *p = (2<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
+    *p = (a15_a16_addr_register|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
 
     adr &= 0x1f;
 
@@ -98,12 +103,12 @@ unsigned short cavium_peek16(unsigned int adr) {
 }
 
 unsigned short getR0() {
-    unsigned short spiR0 = cavium_peek16(0x40);
+    unsigned short spiR0 = peek16(0x40);
     return spiR0;
 }
 
 void setR0(unsigned short val) {
-    cavium_poke16(0,val);
+    poke16(0,val);
 }
 
 void cavium_disable_cs() {
@@ -198,13 +203,13 @@ void read_32_bits(unsigned int* read_buffer){
     unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
 
-    a = cavium_peek16(0x4A);
-    b = cavium_peek16(0x4A);
-    c = cavium_peek16(0x4A);
-    d = cavium_peek16(0x4A);
-    e = cavium_peek16(0x4A);
+    a = peek16(0x4A);
+    b = peek16(0x4A);
+    c = peek16(0x4A);
+    d = peek16(0x4A);
+    e = peek16(0x4A);
 
-    f = cavium_peek16(0x4C);
+    f = peek16(0x4C);
 
     read_buffer[0] = (a<<16|b);
     read_buffer[1] = (c<<16|d);
@@ -218,78 +223,20 @@ void release_mem_spi(void){
     release_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
 }
 
-void serial_poke16(unsigned int adr, unsigned short dat) {
-    unsigned int dummy = 0;
-    unsigned int d = dat;
-
-    volatile unsigned int *p; // The volatile is extremely important here
-    p = (unsigned int *) gpio_a_new_mem;
-    *p = (3<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
-
-    adr &= 0x1f;
-
-    asm volatile (
-                  "mov %0, %1, lsl #18\n"
-                  "orr %0, %0, #0x800000\n"
-                  "orr %0, %0, %2, lsl #3\n"
-                  "3: ldr r1, [%3, #0x64]\n"
-                  "cmp r1, #0x0\n"
-                  "bne 3b\n"
-                  "2: str %0, [%3, #0x50]\n"
-                  "1: ldr r1, [%3, #0x64]\n"
-                  "cmp r1, #0x0\n"
-                  "beq 1b\n"
-                  "ldr %0, [%3, #0x58]\n"
-                  "ands r1, %0, #0x1\n"
-                  "moveq %0, #0x0\n"
-                  "beq 3b\n"
-                  : "+r"(dummy) : "r"(adr), "r"(d), "r"(cvspiregs) : "r1","cc"
-    );
-}
-
-unsigned short serial_peek16(unsigned int adr) {
-    unsigned short ret = 0;
-
-    volatile unsigned int *p; // The volatile is extremely important here
-    p = (unsigned int *) gpio_a_new_mem;
-    *p = (3<<15|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
-
-    adr &= 0x1f;
-
-    asm volatile (
-                  "mov %0, %1, lsl #18\n"
-                  "2: str %0, [%2, #0x50]\n"
-                  "1: ldr r1, [%2, #0x64]\n"
-                  "cmp r1, #0x0\n"
-                  "beq 1b\n"
-                  "ldr %0, [%2, #0x58]\n"
-                  "ands r1, %0, #0x10000\n"
-                  "bicne %0, %0, #0xff0000\n"
-                  "moveq %0, #0x0\n"
-                  "beq 2b\n" 
-                  : "+r"(ret) : "r"(adr), "r"(cvspiregs) : "r1", "cc"
-    );
-
-    return ret;
-}
-
 void write_dio26(bool b){
     int pinOffSet = 5;
 
     if(b){
-        serial_poke16(0x6a, (serial_peek16(0x6a) | (1 << pinOffSet)));
+        poke16(0x6a, (peek16(0x6a) | (1 << pinOffSet)));
     }
     else{
-        serial_poke16(0x6a, (serial_peek16(0x6a) & ~(1 << pinOffSet)));
+        poke16(0x6a, (peek16(0x6a) & ~(1 << pinOffSet)));
     }
 
     // Make the specified pin into an output in direction register
-    serial_poke16(0x6c, serial_peek16(0x6c) | (1 << pinOffSet)); ///
+    poke16(0x6c, peek16(0x6c) | (1 << pinOffSet)); ///
 }
-
 
 void write_watchdog(void){
-    serial_poke16(WATCHDOG_FPGA_ADDRESS, WATCHDOG_TIME_10SEG);
+    poke16(WATCHDOG_FPGA_ADDRESS, WATCHDOG_TIME_10SEG);
 }
-
-
