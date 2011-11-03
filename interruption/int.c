@@ -67,7 +67,7 @@ unsigned int gpio_int_status_new_address = 0;
 
 unsigned int counter_sda = 0;
 unsigned int counter_scl = 0;
-unsigned int contador_segundos = 0;
+unsigned int counter_seconds = 0;
 
 extern void release_mem_spi(void);
 extern void read_32_bits(unsigned int * read_buffer);
@@ -84,45 +84,7 @@ extern void write_watchdog(void);
 
 #define DIVISOR 1
 
-/*
- * Functions to handle the interruption
- */
-irqreturn_t interrupt(int irq, void *dev_id)
-{
-  volatile unsigned int *p; // The volatile is extremely important here
-
-  /* Check what the interruption was*/
-  p = (unsigned int *) gpio_int_status_new_address;
-
-  /* If scl interruption */
-  if(SCL_MASK & *p){
-      counter_scl++;
-
-      if((counter_scl % DIVISOR) == 0){
-          handle_adc_int();
-      }
-  }
-
-  /* If sda interruption */
-  else if(SDA_MASK & *p){
-      counter_sda++;
-
-      if((counter_sda % DIVISOR) == 0){
-          handle_gps_int();
-      }
-  }
-
-  else{ // should not happen
-      printk(KERN_INFO "-------------ERROR SOMETHING ELSE ------------------- ??\n");
-  }
-
-  /* Clear the GPIO interruption */
-  p = (unsigned int *) gpio_int_clear_new_address;
-  *p |= GPIOA_EN_MASK;
-
-  return IRQ_HANDLED;
-}
-
+/************************ Configuration Functions *************************/
 /* Requests all memory necessary for the module */
 void request_memory_regions(void){
     gpioa_en_new_address = request_mem(GPIOA_EN_ADDRESS, WORD_SIZE);
@@ -150,8 +112,7 @@ void request_memory_regions(void){
 }
 
 /* Unregister memory regions */
-void unregister_memory_region()
-{
+void unregister_memory_region(){
   release_mem(GPIOA_EN_ADDRESS, WORD_SIZE);
   release_mem(PIN_DIR_ADDRESS, WORD_SIZE);
   release_mem(INTRENABLE_ADDRESS, WORD_SIZE);
@@ -174,9 +135,8 @@ void unregister_memory_region()
   release_mem(GPIO_INT_STATUS, WORD_SIZE);
 }
 
-/*  Set's all pins needed for interruptions */
-void enable_gpio_interruptions(void)
-{
+/*  Set's all pins needed for GPIO interruptions */
+void enable_gpio_interruptions(void){
   volatile unsigned int *p; // The volatile is extremely important here
 
   /* Puts PIN DIR bits 13 and 14 to 0 - 3.15.3 */
@@ -224,59 +184,7 @@ void enable_gpio_interruptions(void)
   printk(KERN_INFO "\t\t\t\t ### END GPIO ###\n");
 }
 
-void enable_irq_interruptions(void){
-    volatile unsigned int *p; // The volatile is extremely important here
-
-    /* Interruption mask read  */
-    p = (unsigned int *) int_mask_new_address;
-    printk(KERN_INFO "\t IRQ Mask BEFORE:\t\t\t%08x 3.23.3\n", *p);
-    /* Enable interruptions for GPIO - Set bit 4 of Interrupt Mas Clear register to 1 */
-    p = (unsigned int *) int_mask_clear_new_address;
-    *p |= IRQ_GPIO_MASK;
-    /* Interruption mask read  */
-    p = (unsigned int *) int_mask_new_address;
-    printk(KERN_INFO "\t IRQ Mask AFTER:\t\t\t%08x Is losing value each time\n", *p);
-
-    /* Set to level trigger mode - Set bit 4 of OF Interrupt Trigger mode to 0 */
-    p = (unsigned int *) int_trigger_mode_new_address;
-    printk(KERN_INFO "\t Trigger Mode BEFORE:\t\t\t%08x 3.23.5\n", *p);
-    *p |= IRQ_GPIO_MASK; //Not working
-    printk(KERN_INFO "\t Trigger Mode after:\t\t\t%08x NOT WORKING 2letter should be odd \n", *p);
-
-    /* IRQ Status read */
-    p = (unsigned int *) irq_status_new_address;
-    printk(KERN_INFO "\t IRQ status BEFORE:\t\t\t%08x 3.23.8\n", *p);
-
-    /* Set GPIO interruption to be treated by IRQ - Set bit 4 of FIQ select register to 0 */
-    p = (unsigned int *) int_mask_clear_new_address;
-    *p &= ~IRQ_GPIO_MASK;
-
-    /* IRQ Status read */
-    p = (unsigned int *) irq_status_new_address;
-    printk(KERN_INFO "\t IRQ status AFTER:\t\t\t%08x Bit 4 should be 0\n", *p);
-
-
-    /* TEST read */
-    p = (unsigned int *) int_trigger_level_new_address;
-    printk(KERN_INFO "\t TEST trigger level Before:\t\t%08x 3.23.6 \n", *p);
-    *p |= IRQ_GPIO_MASK;
-    printk(KERN_INFO "\t TEST trigger level Before:\t\t%08x Error should change from previous\n", *p);
-
-    /*  Test VIC */
-    p = (unsigned int *) vic_control_new_address;
-    printk(KERN_INFO "\t TEST VIC CONTROL Before:\t\t%08x \n", *p);
-
-
-    /* Test Software interrupt  */
-    p = (unsigned int *) sotware_int_new_address;
-    printk(KERN_INFO "\t TEST Read soft int :\t\t%08x \n", *p);
-    /*  *p |= IRQ_GPIO_MASK;*/
-    /*  printk(KERN_INFO "\t TEST Read soft int :\t\t%08x \n", *p);*/
-}
-
-/*
- * Function which runs when the module is initiated
- * */
+/* Function which runs when the module is initiated */
 int init(void){
     printk(KERN_INFO "starting interruption module.\n");
 
@@ -291,11 +199,8 @@ int init(void){
     return 0;
 }
 
-/*
- * Runs when the module is unloaded
- * */
-void cleanup(void)
-{
+/* Runs when the module is unloaded */
+void cleanup(void){
   unsigned int * p;
   p = (unsigned int *) int_mask_new_address;
   unregister_handle_interruption();
@@ -308,10 +213,7 @@ void cleanup(void)
   printk(KERN_INFO "Unregister module interruption.\n");
 }
 
-
-/*
- * Register the interruption handler (and the IRQ number)
- * */
+/* Register the interruption handler (and the IRQ number) */
 void register_handle_interruption(){
     int result;
     printk(KERN_INFO "Registering to handle IRQ number %i\n", IRQ_NUMBER);
@@ -321,7 +223,7 @@ void register_handle_interruption(){
         printk(KERN_INFO "Error number result %i\n", result);
     }
 }
-
+/************************ End Configuration Functions *************************/
 
 /**************************** Auxiliary Functions *****************************/
 int request_mem(volatile unsigned int mem_addr, unsigned int size){
@@ -336,7 +238,6 @@ int request_mem(volatile unsigned int mem_addr, unsigned int size){
     return new_mem;
 }
 
-
 int request_port(unsigned int port_addr, unsigned int size){
     unsigned int new_mem = 0;
 
@@ -348,38 +249,78 @@ int request_port(unsigned int port_addr, unsigned int size){
     return new_mem;
 }
 
-void unregister_handle_interruption()
-{
+void unregister_handle_interruption(){
   free_irq(IRQ_NUMBER, NULL);
 }
 
-void release_port(unsigned int port_addr, unsigned int byte_size)
-{
+void release_port(unsigned int port_addr, unsigned int byte_size){
   release_region(port_addr, byte_size);
 
 }
 
-void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
-{
+void release_mem(volatile unsigned int mem_addr, unsigned int byte_size){
   iounmap((void __iomem *)mem_addr);
   release_mem_region(mem_addr, byte_size);
 }
 
+bool is_fpga_used(void){
+    volatile unsigned int *p; // The volatile is extremely important here
+
+    p = (unsigned int *) intr_trigger_new_address;
+    return (*p  &= 0x1);        /* 0 clock inter-transfer delay */
+}
 /******************************** End of auxiliary functions **************************/
+
+/******************************** Interruption handlers *******************************/
+/* Handle the received interruption*/
+irqreturn_t interrupt(int irq, void *dev_id){
+  volatile unsigned int *p; // The volatile is extremely important here
+
+  /* Check what the interruption was*/
+  p = (unsigned int *) gpio_int_status_new_address;
+
+  /* If scl interruption */
+  if(SCL_MASK & *p){
+      counter_scl++;
+
+      if((counter_scl % DIVISOR) == 0){
+          handle_adc_int();
+      }
+  }
+
+  /* If sda interruption */
+  else if(SDA_MASK & *p){
+      counter_sda++;
+
+      if((counter_sda % DIVISOR) == 0){
+          handle_gps_int();
+      }
+  }
+
+  else{ // should not happen
+      printk(KERN_INFO "-------------ERROR SOMETHING ELSE ------------------- ??\n");
+  }
+
+  /* Clear the GPIO interruption */
+  p = (unsigned int *) gpio_int_clear_new_address;
+  *p |= GPIOA_EN_MASK;
+
+  return IRQ_HANDLED;
+}
 
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
+    counter = 0;
+    counter_seconds++;
+
     if(is_fpga_used()){
-        printk(KERN_EMERG "Second %u\tFPGA being used\n", contador_segundos);
+        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the PPS\n", counter_seconds);
+        return;
     }
     else{
         write_dio26(0);
+        write_watchdog();
     }
-    counter = 0;
-    contador_segundos++;
-
-
-    write_watchdog();
 
     return;
 }
@@ -391,7 +332,7 @@ void handle_adc_int(){
     value_buffer[2] = 0;
 
     if(is_fpga_used()){
-        printk(KERN_EMERG "Second %u\tFPGA being used\n", contador_segundos);
+        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on teh ADC\n", counter_seconds);
         return;
     }
     else if (counter == 0){
@@ -407,16 +348,11 @@ void handle_adc_int(){
     counter++;
 
     if(counter >= 50){
-        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", contador_segundos, value_buffer[0] >>8, counter);
+        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);
     }
 }
+/******************************** End of Interruption handlers ************************/
 
-bool is_fpga_used(void){
-    volatile unsigned int *p; // The volatile is extremely important here
-
-    p = (unsigned int *) intr_trigger_new_address;
-    return (*p  &= 0x1);        /* 0 clock inter-transfer delay */
-}
 
 module_init(init);
 module_exit(cleanup);
