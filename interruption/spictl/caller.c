@@ -35,6 +35,8 @@ static volatile unsigned int spi_register;
 
 static volatile unsigned int *cvspiregs;
 
+void write_watchdog(void);
+
 void cavium_poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = -1;
     unsigned int d = dat;
@@ -66,7 +68,6 @@ void cavium_poke16(unsigned int adr, unsigned short dat) {
     );
 
 }
-
 
 unsigned short cavium_peek16(unsigned int adr) {
     unsigned short ret = -1;
@@ -284,6 +285,11 @@ void write_dio26(bool b){
 
     // Make the specified pin into an output in direction register
     serial_poke16(0x6c, serial_peek16(0x6c) | (1 << pinOffSet)); ///
+}
+
+
+void write_watchdog(void){
+    serial_poke16(WATCHDOG_FPGA_ADDRESS, WATCHDOG_TIME_10SEG);
 }
 
 

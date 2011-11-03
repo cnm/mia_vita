@@ -80,6 +80,7 @@ extern void write_dio26(bool b);
 bool is_fpga_used(void);
 
 unsigned int counter;
+extern void write_watchdog(void);
 
 #define DIVISOR 1
 
@@ -369,14 +370,16 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
     if(is_fpga_used()){
-        printk(KERN_EMERG "Second %u\tFPGA being used", contador_segundos);
-        return;
+        printk(KERN_EMERG "Second %u\tFPGA being used\n", contador_segundos);
     }
     else{
         write_dio26(0);
     }
     counter = 0;
     contador_segundos++;
+
+
+    write_watchdog();
 
     return;
 }
@@ -388,7 +391,7 @@ void handle_adc_int(){
     value_buffer[2] = 0;
 
     if(is_fpga_used()){
-        printk(KERN_EMERG "Second %u\tFPGA being used", contador_segundos);
+        printk(KERN_EMERG "Second %u\tFPGA being used\n", contador_segundos);
         return;
     }
     else if (counter == 0){
