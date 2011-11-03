@@ -38,7 +38,6 @@ void unregister_memory_region(void);
 int request_mem(volatile unsigned int mem_addr, unsigned int size);
 int request_port(unsigned int port_addr, unsigned int size);
 void enable_gpio_interruptions(void);
-void enable_irq_interruptions(void);
 void cleanup(void);
 void handle_gps_int(void);
 void handle_adc_int(void);
@@ -255,7 +254,6 @@ void unregister_handle_interruption(){
 
 void release_port(unsigned int port_addr, unsigned int byte_size){
   release_region(port_addr, byte_size);
-
 }
 
 void release_mem(volatile unsigned int mem_addr, unsigned int byte_size){
