@@ -12,3 +12,5 @@ print:
 clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) clean
 	rm -f modules.order
+
+rebuild: clean all

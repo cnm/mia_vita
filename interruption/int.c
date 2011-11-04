@@ -80,6 +80,7 @@ bool is_fpga_used(void);
 
 unsigned int counter;
 extern void write_watchdog(void);
+unsigned short mux_state;
 
 #define DIVISOR 1
 
@@ -112,75 +113,75 @@ void request_memory_regions(void){
 
 /* Unregister memory regions */
 void unregister_memory_region(){
-  release_mem(GPIOA_EN_ADDRESS, WORD_SIZE);
-  release_mem(PIN_DIR_ADDRESS, WORD_SIZE);
-  release_mem(INTRENABLE_ADDRESS, WORD_SIZE);
-  release_mem(INTRMASK_ADDRESS, WORD_SIZE);
-  release_mem(INTRTRIGGER_ADDRESS, WORD_SIZE);
-  release_mem(INTRBOTH_ADDRESS, WORD_SIZE);
-  release_mem(INTRRISE_ADDRESS, WORD_SIZE);
-  release_mem(INT_STATUS_ADDRESS, WORD_SIZE);
-  release_mem(INT_MASK_ADDRESS, WORD_SIZE);
-  release_mem(INT_MASK_CLEAR_ADDRESS, WORD_SIZE);
-  release_mem(FIQ_SELECT_ADDRESS, WORD_SIZE);
-  release_mem(IRQ_STATUS, WORD_SIZE);
-  release_mem(INT_TRIGGER_MODE, WORD_SIZE);
-  release_mem(INT_TRIGGER_LEVEL, WORD_SIZE);
-  release_mem(IRQ_PRIOTITY, WORD_SIZE*32);
-  release_mem(VIC_CONTROL, WORD_SIZE);
-  release_mem(SOFT_INT_REGISTER, WORD_SIZE);
-  release_mem(GPIO_DATA_INPUT, WORD_SIZE);
-  release_mem(GPIO_INT_CLEAR, WORD_SIZE);
-  release_mem(GPIO_INT_STATUS, WORD_SIZE);
+    release_mem(GPIOA_EN_ADDRESS, WORD_SIZE);
+    release_mem(PIN_DIR_ADDRESS, WORD_SIZE);
+    release_mem(INTRENABLE_ADDRESS, WORD_SIZE);
+    release_mem(INTRMASK_ADDRESS, WORD_SIZE);
+    release_mem(INTRTRIGGER_ADDRESS, WORD_SIZE);
+    release_mem(INTRBOTH_ADDRESS, WORD_SIZE);
+    release_mem(INTRRISE_ADDRESS, WORD_SIZE);
+    release_mem(INT_STATUS_ADDRESS, WORD_SIZE);
+    release_mem(INT_MASK_ADDRESS, WORD_SIZE);
+    release_mem(INT_MASK_CLEAR_ADDRESS, WORD_SIZE);
+    release_mem(FIQ_SELECT_ADDRESS, WORD_SIZE);
+    release_mem(IRQ_STATUS, WORD_SIZE);
+    release_mem(INT_TRIGGER_MODE, WORD_SIZE);
+    release_mem(INT_TRIGGER_LEVEL, WORD_SIZE);
+    release_mem(IRQ_PRIOTITY, WORD_SIZE*32);
+    release_mem(VIC_CONTROL, WORD_SIZE);
+    release_mem(SOFT_INT_REGISTER, WORD_SIZE);
+    release_mem(GPIO_DATA_INPUT, WORD_SIZE);
+    release_mem(GPIO_INT_CLEAR, WORD_SIZE);
+    release_mem(GPIO_INT_STATUS, WORD_SIZE);
 }
 
 /*  Set's all pins needed for GPIO interruptions */
 void enable_gpio_interruptions(void){
-  volatile unsigned int *p; // The volatile is extremely important here
+    volatile unsigned int *p; // The volatile is extremely important here
 
-  /* Puts PIN DIR bits 13 and 14 to 0 - 3.15.3 */
-  p = (unsigned int *) pin_dir_new_address;
-  printk(KERN_INFO "\t PIN_DIR BEFORE: \t\t\t%08x \n", *p);
-  *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t PIN_DIR AFTER:  \t\t\t%08x \n", *p);
+    /* Puts PIN DIR bits 13 and 14 to 0 - 3.15.3 */
+    p = (unsigned int *) pin_dir_new_address;
+    printk(KERN_INFO "\t PIN_DIR BEFORE: \t\t\t%08x \n", *p);
+    *p &= ~GPIOA_EN_MASK;
+    printk(KERN_INFO "\t PIN_DIR AFTER:  \t\t\t%08x \n", *p);
 
-  /* Puts IntrMask bits 13 and 14 to 0 -  3.15.9 */
-  p = (unsigned int *) intrmask_new_address;
-  printk(KERN_INFO "\t IntrMask BEFORE: \t\t\t%08x \n", *p);
-  *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t IntrMask AFTER:  \t\t\t%08x \n", *p);
+    /* Puts IntrMask bits 13 and 14 to 0 -  3.15.9 */
+    p = (unsigned int *) intrmask_new_address;
+    printk(KERN_INFO "\t IntrMask BEFORE: \t\t\t%08x \n", *p);
+    *p &= ~GPIOA_EN_MASK;
+    printk(KERN_INFO "\t IntrMask AFTER:  \t\t\t%08x \n", *p);
 
-  /* Puts Intrtrigger bits 13 and 14 to 0 (edge trigger) -  3.15.11 */
-  p = (unsigned int *) intr_trigger_new_address;
-  printk(KERN_INFO "\t IntrTrigger BEFORE: \t\t\t%08x \n", *p);
-  *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t IntrTrigger AFTER:  \t\t\t%08x \n", *p);
+    /* Puts Intrtrigger bits 13 and 14 to 0 (edge trigger) -  3.15.11 */
+    p = (unsigned int *) intr_trigger_new_address;
+    printk(KERN_INFO "\t IntrTrigger BEFORE: \t\t\t%08x \n", *p);
+    *p &= ~GPIOA_EN_MASK;
+    printk(KERN_INFO "\t IntrTrigger AFTER:  \t\t\t%08x \n", *p);
 
-  /* Puts Intrtrigger bits 13 and 14 to 0 (edge trigger) -  3.15.12 */
-  p = (unsigned int *) intr_both_new_address;
-  printk(KERN_INFO "\t IntrBoth BEFORE: \t\t\t%08x \n", *p);
-  *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t IntrBoth AFTER:  \t\t\t%08x \n", *p);
+    /* Puts Intrtrigger bits 13 and 14 to 0 (edge trigger) -  3.15.12 */
+    p = (unsigned int *) intr_both_new_address;
+    printk(KERN_INFO "\t IntrBoth BEFORE: \t\t\t%08x \n", *p);
+    *p &= ~GPIOA_EN_MASK;
+    printk(KERN_INFO "\t IntrBoth AFTER:  \t\t\t%08x \n", *p);
 
-  /* Puts Intrtrigger bits 13 and 14 to 0 (rising edge) -  3.15.13 */
-  p = (unsigned int *) intr_rise_neg_new_address;
-  printk(KERN_INFO "\t IntrRise BEFORE: \t\t\t%08x \n", *p);
-  *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t IntrRise AFTER:  \t\t\t%08x \n", *p);
+    /* Puts Intrtrigger bits 13 and 14 to 0 (rising edge) -  3.15.13 */
+    p = (unsigned int *) intr_rise_neg_new_address;
+    printk(KERN_INFO "\t IntrRise BEFORE: \t\t\t%08x \n", *p);
+    *p &= ~GPIOA_EN_MASK;
+    printk(KERN_INFO "\t IntrRise AFTER:  \t\t\t%08x \n", *p);
 
-  /* Puts INTR_EN bits 13 and 14 to 1 - 3.15.6*/
-  p = (unsigned int *) intr_en_new_address;
-  printk(KERN_INFO "\t INTR_EN BEFORE: \t\t\t%08x \n", *p);
-  *p |= GPIOA_EN_MASK;
-  printk(KERN_INFO "\t INTR_EN AFTER:  \t\t\t%08x \n", *p);
+    /* Puts INTR_EN bits 13 and 14 to 1 - 3.15.6*/
+    p = (unsigned int *) intr_en_new_address;
+    printk(KERN_INFO "\t INTR_EN BEFORE: \t\t\t%08x \n", *p);
+    *p |= GPIOA_EN_MASK;
+    printk(KERN_INFO "\t INTR_EN AFTER:  \t\t\t%08x \n", *p);
 
-  /* Puts GPIOA_EN bits 13 and 14 to 0 */
-  p = (unsigned int *) gpioa_en_new_address;
-  printk(KERN_INFO "\t GPIOA_EN BEFORE: \t\t\t%08x \n", *p);
-  *p &= ~GPIOA_EN_MASK;
-  printk(KERN_INFO "\t GPIOA_EN AFTER:  \t\t\t%08x \n", *p);
+    /* Puts GPIOA_EN bits 13 and 14 to 0 */
+    p = (unsigned int *) gpioa_en_new_address;
+    printk(KERN_INFO "\t GPIOA_EN BEFORE: \t\t\t%08x \n", *p);
+    *p &= ~GPIOA_EN_MASK;
+    printk(KERN_INFO "\t GPIOA_EN AFTER:  \t\t\t%08x \n", *p);
 
-  printk(KERN_INFO "\t\t\t\t ### END GPIO ###\n");
+    printk(KERN_INFO "\t\t\t\t ### END GPIO ###\n");
 }
 
 /* Function which runs when the module is initiated */
@@ -200,16 +201,16 @@ int init(void){
 
 /* Runs when the module is unloaded */
 void cleanup(void){
-  unsigned int * p;
-  p = (unsigned int *) int_mask_new_address;
-  unregister_handle_interruption();
+    unsigned int * p;
+    p = (unsigned int *) int_mask_new_address;
+    unregister_handle_interruption();
 
-  printk(KERN_INFO "ANTES DE MEMORIA.\n");
-  unregister_memory_region();
-  printk(KERN_INFO "DEPOIS DE MEMORIA.\n");
+    printk(KERN_INFO "ANTES DE MEMORIA.\n");
+    unregister_memory_region();
+    printk(KERN_INFO "DEPOIS DE MEMORIA.\n");
 
-  release_mem_spi();
-  printk(KERN_INFO "Unregister module interruption.\n");
+    release_mem_spi();
+    printk(KERN_INFO "Unregister module interruption.\n");
 }
 
 /* Register the interruption handler (and the IRQ number) */
@@ -249,16 +250,16 @@ int request_port(unsigned int port_addr, unsigned int size){
 }
 
 void unregister_handle_interruption(){
-  free_irq(IRQ_NUMBER, NULL);
+    free_irq(IRQ_NUMBER, NULL);
 }
 
 void release_port(unsigned int port_addr, unsigned int byte_size){
-  release_region(port_addr, byte_size);
+    release_region(port_addr, byte_size);
 }
 
 void release_mem(volatile unsigned int mem_addr, unsigned int byte_size){
-  iounmap((void __iomem *)mem_addr);
-  release_mem_region(mem_addr, byte_size);
+    iounmap((void __iomem *)mem_addr);
+    release_mem_region(mem_addr, byte_size);
 }
 
 bool is_fpga_used(void){
@@ -272,47 +273,46 @@ bool is_fpga_used(void){
 /******************************** Interruption handlers *******************************/
 /* Handle the received interruption*/
 irqreturn_t interrupt(int irq, void *dev_id){
-  volatile unsigned int *p; // The volatile is extremely important here
+    volatile unsigned int *p; // The volatile is extremely important here
 
-  /* Disable interruptiVyons */
-  p = (unsigned int *) intr_en_new_address;
-  *p &= ~GPIOA_EN_MASK;
+    /* Disable interruptiVyons */
+    p = (unsigned int *) intr_en_new_address;
+    *p &= ~GPIOA_EN_MASK;
 
-  /* Check what the interruption was*/
-  p = (unsigned int *) gpio_int_status_new_address;
+    /* Check what the interruption was*/
+    p = (unsigned int *) gpio_int_status_new_address;
 
-  /* If scl interruption */
-  if(SCL_MASK & *p){
-      counter_scl++;
+    /* If scl interruption */
+    if(SCL_MASK & *p){
+        counter_scl++;
 
-      if((counter_scl % DIVISOR) == 0){
-          handle_adc_int();
-      }
-  }
+        if((counter_scl % DIVISOR) == 0){
+            handle_adc_int();
+        }
+    }
 
-  /* If sda interruption */
-  else if(SDA_MASK & *p){
-      counter_sda++;
+    /* If sda interruption */
+    else if(SDA_MASK & *p){
+        counter_sda++;
 
-      if((counter_sda % DIVISOR) == 0){
-          handle_gps_int();
-      }
-  }
+        if((counter_sda % DIVISOR) == 0){
+            handle_gps_int();
+        }
+    }
 
-  else{ // should not happen
-      printk(KERN_INFO "-------------ERROR SOMETHING ELSE ------------------- ??\n");
-  }
+    else{ // should not happen
+        printk(KERN_INFO "-------------ERROR SOMETHING ELSE ------------------- ??\n");
+    }
 
-  /* Clear the GPIO interruption */
-  p = (unsigned int *) gpio_int_clear_new_address;
-  *p |= GPIOA_EN_MASK;
+    /* Clear the GPIO interruption */
+    p = (unsigned int *) gpio_int_clear_new_address;
+    *p |= GPIOA_EN_MASK;
 
-  /* Enable interruptiVyons */
-  p = (unsigned int *) intr_en_new_address;
-  *p |= GPIOA_EN_MASK;
+    /* Enable interruptions */
+    p = (unsigned int *) intr_en_new_address;
+    *p |= GPIOA_EN_MASK;
 
-
-  return IRQ_HANDLED;
+    return IRQ_HANDLED;
 }
 
 void handle_gps_int(void){
@@ -326,6 +326,7 @@ void handle_gps_int(void){
     }
     else{
         write_dio26(0);
+        mux_state = 0;
         write_watchdog();
     }
 
@@ -334,23 +335,23 @@ void handle_gps_int(void){
 
 void handle_adc_int(){
     unsigned int value_buffer[3];
-    value_buffer[0] = 0;
-    value_buffer[1] = 0;
-    value_buffer[2] = 0;
+    bool can_use_fpga = is_fpga_used();
 
-    if(is_fpga_used()){
+    if(!can_use_fpga){
         printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);
         return;
     }
-    else if (counter == 0){
+
+    if (counter == 0){
         write_dio26(1);
+        mux_state = 1;
     }
 
     /* Read the adc  */
     read_32_bits(value_buffer);
 
     /* Save to a buffer the value */
-    /*    write_to_buffer(value_buffer);*/
+    /* write_to_buffer(value_buffer);*/
 
     counter++;
 

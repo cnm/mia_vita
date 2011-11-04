@@ -38,7 +38,7 @@ static volatile unsigned int *cvspiregs;
 void write_watchdog(void);
 
 void poke16(unsigned int adr, unsigned short dat) {
-    unsigned int dummy = -1;
+    unsigned int dummy = 0;
     unsigned int d = dat;
     unsigned int a15_a16_addr_register; /*  See section 5.1 of the ts7500 manual */
     volatile unsigned int *p; // The volatile is extremely important here
