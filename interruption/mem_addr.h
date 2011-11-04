@@ -73,9 +73,10 @@
 
 #define SOFT_INT_REGISTER               ((VIC) + 0x24)          /* See page 294  */
 
-#define CHANNELS                        3
-#define OCTECTS_PER_CHANEL              3
-#define SPI_16BITS_READS                (((CHANNELS * OCTECTS_PER_CHANEL) + 1) / 2 )
+#define CHANNELS                        4
+#define SAMPLE_RATE_HZ                  50
+#define SECONDS_IN_BUFFER               5
+#define DATA_SIZE                       (CHANNELS * SAMPLE_RATE_HZ * SECONDS_IN_BUFFER)
 
 #define WATCHDOG_TIME_10SEG             2
 #define WATCHDOG_FPGA_ADDRESS           0x74

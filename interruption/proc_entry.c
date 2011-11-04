@@ -26,16 +26,15 @@
 #include <linux/slab.h>
 
 #include "proc_entry.h"
+#include "mem_addr.h"
 
-#define PROC_FILE_NAME "geophone"
 
 struct proc_dir_entry *proc_file_entry;
 
 unsigned int last_read = 0;
 unsigned int last_write = 0;
 
-#define BUFFER_SIZE 12000
-unsigned int DATA[BUFFER_SIZE];
+unsigned int DATA[DATA_SIZE];
 unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
 
 unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length){
@@ -52,7 +51,7 @@ unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w
 
     else if(last_r > last_w){
         *over = last_w + 1;
-        can_copy = (BUFFER_SIZE - last_r);
+        can_copy = (DATA_SIZE - last_r);
 
         if(can_copy + *over > buffer_length){
             if(can_copy > buffer_length){ // The can copy alone is larger than the buffer
@@ -78,31 +77,35 @@ unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w
 }
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
-static int procfile_read(char *buffer, char **buffer_location, off_t offset,
-                         int buffer_length, int *eof, void *data) {
+static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset,
+                         int dest_buffer_length, int *eof, void *data) {
 
-    unsigned int remaining_buffer = buffer_length;
-    unsigned int how_many_we_copy = (remaining_buffer < (BUFFER_SIZE*4) - offset) ? remaining_buffer : (BUFFER_SIZE*4) - offset;
+    /* We only use char sizes from here */
+    unsigned int remaining_data_size = (DATA_SIZE*sizeof(char)) - offset;
+    unsigned int how_many_we_copy = (dest_buffer_length < remaining_data_size) ? dest_buffer_length : remaining_data_size;
+    unsigned int round_offset = offset % (DATA_SIZE*sizeof(char));
 
-    memcpy(buffer, ((void*) DATA) + offset, how_many_we_copy * 4);
+    memcpy(dest_buffer, ((char*) DATA) + round_offset, how_many_we_copy);
 
-    printk(KERN_EMERG "OFFSET: %d \t, Last read %u \tLast write %u READING: %d \n", (int) offset, last_read % BUFFER_SIZE, last_write % BUFFER_SIZE, how_many_we_copy);
+    printk(KERN_EMERG "OFFSET: %d \t, Last read %u \tLast write %u READING: %d \n", (int) offset, last_read % DATA_SIZE, last_write % DATA_SIZE, how_many_we_copy);
 
     *eof = 1;
-    *buffer_location = buffer;
+    *buffer_location = dest_buffer;
 
     return how_many_we_copy;
 }
 
+/* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value){
-    last_write = ((last_write + 3) % BUFFER_SIZE);
+    last_write = ((last_write + 4) % DATA_SIZE);
 
     if (last_write == last_read)
       last_read = last_write - 1;
 
-    DATA[last_write % BUFFER_SIZE] = *value;
-    DATA[last_write + 1 % BUFFER_SIZE] = *(value + 1);
-    DATA[last_write + 2 % BUFFER_SIZE] = *(value + 1);
+    DATA[last_write % DATA_SIZE] = *value;
+    DATA[last_write + 1 % DATA_SIZE] = *(value + 1);
+    DATA[last_write + 2 % DATA_SIZE] = *(value + 2);
+    DATA[last_write + 3 % DATA_SIZE] = *(value + 3);
 }
 
 void create_proc_file(void) {
@@ -118,5 +121,5 @@ void create_proc_file(void) {
     proc_file_entry->mode = S_IFREG | S_IRUGO;
     proc_file_entry->uid = 0;
     proc_file_entry->gid = 0;
-    proc_file_entry->size = BUFFER_SIZE;
+    proc_file_entry->size = DATA_SIZE;
 }
