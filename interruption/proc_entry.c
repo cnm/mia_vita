@@ -31,7 +31,6 @@
 
 struct proc_dir_entry *proc_file_entry;
 
-unsigned int last_read = 0;
 unsigned int last_write = 0;
 
 unsigned int DATA[DATA_SIZE];
@@ -81,15 +80,25 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
                          int dest_buffer_length, int *eof, void *data) {
 
     /* We only use char sizes from here */
-    unsigned int remaining_data_size = (DATA_SIZE*sizeof(char)) - offset;
-    unsigned int how_many_we_copy = (dest_buffer_length < remaining_data_size) ? dest_buffer_length : remaining_data_size;
-    unsigned int round_offset = offset % (DATA_SIZE*sizeof(char));
+    unsigned int data_size_in_chars = DATA_SIZE*sizeof(char);
+    unsigned int last_read = offset % (data_size_in_chars);
+    unsigned int how_many_we_copy;
 
-    memcpy(dest_buffer, ((char*) DATA) + round_offset, how_many_we_copy);
+    if (last_read <= last_write){
+        how_many_we_copy = last_write - last_read;
 
-    printk(KERN_EMERG "OFFSET: %d \t, Last read %u \tLast write %u READING: %d \n", (int) offset, last_read % DATA_SIZE, last_write % DATA_SIZE, how_many_we_copy);
+        printk(KERN_EMERG "1 Last read %u \tLast write %u READING: %d \n", last_read, last_write % DATA_SIZE, how_many_we_copy);
 
-    *eof = 1;
+    }
+
+    else{ /* if (last_read > last_write){ */
+        how_many_we_copy = data_size_in_chars - last_read;
+        printk(KERN_EMERG "2 Last read %u \tLast write %u READING: %d \n", last_read, last_write % DATA_SIZE, how_many_we_copy);
+    }
+
+    memcpy(dest_buffer, ((char*) DATA) + last_read, how_many_we_copy);
+
+    *eof = 0;
     *buffer_location = dest_buffer;
 
     return how_many_we_copy;
@@ -97,15 +106,11 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 
 /* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value){
-    last_write = ((last_write + 4) % DATA_SIZE);
-
-    if (last_write == last_read)
-      last_read = last_write - 1;
+    last_write = ((last_write + 3) % DATA_SIZE);
 
     DATA[last_write % DATA_SIZE] = *value;
     DATA[last_write + 1 % DATA_SIZE] = *(value + 1);
     DATA[last_write + 2 % DATA_SIZE] = *(value + 2);
-    DATA[last_write + 3 % DATA_SIZE] = *(value + 3);
 }
 
 void create_proc_file(void) {

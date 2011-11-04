@@ -198,7 +198,7 @@ void set_lun_speed_edge(){
     setR0(conf | mask);
 }
 
-void read_32_bits(unsigned int* read_buffer){
+void read_four_channels(unsigned int* read_buffer){
     unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
 

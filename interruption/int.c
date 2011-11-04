@@ -69,7 +69,7 @@ unsigned int counter_scl = 0;
 unsigned int counter_seconds = 0;
 
 extern void release_mem_spi(void);
-extern void read_32_bits(unsigned int * read_buffer);
+extern void read_four_channels(unsigned int * read_buffer);
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
 
@@ -266,7 +266,7 @@ bool is_fpga_used(void){
     volatile unsigned int *p; // The volatile is extremely important here
 
     p = (unsigned int *) intr_trigger_new_address;
-    return (*p  &= 0x1);        /* 0 clock inter-transfer delay */
+    return (*p &= 0x1);
 }
 /******************************** End of auxiliary functions **************************/
 
@@ -321,7 +321,7 @@ void handle_gps_int(void){
     counter_seconds++;
 
     if(is_fpga_used()){
-        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the PPS\n", counter_seconds);
+/*        printk(KERN_EMERG "Second: %u\tFPGA being used and I'm on the PPS\n", counter_seconds);*/
         return;
     }
     else{
@@ -335,10 +335,10 @@ void handle_gps_int(void){
 
 void handle_adc_int(){
     unsigned int value_buffer[3];
-    bool can_use_fpga = is_fpga_used();
+    bool fpga_busy = is_fpga_used();
 
-    if(!can_use_fpga){
-        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);
+    if(fpga_busy){
+/*        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);*/
         return;
     }
 
@@ -348,16 +348,16 @@ void handle_adc_int(){
     }
 
     /* Read the adc  */
-    read_32_bits(value_buffer);
+    read_four_channels(value_buffer);
 
     /* Save to a buffer the value */
-    /* write_to_buffer(value_buffer);*/
+    write_to_buffer(value_buffer);
 
     counter++;
 
-    if(counter >= 50){
-        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);
-    }
+/*    if(counter >= 50){*/
+/*        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);*/
+/*    }*/
 }
 /******************************** End of Interruption handlers ************************/
 
