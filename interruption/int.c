@@ -274,6 +274,10 @@ bool is_fpga_used(void){
 irqreturn_t interrupt(int irq, void *dev_id){
   volatile unsigned int *p; // The volatile is extremely important here
 
+  /* Disable interruptiVyons */
+  p = (unsigned int *) intr_en_new_address;
+  *p &= ~GPIOA_EN_MASK;
+
   /* Check what the interruption was*/
   p = (unsigned int *) gpio_int_status_new_address;
 
@@ -303,6 +307,11 @@ irqreturn_t interrupt(int irq, void *dev_id){
   p = (unsigned int *) gpio_int_clear_new_address;
   *p |= GPIOA_EN_MASK;
 
+  /* Enable interruptiVyons */
+  p = (unsigned int *) intr_en_new_address;
+  *p |= GPIOA_EN_MASK;
+
+
   return IRQ_HANDLED;
 }
 
@@ -330,7 +339,7 @@ void handle_adc_int(){
     value_buffer[2] = 0;
 
     if(is_fpga_used()){
-        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on teh ADC\n", counter_seconds);
+        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);
         return;
     }
     else if (counter == 0){

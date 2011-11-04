@@ -44,7 +44,6 @@ void poke16(unsigned int adr, unsigned short dat) {
     volatile unsigned int *p; // The volatile is extremely important here
 
     a15_a16_addr_register = (adr>>5) << 15;
-
     p = (unsigned int *) gpio_a_new_mem;
     *p = (a15_a16_addr_register|1<<17|1<<3); /* Enable I2SWS, I2SCLK and I2SDR */
 
@@ -108,7 +107,7 @@ unsigned short getR0() {
 }
 
 void setR0(unsigned short val) {
-    poke16(0,val);
+    poke16(0x40,val);
 }
 
 void cavium_disable_cs() {
