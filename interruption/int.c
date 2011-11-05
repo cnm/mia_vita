@@ -81,6 +81,7 @@ bool is_fpga_used(void);
 unsigned int counter;
 extern void write_watchdog(void);
 unsigned short mux_state;
+int udelay_in_second;
 
 #define DIVISOR 1
 
@@ -319,6 +320,7 @@ void handle_gps_int(void){
     /* TODO - FRED THIS IS YOUR PLACE  */
     counter = 0;
     counter_seconds++;
+    udelay_in_second = 0;
 
     if(is_fpga_used()){
 /*        printk(KERN_EMERG "Second: %u\tFPGA being used and I'm on the PPS\n", counter_seconds);*/
@@ -333,18 +335,23 @@ void handle_gps_int(void){
     return;
 }
 
+#define SAMPLE_RATE_TIME_INTERVAL_U    2000        /* 50Hz -> 2 Miliseconds -> 2 000 Micro*/
+#define DATA_READY_TIME_U                13        /* 1 / (3.6??? Mhz / 512) TODO - Calculate this */
+
 void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
+    counter++;
 
     if(fpga_busy){
 /*        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);*/
         return;
     }
 
-    if (counter == 0){
+    if (mux_state == 0) {
         write_dio26(1);
         mux_state = 1;
+        if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);
     }
 
     /* Read the adc  */
@@ -353,7 +360,6 @@ void handle_adc_int(){
     /* Save to a buffer the value */
     write_to_buffer(value_buffer);
 
-    counter++;
 
 /*    if(counter >= 50){*/
 /*        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);*/
