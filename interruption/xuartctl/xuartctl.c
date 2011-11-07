@@ -168,6 +168,10 @@ static void sbuslock(void) {
 	sop.sem_flg = SEM_UNDO;
 	r = TEMP_FAILURE_RETRY(semop(semid, &sop, 1));
 	assert (r == 0);
+
+        // Mark the FPGA bus as used
+        cvgpioregs[0x34/4] |=  1;
+
 	sbuslocked = 1;
 	cvgpioregs[0] = (1<<15|1<<17|1<<3);
 }
@@ -178,6 +182,10 @@ static void sbusunlock(void) {
 	if (!sbuslocked) return;
 	r = semop(semid, &sop, 1);
 	assert (r == 0);
+
+        // Mark the FPGA bus as free
+        cvgpioregs[0x34/4] &=  0xFFFFFFFE;
+
 	sbuslocked = 0;
 }
 
