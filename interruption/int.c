@@ -87,49 +87,7 @@ int udelay_in_second;
 
 #define DIVISOR 1
 
-/*
- * Functions to handle the interruption
- */
-irqreturn_t interrupt(int irq, void *dev_id)
-{
-  volatile unsigned int *p; // The volatile is extremely important here
-  //  unsigned int value;
-
-  /* Check what the interruption was*/
-  p = (unsigned int *) gpio_int_status_new_address;
-
-  /* If scl interruption */
-  if(SCL_MASK & *p){
-      counter_scl++;
-
-      if((counter_scl % DIVISOR) == 0){
-          handle_adc_int();
-      }
-  }
-
-  /* If sda interruption */
-  else if(SDA_MASK & *p){
-      counter_sda++;
-
-      if((counter_sda % DIVISOR) == 0){
-          handle_gps_int();
-      }
-  }
-
-  else{ // should not happen
-      printk(KERN_INFO "-------------ERROR SOMETHING ELSE ------------------- ??\n");
-  }
-
-  /* Clear the GPIO interruption */
-  p = (unsigned int *) gpio_int_clear_new_address;
-  *p |= GPIOA_EN_MASK;
-
-  return IRQ_HANDLED;
-}
-
-=======
 /************************ Configuration Functions *************************/
->>>>>>> b6936cf295713c40f1ee6303cf725dbb6f4fb88a
 /* Requests all memory necessary for the module */
 void request_memory_regions(void){
     gpioa_en_new_address = request_mem(GPIOA_EN_ADDRESS, WORD_SIZE);
