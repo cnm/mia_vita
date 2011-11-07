@@ -21,6 +21,7 @@
 #include <linux/ioport.h>
 #include <linux/interrupt.h>
 #include <asm/io.h>             /* ioremap */
+#include <linux/miavita_xtime.h>
 
 #include "mem_addr.h"
 #include "proc_entry.h"
@@ -41,6 +42,7 @@ void enable_gpio_interruptions(void);
 void enable_irq_interruptions(void);
 void cleanup(void);
 void handle_gps_int(void);
+
 void handle_adc_int(void);
 
 /* Io remap addresses  */
@@ -81,12 +83,14 @@ unsigned int counter;
 
 #define DIVISOR 1
 
+
 /*
  * Functions to handle the interruption
  */
 irqreturn_t interrupt(int irq, void *dev_id)
 {
   volatile unsigned int *p; // The volatile is extremely important here
+  //  unsigned int value;
 
   /* Check what the interruption was*/
   p = (unsigned int *) gpio_int_status_new_address;
@@ -365,13 +369,12 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size)
 /******************************** End of auxiliary functions **************************/
 
 void handle_gps_int(void){
-    /* TODO - FRED THIS IS YOUR PLACE  */
+  write_dio26(0);
+  counter = 0;
+  contador_segundos++;
 
-    write_dio26(0);
-    counter = 0;
-    contador_segundos++;
-
-    return;
+  pulse_miavita_xtime();
+  return;
 }
 
 void handle_adc_int(){
