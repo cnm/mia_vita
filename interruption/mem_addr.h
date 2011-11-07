@@ -39,8 +39,8 @@
 #define GPIOA_EN_ADDRESS                ((MISC_REGISTER) + 0x20)    /* See page 187 */
 #define TEST_ADDR                       ((MISC_REGISTER) + 0x18)
 
-#define SCL_BIT_NUMBER                  14
-#define SDA_BIT_NUMBER                  13
+#define SCL_BIT_NUMBER                  14                          /* For the ADC */
+#define SDA_BIT_NUMBER                  13                          /* For the GPS  */
 #define SCL_MASK                        (1<<SCL_BIT_NUMBER)
 #define SDA_MASK                        (1<<SDA_BIT_NUMBER)
 #define GPIOA_EN_MASK                   (SCL_MASK | SDA_MASK)
