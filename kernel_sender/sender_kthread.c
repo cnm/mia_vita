@@ -9,6 +9,7 @@
 #include <linux/net.h>
 
 #include "miavita_packet.h"
+#include "proc_entry.h"
 
 #define KTHREAD_NAME "miavita-sender"
 
@@ -68,6 +69,9 @@ static void send_it(packet_t* pkt) {
 }
 
 static int main_loop(void* data) {
+  uint8_t samples[12];
+  uint32_t offset = 0;
+
   if (sock_create(AF_INET, SOCK_RAW, IPPROTO_UDP, &udp_socket) < 0) {
     printk(KERN_EMERG "Unable to create socket.\n");
     return 0;
@@ -86,8 +90,10 @@ static int main_loop(void* data) {
   while (1) {
     if (kthread_should_stop())
       break;
-    //TODO: Ir buscar ao buffer e enviar
-    //      send_it(packet);
+    if(read_4samples(samples, &offset)){
+      //TODO: construir o pacote e enviar
+      //      send_it(packet);
+    }
  
     schedule(); //We need to let others do stuff!!
   }
