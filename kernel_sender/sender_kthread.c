@@ -21,6 +21,7 @@ char* bind_ip = "127.0.0.1";
 char* sink_ip = "127.0.0.1";
 uint16_t sport = 57843;
 uint16_t sink_port = 57843;
+uint16_t node_id = 0; //This is 16bit long, but it may only have 8 bits.
 
 module_param(bind_ip, charp, 0000);
 MODULE_PARM_DESC(bind_ip, "This is the ip which the kernel thread will bind to. Default is localhost.");
@@ -33,6 +34,20 @@ MODULE_PARM_DESC(sport, "This is the UDP port which the sender thread will bind 
 
 module_param(sink_port, ushort, 0000);
 MODULE_PARM_DESC(sink_port, "This is the sink UDP port. Default is 57843.");
+
+module_param(node_id, ushort, 0000);
+MODULE_PARM_DESC(node_id, "This is the identifier of the node running this thread. Defaults to 0.");
+
+#define SEC_2_NSEC 1000000000L
+#define USEC_2_NSEC 1000
+
+int64_t get_kernel_current_time(void) {
+  struct timeval t;
+  memset(&t, 0, sizeof(struct timeval));
+  do_gettimeofday(&t);
+  return ((int64_t) t.tv_sec) * SEC_2_NSEC + ((int64_t) t.tv_usec)
+    * USEC_2_NSEC;
+}
 
 static struct sockaddr_in my_addr;
 static struct task_struct * sender = NULL;
@@ -71,6 +86,7 @@ static void send_it(packet_t* pkt) {
 static int main_loop(void* data) {
   uint8_t samples[12];
   uint32_t offset = 0;
+  packet_t* pkt;
 
   if (sock_create(AF_INET, SOCK_RAW, IPPROTO_UDP, &udp_socket) < 0) {
     printk(KERN_EMERG "Unable to create socket.\n");
@@ -91,8 +107,12 @@ static int main_loop(void* data) {
     if (kthread_should_stop())
       break;
     if(read_4samples(samples, &offset)){
-      //TODO: construir o pacote e enviar
-      //      send_it(packet);
+      pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
+      memset(pkt, 0, sizeof(*pkt));
+      memcpy(pkt->samples, samples, sizeof(samples));
+      pkt->timestamp = get_kernel_current_time();
+      pkt->id = node_id;
+      send_it(pkt);
     }
  
     schedule(); //We need to let others do stuff!!
