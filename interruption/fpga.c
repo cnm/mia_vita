@@ -202,13 +202,13 @@ void read_four_channels(unsigned int* read_buffer){
     unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
 
-    a = peek16(0x4A);
-    b = peek16(0x4A);
-    c = peek16(0x4A);
-    d = peek16(0x4A);
-    e = peek16(0x4A);
+    a = peek16(0x4A);//2/3 da primeira
+    b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
+    c = peek16(0x4A);//2/3 da segunda
+    d = peek16(0x4A);//2/3 da terceira 
+    e = peek16(0x4A);//1/3 da terceira 1/3 da quarta
 
-    f = peek16(0x4C);
+    f = peek16(0x4C);//2/3 da quarta
 
     read_buffer[0] = (a<<16|b);
     read_buffer[1] = (c<<16|d);

@@ -34,6 +34,9 @@ struct proc_dir_entry *proc_file_entry;
 unsigned int last_write = 0;
 
 unsigned int DATA[DATA_SIZE];
+
+
+
 unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
 
 unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length){
@@ -75,6 +78,60 @@ unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w
     return can_copy;
 }
 
+#define le_sample_to_be(S)			\
+  do{						\
+    uint8_t tmp[3] = {0};			\
+    memcpy(tmp, (S), 3);			\
+    (S)[0] = tmp[2];				\
+    (S)[2] = tmp[0];				\
+  }while(0)					
+
+/*
+ *offset is an in/out parameter expressed in 32bit word size. For example, an offset of 3 means we have to do DATA+3.
+ *be_samples should be 12 bytes long.
+ */
+int read_4samples(uint8_t* be_samples, uint32_t* offset){
+  /*DATA memory layout:
+   *
+   *For 3 integers 0xAABBCCDD, DATA is:
+   *
+   *byte:   0  2  1  1    1  0  2  1    2  1  0  2
+   *DATA:   DD CC BB AA | DD CC BB AA | DD CC BB AA
+   *Sample: 2-|---1-----|--3---|--2---|----4----|-3
+   */
+
+  uint8_t* int1 = (uint8_t*) (DATA + (*offset % DATA_SIZE));
+  uint8_t* int2 = (uint8_t*) (DATA + ((*offset + 1) % DATA_SIZE));
+  uint8_t* int3 = (uint8_t*) (DATA + ((*offset + 2) % DATA_SIZE));
+  
+  if(*offset >= last_write)
+    return 0; //Screw this... cannot read samples
+
+  memset(be_samples, 0, 12);
+
+  //First sample
+  memcpy(be_samples, int1 + 1, 3);
+  le_sample_to_be(be_samples);
+
+  //Second sample
+  memcpy(be_samples + 3, int1, 1);
+  memcpy(be_samples + 4, int2 + 2, 2);
+  le_sample_to_be(be_samples + 3);
+
+  //Third sample
+  memcpy(be_samples + 6, int2, 2);
+  memcpy(be_samples + 8, int3 + 3, 1);
+  le_sample_to_be(be_samples + 6);
+
+  //Fourth sample
+  memcpy(be_samples + 9, int3, 3);
+  le_sample_to_be(be_samples + 9);
+
+  *offset = (*offset + 3) % DATA_SIZE;
+  return 1; //Read was successful 
+}
+EXPORT_SYMBOL(read_4samples);
+
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
 static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset,
                          int dest_buffer_length, int *eof, void *data) {
@@ -108,9 +165,9 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 void write_to_buffer(unsigned int * value){
     last_write = ((last_write + 3) % DATA_SIZE);
 
-    DATA[last_write % DATA_SIZE] = *value;
-    DATA[last_write + 1 % DATA_SIZE] = *(value + 1);
-    DATA[last_write + 2 % DATA_SIZE] = *(value + 2);
+    DATA[last_write] = *value;
+    DATA[last_write + 1] = *(value + 1);
+    DATA[last_write + 2] = *(value + 2);
 }
 
 void create_proc_file(void) {

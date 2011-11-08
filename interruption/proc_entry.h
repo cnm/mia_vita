@@ -3,7 +3,9 @@
 
 #define PROC_FILE_NAME "geophone"
 
-void create_proc_file(void);
-void write_to_buffer(unsigned int * value);
+extern void create_proc_file(void);
+extern void write_to_buffer(unsigned int * value);
+
+extern int read_4samples(uint8_t* be_samples, uint32_t* offset);
 
 #endif
