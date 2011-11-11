@@ -78,14 +78,6 @@ unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w
     return can_copy;
 }
 
-#define le_sample_to_be(S)			\
-  do{						\
-    uint8_t tmp[3] = {0};			\
-    memcpy(tmp, (S), 3);			\
-    (S)[0] = tmp[2];				\
-    (S)[2] = tmp[0];				\
-  }while(0)					
-
 /*
  *offset is an in/out parameter expressed in 32bit word size. For example, an offset of 3 means we have to do DATA+3.
  *be_samples should be 12 bytes long.
@@ -95,9 +87,10 @@ int read_4samples(uint8_t* be_samples, uint32_t* offset){
    *
    *For 3 integers 0xAABBCCDD, DATA is:
    *
-   *byte:   0  2  1  1    1  0  2  1    2  1  0  2
-   *DATA:   DD CC BB AA | DD CC BB AA | DD CC BB AA
-   *Sample: 2-|---1-----|--3---|--2---|----4----|-3
+   *byte:       0  2  1  0    1  0  2  1    2  1  0  2
+   *DATA:       DD CC BB AA | DD CC BB AA | DD CC BB AA
+   *Sample:     2-|---1-----|--3---|--2---|----4----|-3
+   *be_samples:
    */
 
   uint8_t* int1 = (uint8_t*) (DATA + (*offset % DATA_SIZE));
@@ -107,25 +100,21 @@ int read_4samples(uint8_t* be_samples, uint32_t* offset){
   if(*offset >= last_write)
     return 0; //Screw this... cannot read samples
 
-  memset(be_samples, 0, 12);
+  be_samples[0] = int1[3];
+  be_samples[1] = int1[2];
+  be_samples[2] = int1[1];
 
-  //First sample
-  memcpy(be_samples, int1 + 1, 3);
-  le_sample_to_be(be_samples);
+  be_samples[3] = int1[0];
+  be_samples[4] = int2[3];
+  be_samples[5] = int2[2];
 
-  //Second sample
-  memcpy(be_samples + 3, int1, 1);
-  memcpy(be_samples + 4, int2 + 2, 2);
-  le_sample_to_be(be_samples + 3);
+  be_samples[6] = int2[1];
+  be_samples[7] = int2[0];
+  be_samples[8] = int3[3];
 
-  //Third sample
-  memcpy(be_samples + 6, int2, 2);
-  memcpy(be_samples + 8, int3 + 3, 1);
-  le_sample_to_be(be_samples + 6);
-
-  //Fourth sample
-  memcpy(be_samples + 9, int3, 3);
-  le_sample_to_be(be_samples + 9);
+  be_samples[9] = int3[2];
+  be_samples[10] = int2[1];
+  be_samples[11] = int2[0];
 
   *offset = (*offset + 3) % DATA_SIZE;
   return 1; //Read was successful 

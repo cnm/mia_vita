@@ -7,11 +7,13 @@
 #include <linux/inet.h>
 #include <linux/in.h>
 #include <linux/net.h>
+#include <linux/delay.h>
 
 #include "miavita_packet.h"
 #include "proc_entry.h"
 
 #define KTHREAD_NAME "miavita-sender"
+#define SLEEP_TIME_MS 1000 
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Frederico Gonçalves, [frederico.lopes.goncalves@gmail.com]");
@@ -135,7 +137,8 @@ static int main_loop(void* data) {
       send_it(pkt);
     }
  
-    schedule(); //We need to let others do stuff!!
+    //    schedule(); //We need to let others do stuff!!
+    msleep(SLEEP_TIME_MS);
   }
   return 0;
 }
