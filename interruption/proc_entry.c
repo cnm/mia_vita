@@ -96,8 +96,17 @@ int read_4samples(uint8_t* be_samples, uint32_t* offset){
   uint8_t* int1 = (uint8_t*) (DATA + (*offset % DATA_SIZE));
   uint8_t* int2 = (uint8_t*) (DATA + ((*offset + 1) % DATA_SIZE));
   uint8_t* int3 = (uint8_t*) (DATA + ((*offset + 2) % DATA_SIZE));
-  
-  if(*offset >= last_write)
+
+  uint32_t i;
+  printk("%s: Offset at %u, last_write %u\n", __FUNCTION__, *offset, last_write);
+  for(i = 0; i < 24; i++){
+    printk("%02X ", int1[i]);
+    if(i != 0 && i % 8 == 0)
+      printk("\n");
+  }
+  printk("\n");
+
+  if(*offset % DATA_SIZE == last_write)
     return 0; //Screw this... cannot read samples
 
   be_samples[0] = int1[3];
@@ -105,16 +114,16 @@ int read_4samples(uint8_t* be_samples, uint32_t* offset){
   be_samples[2] = int1[1];
 
   be_samples[3] = int1[0];
-  be_samples[4] = int2[3];
-  be_samples[5] = int2[2];
+  be_samples[4] = int2[2];
+  be_samples[5] = int2[3];
 
   be_samples[6] = int2[1];
   be_samples[7] = int2[0];
   be_samples[8] = int3[3];
 
   be_samples[9] = int3[2];
-  be_samples[10] = int2[1];
-  be_samples[11] = int2[0];
+  be_samples[10] = int3[1];
+  be_samples[11] = int3[0];
 
   *offset = (*offset + 3) % DATA_SIZE;
   return 1; //Read was successful 
@@ -153,11 +162,12 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 /* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value){
 /*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
-    
+
+  
     /* FRED CHANGE THIS */  
-/*    *value = 0x11223344;*/
-/*    *(value + 1) = 0x55667788;*/
-/*    *(value + 2) = 0x99AABBCC;*/
+  /*    *value = 0x11223344;
+    *(value + 1) = 0x55667788;
+    *(value + 2) = 0x99AABBCC;*/
 
     DATA[last_write] = *value;
     DATA[(last_write + 1) % DATA_SIZE] = *(value + 1);
@@ -168,7 +178,6 @@ void write_to_buffer(unsigned int * value){
 
 void create_proc_file(void) {
     last_write = 0;
-    total_read = 0;
     proc_file_entry = create_proc_entry(PROC_FILE_NAME, 0644, NULL);
 
     if (proc_file_entry == NULL) {
