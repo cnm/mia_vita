@@ -164,6 +164,11 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 /* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value){
 /*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
+    
+    /* FRED CHANGE THIS */  
+/*    *value = 0x11223344;*/
+/*    *(value + 1) = 0x55667788;*/
+/*    *(value + 2) = 0x99AABBCC;*/
 
     DATA[last_write] = *value;
     DATA[(last_write + 1) % DATA_SIZE] = *(value + 1);
