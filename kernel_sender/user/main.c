@@ -59,7 +59,7 @@ uint8_t parse_args(char** argv, int argc){
 
 uint8_t bind_socket() {
   struct ifaddrs *addrs, *iap;
-  struct sockaddr_in *sa;
+  struct sockaddr_in sa;
   char buf[32];
 
   sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -72,8 +72,9 @@ uint8_t bind_socket() {
   for (iap = addrs; iap != NULL; iap = iap->ifa_next) {
     if (iap->ifa_addr && (iap->ifa_flags & IFF_UP) && iap->ifa_addr->sa_family == AF_INET) {
       if (!strcmp(iap->ifa_name, iface)) {
-	sa = (struct sockaddr_in *)(iap->ifa_addr);
-	if(bind(sockfd, (struct sockaddr*) sa, sizeof(struct sockaddr)) == -1){
+	memcpy(&sa, (struct sockaddr_in *)(iap->ifa_addr), sizeof(sa));
+	sa.sin_port = htons(port);
+	if(bind(sockfd, (struct sockaddr*) &sa, sizeof(struct sockaddr)) == -1){
 	  close(sockfd);
 	  perror("Unable to bind socket to interface");
 	  return 0;
@@ -88,7 +89,7 @@ uint8_t bind_socket() {
 
 void write_bin(packet_t pkt){
   int32_t to_write = sizeof(pkt), status, written = 0;
-  while(written <= to_write){
+  while(written < to_write){
     status = write(bin_fd, ((char*) &pkt) + written, to_write - written);
     if(status == -1){
       perror("Unable to write binary data.\n");
