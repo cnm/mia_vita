@@ -7,11 +7,13 @@
 #include <linux/inet.h>
 #include <linux/in.h>
 #include <linux/net.h>
+#include <linux/delay.h>
 
 #include "miavita_packet.h"
 #include "proc_entry.h"
 
 #define KTHREAD_NAME "miavita-sender"
+#define SLEEP_TIME_MS 1000 
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Frederico Gonçalves, [frederico.lopes.goncalves@gmail.com]");
@@ -103,19 +105,40 @@ static int main_loop(void* data) {
     return 0;
   }
 
+#ifdef DBG
+  printk("Bound to %s:%u\n", bind_ip, sport);
+#endif
+
   while (1) {
-    if (kthread_should_stop())
+    if (kthread_should_stop()){
+#ifdef DBG
+      printk("Stopping sender thread...\n");
+#endif
       break;
+    }
     if(read_4samples(samples, &offset)){
+
+#ifdef DBG
+      printk("Read 4 samples:\n");
+      printk("Sample one in big endian: %02X %02X %02X\n", samples[0], samples[1], samples[2]);
+      printk("Sample two in big endian: %02X %02X %02X\n", samples[3], samples[4], samples[5]);
+      printk("Sample three in big endian: %02X %02X %02X\n", samples[6], samples[7], samples[8]);
+      printk("Sample four in big endian: %02X %02X %02X\n", samples[9], samples[10], samples[11]);
+#endif
+
       pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
       memset(pkt, 0, sizeof(*pkt));
       memcpy(pkt->samples, samples, sizeof(samples));
-      pkt->timestamp = get_kernel_current_time();
+      pkt->timestamp = cpu_to_be64(get_kernel_current_time());
+#ifdef DBG
+      printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
+#endif
       pkt->id = node_id;
       send_it(pkt);
     }
  
-    schedule(); //We need to let others do stuff!!
+    //    schedule(); //We need to let others do stuff!!
+    msleep(SLEEP_TIME_MS);
   }
   return 0;
 }
