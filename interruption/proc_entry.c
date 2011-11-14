@@ -163,14 +163,18 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 
 /* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value){
-    last_write = ((last_write + 3) % DATA_SIZE);
+/*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
 
     DATA[last_write] = *value;
-    DATA[last_write + 1] = *(value + 1);
-    DATA[last_write + 2] = *(value + 2);
+    DATA[(last_write + 1) % DATA_SIZE] = *(value + 1);
+    DATA[(last_write + 2) % DATA_SIZE] = *(value + 2);
+
+    last_write = ((last_write + 3) % DATA_SIZE);
 }
 
 void create_proc_file(void) {
+    last_write = 0;
+    total_read = 0;
     proc_file_entry = create_proc_entry(PROC_FILE_NAME, 0644, NULL);
 
     if (proc_file_entry == NULL) {
