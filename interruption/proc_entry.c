@@ -33,18 +33,22 @@ struct proc_dir_entry *proc_file_entry;
 
 unsigned int last_write = 0;
 
-
 /*
  *The idea is to timestamp samples right after the first channel is read.
  */
 typedef struct{
+
+#ifdef __GPS__
+  int64_t gps_us;
+#endif
+
   int64_t timestamp;
   unsigned int data[3];//each sample will hold 4 channels
 }sample;
 
 sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
 
-unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
+/*unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
 
 unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length){
     unsigned int can_copy = 0;
@@ -83,12 +87,56 @@ unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w
     }
 
     return can_copy;
-}
+}*/
 
 /*
  *offset is an in/out parameter expressed in 32bit word size. For example, an offset of 3 means we have to do DATA+3.
  *be_samples should be 12 bytes long.
  */
+#ifdef __GPS__
+int read_4samples(uint8_t* be_samples, int64_t *timestamp, int64_t* gps_us, uint32_t* offset){
+  /*DATA memory layout:
+   *
+   *For 3 integers 0xAABBCCDD, DATA is:
+   *
+   *byte:       0  2  1  0    1  0  2  1    2  1  0  2
+   *DATA:       DD CC BB AA | DD CC BB AA | DD CC BB AA
+   *Sample:     2-|---1-----|--3---|--2---|----4----|-3
+   *be_samples:
+   */
+
+  uint8_t* int1 = (uint8_t*) (DATA[*offset].data);
+  uint8_t* int2 = (uint8_t*) (DATA[*offset].data + 1);
+  uint8_t* int3 = (uint8_t*) (DATA[*offset].data + 2);
+
+  printk("%s: Offset at %u, last_write %u\n", __FUNCTION__, *offset, last_write);
+
+  if(*offset == last_write)
+    return 0; //Screw this... cannot read samples
+
+  *timestamp = DATA[*offset].timestamp;
+  *gps_us = DATA[*offset].gps_us;
+
+  be_samples[0] = int1[3];
+  be_samples[1] = int1[2];
+  be_samples[2] = int1[1];
+
+  be_samples[3] = int1[0];
+  be_samples[4] = int2[2];
+  be_samples[5] = int2[3];
+
+  be_samples[6] = int2[1];
+  be_samples[7] = int2[0];
+  be_samples[8] = int3[3];
+
+  be_samples[9] = int3[2];
+  be_samples[10] = int3[1];
+  be_samples[11] = int3[0];
+
+  *offset = (*offset + 1) % DATA_SIZE;
+  return 1; //Read was successful 
+}
+#else
 int read_4samples(uint8_t* be_samples, int64_t *timestamp, uint32_t* offset){
   /*DATA memory layout:
    *
@@ -130,6 +178,7 @@ int read_4samples(uint8_t* be_samples, int64_t *timestamp, uint32_t* offset){
   *offset = (*offset + 1) % DATA_SIZE;
   return 1; //Read was successful 
 }
+#endif
 EXPORT_SYMBOL(read_4samples);
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
@@ -169,6 +218,25 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     return how_many_we_copy;
 }
 
+#ifdef __GPS__
+void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us){
+/*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
+
+  
+    /* FRED CHANGE THIS */  
+  /*    *value = 0x11223344;
+    *(value + 1) = 0x55667788;
+    *(value + 2) = 0x99AABBCC;*/
+
+  DATA[last_write].gps_us = gps_us;
+  DATA[last_write].timestamp = timestamp;
+  DATA[last_write].data[0] = *value;
+  DATA[last_write].data[1] = *(value + 1);
+  DATA[last_write].data[2] = *(value + 2);
+  
+  last_write = ((last_write + 1) % DATA_SIZE);
+}
+#else
 /* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value, int64_t timestamp){
 /*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
@@ -186,6 +254,7 @@ void write_to_buffer(unsigned int * value, int64_t timestamp){
   
   last_write = ((last_write + 1) % DATA_SIZE);
 }
+#endif
 
 void create_proc_file(void) {
     last_write = 0;

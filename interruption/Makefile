@@ -3,6 +3,8 @@ int_mod-objs := int.o fpga.o proc_entry.o
 KDIR := /lib/modules/2.6.24.4/build/ 
 PWD := $(shell pwd)
 
+#EXTRA_CFLAGS += -D__GPS__
+
 all:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
 

@@ -81,6 +81,9 @@ static int main_loop(void* data) {
   packet_t* pkt;
   static uint32_t seq = 0;
   int64_t timestamp;
+#ifdef __GPS__
+  int64_t gps_us;
+#endif
 
   if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0) {
     printk(KERN_EMERG "Unable to create socket.\n");
@@ -108,7 +111,12 @@ static int main_loop(void* data) {
 #endif
       break;
     }
+
+#ifdef __GPS__
+    if(read_4samples(samples, &timestamp, &gps_us, &offset)){
+#else
     if(read_4samples(samples, &timestamp, &offset)){
+#endif
 
 #ifdef DBG
       printk("Read 4 samples:\n");
@@ -122,6 +130,10 @@ static int main_loop(void* data) {
       memset(pkt, 0, sizeof(*pkt));
       memcpy(pkt->samples, samples, sizeof(samples));
       pkt->timestamp = cpu_to_be64(timestamp);
+#ifdef __GPS__
+      pkt->gps_us = cpu_to_be64(gps_us);
+#endif
+     
       pkt->seq = cpu_to_be32(seq++);
 #ifdef DBG
       printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);

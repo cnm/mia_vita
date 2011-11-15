@@ -4,6 +4,7 @@ KERNEL_PATH=/lib/modules/$(shell uname -r)/build
 
 EXTRA_CFLAGS += -I$(PWD)/../interruption/ 
 EXTRA_CFLAGS += -DDBG 
+#EXTRA_CFLAGS += -D__GPS__
 
 all:	
 	make -C $(KERNEL_PATH) M=$(PWD) modules
