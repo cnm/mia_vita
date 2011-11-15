@@ -198,9 +198,22 @@ void set_lun_speed_edge(){
     setR0(conf | mask);
 }
 
-void read_four_channels(unsigned int* read_buffer){
+#define SEC_2_NSEC 1000000000L
+#define USEC_2_NSEC 1000
+
+int64_t get_kernel_current_time(void) {
+  struct timeval t;
+  memset(&t, 0, sizeof(struct timeval));
+  do_gettimeofday(&t);
+  return ((int64_t) t.tv_sec) * SEC_2_NSEC + ((int64_t) t.tv_usec)
+    * USEC_2_NSEC;
+}
+
+void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
+
+    *timestamp = get_kernel_current_time();
 
     a = peek16(0x4A);//2/3 da primeira
     b = peek16(0x4A);//1/3 da primeira 1/3 da segunda

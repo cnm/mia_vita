@@ -71,11 +71,11 @@ unsigned int counter_scl = 0;
 unsigned int counter_seconds = 0;
 
 extern void release_mem_spi(void);
-extern void read_four_channels(unsigned int * read_buffer);
+extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
 
-extern void write_to_buffer(unsigned int * read_buffer);
+extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
 extern void write_dio26(bool b);
 
 bool is_fpga_used(void);
@@ -340,6 +340,7 @@ void handle_gps_int(void){
 void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
+    int64_t timestamp;
     counter++;
 
     if(fpga_busy){
@@ -354,10 +355,10 @@ void handle_adc_int(){
     }
 
     /* Read the adc  */
-    read_four_channels(value_buffer);
+    read_four_channels(value_buffer, &timestamp);
 
     /* Save to a buffer the value */
-    write_to_buffer(value_buffer);
+    write_to_buffer(value_buffer, timestamp);
 
 
 /*    if(counter >= 50){*/

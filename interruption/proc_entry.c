@@ -33,9 +33,16 @@ struct proc_dir_entry *proc_file_entry;
 
 unsigned int last_write = 0;
 
-unsigned int DATA[DATA_SIZE];
 
+/*
+ *The idea is to timestamp samples right after the first channel is read.
+ */
+typedef struct{
+  int64_t timestamp;
+  unsigned int data[3];//each sample will hold 4 channels
+}sample;
 
+sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
 
 unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
 
@@ -82,7 +89,7 @@ unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w
  *offset is an in/out parameter expressed in 32bit word size. For example, an offset of 3 means we have to do DATA+3.
  *be_samples should be 12 bytes long.
  */
-int read_4samples(uint8_t* be_samples, uint32_t* offset){
+int read_4samples(uint8_t* be_samples, int64_t *timestamp, uint32_t* offset){
   /*DATA memory layout:
    *
    *For 3 integers 0xAABBCCDD, DATA is:
@@ -93,21 +100,16 @@ int read_4samples(uint8_t* be_samples, uint32_t* offset){
    *be_samples:
    */
 
-  uint8_t* int1 = (uint8_t*) (DATA + (*offset % DATA_SIZE));
-  uint8_t* int2 = (uint8_t*) (DATA + ((*offset + 1) % DATA_SIZE));
-  uint8_t* int3 = (uint8_t*) (DATA + ((*offset + 2) % DATA_SIZE));
+  uint8_t* int1 = (uint8_t*) (DATA[*offset].data);
+  uint8_t* int2 = (uint8_t*) (DATA[*offset].data + 1);
+  uint8_t* int3 = (uint8_t*) (DATA[*offset].data + 2);
 
-  uint32_t i;
   printk("%s: Offset at %u, last_write %u\n", __FUNCTION__, *offset, last_write);
-  for(i = 0; i < 24; i++){
-    printk("%02X ", int1[i]);
-    if(i != 0 && i % 8 == 0)
-      printk("\n");
-  }
-  printk("\n");
 
-  if(*offset % DATA_SIZE == last_write)
+  if(*offset == last_write)
     return 0; //Screw this... cannot read samples
+
+  *timestamp = DATA[*offset].timestamp;
 
   be_samples[0] = int1[3];
   be_samples[1] = int1[2];
@@ -125,7 +127,7 @@ int read_4samples(uint8_t* be_samples, uint32_t* offset){
   be_samples[10] = int3[1];
   be_samples[11] = int3[0];
 
-  *offset = (*offset + 3) % DATA_SIZE;
+  *offset = (*offset + 1) % DATA_SIZE;
   return 1; //Read was successful 
 }
 EXPORT_SYMBOL(read_4samples);
@@ -137,7 +139,12 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     /* We only use char sizes from here */
     unsigned int data_size_in_chars = DATA_SIZE*sizeof(char);
     unsigned int last_read = offset % (data_size_in_chars);
-    unsigned int how_many_we_copy;
+    unsigned int how_many_we_copy, copied = 0;
+
+    //This function needs to be rechecked
+    *eof = 1;
+    return 0; 
+    //------------------------------------
 
     if (last_read <= last_write){
         how_many_we_copy = last_write - last_read;
@@ -151,7 +158,10 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
         printk(KERN_EMERG "2 Last read %u \tLast write %u READING: %d \n", last_read, last_write % DATA_SIZE, how_many_we_copy);
     }
 
-    memcpy(dest_buffer, ((char*) DATA) + last_read, how_many_we_copy);
+    while(copied < how_many_we_copy){
+      memcpy(dest_buffer + copied, ((char*) DATA) + last_read, how_many_we_copy);
+
+    }
 
     *eof = 0;
     *buffer_location = dest_buffer;
@@ -160,7 +170,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 }
 
 /* This function is called by the interruption and therefore cannot be interrupted */
-void write_to_buffer(unsigned int * value){
+void write_to_buffer(unsigned int * value, int64_t timestamp){
 /*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
 
   
@@ -169,11 +179,12 @@ void write_to_buffer(unsigned int * value){
     *(value + 1) = 0x55667788;
     *(value + 2) = 0x99AABBCC;*/
 
-    DATA[last_write] = *value;
-    DATA[(last_write + 1) % DATA_SIZE] = *(value + 1);
-    DATA[(last_write + 2) % DATA_SIZE] = *(value + 2);
-
-    last_write = ((last_write + 3) % DATA_SIZE);
+  DATA[last_write].timestamp = timestamp;
+  DATA[last_write].data[0] = *value;
+  DATA[last_write].data[1] = *(value + 1);
+  DATA[last_write].data[2] = *(value + 2);
+  
+  last_write = ((last_write + 1) % DATA_SIZE);
 }
 
 void create_proc_file(void) {
