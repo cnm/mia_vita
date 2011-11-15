@@ -1,5 +1,6 @@
 CC=gcc
 CFLAGS=-g
+#CFLAGS += -D__GPS__
 EXE=main
 
 all: miavita_packet.h
