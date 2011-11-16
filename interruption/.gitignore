@@ -4,3 +4,4 @@
 *.mod.c
 .tmp_versions/int_mod.mod
 Module.symvers
+reader
