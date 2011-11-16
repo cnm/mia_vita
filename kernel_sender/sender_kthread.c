@@ -79,6 +79,7 @@ static void send_it(packet_t* pkt) {
 
   oldfs = get_fs();
   set_fs(KERNEL_DS);
+
   if((status = sock_sendmsg(udp_socket, &msg, (size_t) sizeof(*pkt))) < 0){
     printk(KERN_EMERG "FAILED TO SEND MESSAGE THROUGH SOCKET. ERROR %d\n", -status);
   }
@@ -89,8 +90,9 @@ static int main_loop(void* data) {
   uint8_t samples[12];
   uint32_t offset = 0;
   packet_t* pkt;
+  static uint32_t seq = 0;
 
-  if (sock_create(AF_INET, SOCK_RAW, IPPROTO_UDP, &udp_socket) < 0) {
+  if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0) {
     printk(KERN_EMERG "Unable to create socket.\n");
     return 0;
   }
@@ -130,6 +132,7 @@ static int main_loop(void* data) {
       memset(pkt, 0, sizeof(*pkt));
       memcpy(pkt->samples, samples, sizeof(samples));
       pkt->timestamp = cpu_to_be64(get_kernel_current_time());
+      pkt->seq = cpu_to_be32(seq++);
 #ifdef DBG
       printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
 #endif
@@ -157,5 +160,6 @@ int __init init_module(void) {
 void __exit cleanup_module(void) {
   if (sender) {
     kthread_stop(sender);
+    sock_release(udp_socket);
   }
 }
