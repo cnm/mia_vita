@@ -71,11 +71,19 @@ unsigned int counter_scl = 0;
 unsigned int counter_seconds = 0;
 
 extern void release_mem_spi(void);
-extern void read_four_channels(unsigned int * read_buffer);
+#ifdef __GPS__
+extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp, int64_t* gps_us);
+#else
+extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
+#endif
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
 
-extern void write_to_buffer(unsigned int * read_buffer);
+#ifdef __GPS__
+extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp, int64_t gps_us);
+#else
+extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
+#endif
 extern void write_dio26(bool b);
 
 bool is_fpga_used(void);
@@ -340,8 +348,12 @@ void handle_gps_int(void){
 void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
-    counter++;
+    int64_t timestamp;
+#ifdef __GPS__
+    int64_t gps_us;
+#endif
 
+    counter++;
     if(fpga_busy){
 /*        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);*/
         return;
@@ -353,12 +365,20 @@ void handle_adc_int(){
         if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);
     }
 
+
+#ifdef __GPS__
     /* Read the adc  */
-    read_four_channels(value_buffer);
+    read_four_channels(value_buffer, &timestamp, &gps_us);
 
     /* Save to a buffer the value */
-    write_to_buffer(value_buffer);
+    write_to_buffer(value_buffer, timestamp, gps_us);
+#else
+    /* Read the adc  */
+    read_four_channels(value_buffer, &timestamp);
 
+    /* Save to a buffer the value */
+    write_to_buffer(value_buffer, timestamp);
+#endif
 
 /*    if(counter >= 50){*/
 /*        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);*/

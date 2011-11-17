@@ -4,6 +4,11 @@
 #include <linux/kernel.h> /*uint32_t, int32_t, etc.*/
 
 typedef struct __attribute__ ((__packed__)){
+
+#ifdef __GPS__
+  int64_t gps_us;
+#endif
+
   int64_t timestamp;
   int64_t air;
   uint32_t seq;

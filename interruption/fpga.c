@@ -18,6 +18,11 @@
 
 #include <linux/module.h>
 #include <linux/kernel.h>       /* printk() */
+
+#ifdef __GPS__
+#include <linux/miavita_xtime.h>
+#endif
+
 #include "mem_addr.h"
 
 extern int request_mem(volatile unsigned int mem_addr, unsigned int size);
@@ -198,9 +203,24 @@ void set_lun_speed_edge(){
     setR0(conf | mask);
 }
 
-void read_four_channels(unsigned int* read_buffer){
+#define SEC_2_NSEC 1000000000L
+#define USEC_2_NSEC 1000
+
+int64_t get_kernel_current_time(void) {
+  struct timeval t;
+  memset(&t, 0, sizeof(struct timeval));
+  do_gettimeofday(&t);
+  return ((int64_t) t.tv_sec) * SEC_2_NSEC + ((int64_t) t.tv_usec)
+    * USEC_2_NSEC;
+}
+
+#ifdef __GPS__
+void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* gps_us){
     unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
+
+    *timestamp = get_kernel_current_time();
+    *gps_us = __miavita_elapsed_secs * 1000000 + __miavita_elapsed_usecs;
 
     a = peek16(0x4A);//2/3 da primeira
     b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
@@ -216,6 +236,28 @@ void read_four_channels(unsigned int* read_buffer){
 
     return;
 }
+#else
+void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
+    unsigned int a,b,c,d,e,f;
+    a = b = c = d = e = f = 0;
+
+    *timestamp = get_kernel_current_time();
+
+    a = peek16(0x4A);//2/3 da primeira
+    b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
+    c = peek16(0x4A);//2/3 da segunda
+    d = peek16(0x4A);//2/3 da terceira 
+    e = peek16(0x4A);//1/3 da terceira 1/3 da quarta
+
+    f = peek16(0x4C);//2/3 da quarta
+
+    read_buffer[0] = (a<<16|b);
+    read_buffer[1] = (c<<16|d);
+    read_buffer[2] = (e<<16|f);
+
+    return;
+}
+#endif
 
 void release_mem_spi(void){
     release_mem(GPIOA_REGISTER, WORD_SIZE);

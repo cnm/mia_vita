@@ -40,17 +40,6 @@ MODULE_PARM_DESC(sink_port, "This is the sink UDP port. Default is 57843.");
 module_param(node_id, ushort, 0000);
 MODULE_PARM_DESC(node_id, "This is the identifier of the node running this thread. Defaults to 0.");
 
-#define SEC_2_NSEC 1000000000L
-#define USEC_2_NSEC 1000
-
-int64_t get_kernel_current_time(void) {
-  struct timeval t;
-  memset(&t, 0, sizeof(struct timeval));
-  do_gettimeofday(&t);
-  return ((int64_t) t.tv_sec) * SEC_2_NSEC + ((int64_t) t.tv_usec)
-    * USEC_2_NSEC;
-}
-
 static struct sockaddr_in my_addr;
 static struct task_struct * sender = NULL;
 static struct socket * udp_socket = NULL;
@@ -91,6 +80,10 @@ static int main_loop(void* data) {
   uint32_t offset = 0;
   packet_t* pkt;
   static uint32_t seq = 0;
+  int64_t timestamp;
+#ifdef __GPS__
+  int64_t gps_us;
+#endif
 
   if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0) {
     printk(KERN_EMERG "Unable to create socket.\n");
@@ -118,7 +111,12 @@ static int main_loop(void* data) {
 #endif
       break;
     }
-    if(read_4samples(samples, &offset)){
+
+#ifdef __GPS__
+    if(read_4samples(samples, &timestamp, &gps_us, &offset)){
+#else
+    if(read_4samples(samples, &timestamp, &offset)){
+#endif
 
 #ifdef DBG
       printk("Read 4 samples:\n");
@@ -131,7 +129,11 @@ static int main_loop(void* data) {
       pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
       memset(pkt, 0, sizeof(*pkt));
       memcpy(pkt->samples, samples, sizeof(samples));
-      pkt->timestamp = cpu_to_be64(get_kernel_current_time());
+      pkt->timestamp = cpu_to_be64(timestamp);
+#ifdef __GPS__
+      pkt->gps_us = cpu_to_be64(gps_us);
+#endif
+     
       pkt->seq = cpu_to_be32(seq++);
 #ifdef DBG
       printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);

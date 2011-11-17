@@ -76,7 +76,7 @@
 #define CHANNELS                        4
 #define SAMPLE_RATE_HZ                  50
 #define SECONDS_IN_BUFFER               5
-#define DATA_SIZE                       (CHANNELS * SAMPLE_RATE_HZ * SECONDS_IN_BUFFER)
+#define DATA_SIZE                       (CHANNELS * SAMPLE_RATE_HZ * SECONDS_IN_BUFFER / 3)
 
 #define WATCHDOG_TIME_10SEG             2
 #define WATCHDOG_FPGA_ADDRESS           0x74

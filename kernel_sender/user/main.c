@@ -113,6 +113,9 @@ void write_bin(packet_t pkt){
 #endif
 
 packet_t ntohpkt(packet_t pkt){
+#ifdef __GPS__
+  pkt.gps_us = be64toh( pkt.gps_us );
+#endif
   pkt.timestamp = be64toh( pkt.timestamp );
   pkt.air = be64toh( pkt.air );
   pkt.seq = be32toh( pkt.seq );
@@ -143,8 +146,11 @@ void write_json(packet_t pkt){
   memcpy(&sample3, pkt.samples + 6, 3);
   memcpy(&sample4, pkt.samples + 9, 3);
 
+#ifdef __GPS__
+  sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+#else
   sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
-
+#endif
   to_write = strlen(buff);
   while(written < to_write){
     status = write(json_fd, buff + written, to_write - written);
