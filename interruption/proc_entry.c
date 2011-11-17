@@ -135,7 +135,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
                          int dest_buffer_length, int *eof, void *data) {
 
     /* We only use char sizes from here */
-    unsigned int data_size_in_chars = DATA_SIZE*sizeof(char);
+    unsigned int data_size_in_chars = DATA_SIZE * sizeof(int);
     unsigned int last_read = offset % (data_size_in_chars);
     unsigned int how_many_we_copy;
 
@@ -151,6 +151,8 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
         printk(KERN_EMERG "2 Last read %u \tLast write %u READING: %d \n", last_read, last_write % DATA_SIZE, how_many_we_copy);
     }
 
+    how_many_we_copy = (how_many_we_copy < dest_buffer_length) ? how_many_we_copy : dest_buffer_length;
+
     memcpy(dest_buffer, ((char*) DATA) + last_read, how_many_we_copy);
 
     *eof = 0;
@@ -165,7 +167,7 @@ void write_to_buffer(unsigned int * value){
 
   
     /* FRED CHANGE THIS */  
-  /*    *value = 0x11223344;
+  /**value = 0x11223344;
     *(value + 1) = 0x55667788;
     *(value + 2) = 0x99AABBCC;*/
 
