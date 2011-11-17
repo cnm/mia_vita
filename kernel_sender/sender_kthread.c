@@ -13,7 +13,7 @@
 #include "proc_entry.h"
 
 #define KTHREAD_NAME "miavita-sender"
-#define SLEEP_TIME_MS 1000 
+#define SLEEP_TIME_MS read_t
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Frederico Gonçalves, [frederico.lopes.goncalves@gmail.com]");
@@ -24,6 +24,7 @@ char* sink_ip = "127.0.0.1";
 uint16_t sport = 57843;
 uint16_t sink_port = 57843;
 uint16_t node_id = 0; //This is 16bit long, but it may only have 8 bits.
+uint32_t read_t = 500;
 
 module_param(bind_ip, charp, 0000);
 MODULE_PARM_DESC(bind_ip, "This is the ip which the kernel thread will bind to. Default is localhost.");
@@ -39,6 +40,9 @@ MODULE_PARM_DESC(sink_port, "This is the sink UDP port. Default is 57843.");
 
 module_param(node_id, ushort, 0000);
 MODULE_PARM_DESC(node_id, "This is the identifier of the node running this thread. Defaults to 0.");
+
+module_param(read_t, uint, 0000);
+MODULE_PARM_DESC(read_t, "The sleep time for reading the buffer.");
 
 static struct sockaddr_in my_addr;
 static struct task_struct * sender = NULL;
