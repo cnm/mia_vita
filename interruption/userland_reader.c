@@ -3,16 +3,19 @@
 
 void main()
 {
-  int i, nc;
+  int i;
   FILE *ifp;
+  int getc= 0;
 
   ifp = fopen("/proc/geophone", "r");
 
-  i = getc(ifp);
-  while (1) {
-      printf("Reading");
+  while (i != EOF) {
       i = getc(ifp);
-      printf("%c\n",i);
+      printf("Reading");
+
+      
+      printf(" %c\n",i);
+      nc++;
   }   
   printf("OuT\n");
 }

@@ -122,8 +122,8 @@ int read_4samples(uint8_t* be_samples, int64_t *timestamp, int64_t* gps_us, uint
     be_samples[2] = int1[1];
 
     be_samples[3] = int1[0];
-    be_samples[4] = int2[2];
-    be_samples[5] = int2[3];
+    be_samples[4] = int2[3];
+    be_samples[5] = int2[2];
 
     be_samples[6] = int2[1];
     be_samples[7] = int2[0];
@@ -164,8 +164,8 @@ int read_4samples(uint8_t* be_samples, int64_t *timestamp, uint32_t* offset){
     be_samples[2] = int1[1];
 
     be_samples[3] = int1[0];
-    be_samples[4] = int2[2];
-    be_samples[5] = int2[3];
+    be_samples[4] = int2[3];
+    be_samples[5] = int2[2];
 
     be_samples[6] = int2[1];
     be_samples[7] = int2[0];
