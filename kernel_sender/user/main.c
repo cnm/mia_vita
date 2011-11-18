@@ -182,13 +182,13 @@ void serve(){
 }
 
 uint8_t open_output_files(){
-  bin_fd = open(output_binary_file, O_WRONLY | O_TRUNC | O_CREAT);
+  bin_fd = open(output_binary_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if(bin_fd == -1){
     perror("Unable to open binary output file");
     return 0;
   }
 
-  json_fd = open(output_json_file, O_WRONLY | O_TRUNC | O_CREAT);
+  json_fd = open(output_json_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if(json_fd == -1){
     close(bin_fd);
     perror("Unable to open json output file");
