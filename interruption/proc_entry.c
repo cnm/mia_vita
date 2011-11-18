@@ -48,96 +48,18 @@ typedef struct{
 
 sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
 
-/*unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length);
-
-  unsigned int check_how_many_can_we_copy(unsigned int last_r, unsigned int last_w, unsigned int * over, int buffer_length){
-  unsigned int can_copy = 0;
- *over = 0;
-
- if(last_r < last_w){
- can_copy = last_w - last_r;
-
- if(can_copy > buffer_length){
- can_copy = buffer_length;
- }
- }
-
- else if(last_r > last_w){
- *over = last_w + 1;
- can_copy = (DATA_SIZE - last_r);
-
- if(can_copy + *over > buffer_length){
- if(can_copy > buffer_length){ // The can copy alone is larger than the buffer
- can_copy = buffer_length;
- }
-
- else { //Only the over is above the buffer size
- *over = buffer_length - can_copy;
- }
- }
- }
-
- else if(last_r == last_w){
- can_copy = 0;
- }
-
- else{
- printk("Error: Should never happen");
- return 0;
- }
-
- return can_copy;
- }*/
-
 /*
- *offset is an in/out parameter expressed in 32bit word size. For example, an offset of 3 means we have to do DATA+3.
- *be_samples should be 12 bytes long.
+ *Ok, reading 1 sample at a time is quite easy. Let's try to read more than one. This function will read as many samples
+ *as it can.
+ *
+ *be_samples is a pointer which will be allocated inside the function. It will contain the samples in big endian format.
+ *len is a pointer to the size of be_samples.
  */
 #ifdef __GPS__
-int read_4samples(uint8_t* be_samples, int64_t *timestamp, int64_t* gps_us, uint32_t* offset){
-    /*DATA memory layout:
-     *
-     *For 3 integers 0xAABBCCDD, DATA is:
-     *
-     *byte:       0  2  1  0    1  0  2  1    2  1  0  2
-     *DATA:       DD CC BB AA | DD CC BB AA | DD CC BB AA
-     *Sample:     2-|---1-----|--3---|--2---|----4----|-3
-     *be_samples:
-     */
-
-    uint8_t* int1 = (uint8_t*) (DATA[*offset].data);
-    uint8_t* int2 = (uint8_t*) (DATA[*offset].data + 1);
-    uint8_t* int3 = (uint8_t*) (DATA[*offset].data + 2);
-
-    printk("%s: Offset at %u, last_write %u\n", __FUNCTION__, *offset, last_write);
-
-    if(*offset == last_write)
-      return 0; //Screw this... cannot read samples
-
-    *timestamp = DATA[*offset].timestamp;
-    *gps_us = DATA[*offset].gps_us;
-
-    be_samples[0] = int1[3];
-    be_samples[1] = int1[2];
-    be_samples[2] = int1[1];
-
-    be_samples[3] = int1[0];
-    be_samples[4] = int2[3];
-    be_samples[5] = int2[2];
-
-    be_samples[6] = int2[1];
-    be_samples[7] = int2[0];
-    be_samples[8] = int3[3];
-
-    be_samples[9] = int3[2];
-    be_samples[10] = int3[1];
-    be_samples[11] = int3[0];
-
-    *offset = (*offset + 1) % DATA_SIZE;
-    return 1; //Read was successful 
-}
+int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, int64_t* gps_us, uint32_t* offset){
 #else
-int read_4samples(uint8_t* be_samples, int64_t *timestamp, uint32_t* offset){
+int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint32_t* offset){
+#endif
     /*DATA memory layout:
      *
      *For 3 integers 0xAABBCCDD, DATA is:
@@ -147,39 +69,61 @@ int read_4samples(uint8_t* be_samples, int64_t *timestamp, uint32_t* offset){
      *Sample:     2-|---1-----|--3---|--2---|----4----|-3
      *be_samples:
      */
+  uint32_t to_copy, i;
+  unsigned int last_write_tmp = last_write;
+  uint8_t* int1;
+  uint8_t* int2;
+  uint8_t* int3;
+  
+  printk("%s: Offset at %u, last_write %u\n", __FUNCTION__, *offset, last_write_tmp);
 
-    uint8_t* int1 = (uint8_t*) (DATA[*offset].data);
-    uint8_t* int2 = (uint8_t*) (DATA[*offset].data + 1);
-    uint8_t* int3 = (uint8_t*) (DATA[*offset].data + 2);
+  if(*offset == last_write_tmp)
+    return 0; //Screw this... cannot read samples #####Need to check this######
 
-    printk("%s: Offset at %u, last_write %u\n", __FUNCTION__, *offset, last_write);
+  to_copy = (*offset > last_write_tmp)? last_write_tmp + DATA_SIZE - *offset : last_write_tmp - *offset;
 
-    if(*offset == last_write)
-      return 0; //Screw this... cannot read samples
+  printk("%s: Copying %u samples.\n", __FUNCTION__, to_copy);
 
-    *timestamp = DATA[*offset].timestamp;
+  *be_samples = kmalloc(to_copy * sizeof(unsigned int), GFP_ATOMIC);
+  if(!(*be_samples)){
+    printk("%s:%d: Cannot read samples. Kmalloc failed.", __FILE__, __LINE__);
+    return 0;
+  }
 
-    be_samples[0] = int1[3];
-    be_samples[1] = int1[2];
-    be_samples[2] = int1[1];
+  for(i = 0; i < to_copy; i += 3){
+    int1 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data);
+    int2 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 1);
+    int3 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 2);
 
-    be_samples[3] = int1[0];
-    be_samples[4] = int2[3];
-    be_samples[5] = int2[2];
+    *timestamp = DATA[(*offset + i) % DATA_SIZE].timestamp;
 
-    be_samples[6] = int2[1];
-    be_samples[7] = int2[0];
-    be_samples[8] = int3[3];
-
-    be_samples[9] = int3[2];
-    be_samples[10] = int3[1];
-    be_samples[11] = int3[0];
-
-    *offset = (*offset + 1) % DATA_SIZE;
-    return 1; //Read was successful 
-}
+#ifdef __GPS__ 
+    *gps_us = DATA[(*offset + i) % DATA_SIZE].gps_us;
 #endif
-EXPORT_SYMBOL(read_4samples);
+
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[0] = int1[3];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[1] = int1[2];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[2] = int1[1];
+
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[3] = int1[0];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[4] = int2[3];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[5] = int2[2];
+
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[6] = int2[1];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[7] = int2[0];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[8] = int3[3];
+
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[9] = int3[2];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[10] = int3[1];
+    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[11] = int3[0];
+  }
+
+  *offset = (*offset + to_copy) % DATA_SIZE;
+  *len = to_copy*3;
+  return 1; //Read was successful 
+}
+EXPORT_SYMBOL(read_nsamples);
+
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
 static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset,

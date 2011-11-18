@@ -80,8 +80,8 @@ static void send_it(packet_t* pkt) {
 }
 
 static int main_loop(void* data) {
-  uint8_t samples[12];
-  uint32_t offset = 0;
+  uint8_t *samples;
+  uint32_t offset = 0, len, i;
   packet_t* pkt;
   static uint32_t seq = 0;
   int64_t timestamp;
@@ -117,33 +117,39 @@ static int main_loop(void* data) {
     }
 
 #ifdef __GPS__
-    if(read_4samples(samples, &timestamp, &gps_us, &offset)){
+    if(read_nsamples(&samples, &len, &timestamp, &gps_us, &offset)){
 #else
-    if(read_4samples(samples, &timestamp, &offset)){
+    if(read_nsamples(&samples, &len, &timestamp, &offset)){
 #endif
 
 #ifdef DBG
-      printk("Read 4 samples:\n");
-      printk("Sample one in big endian: %02X %02X %02X\n", samples[0], samples[1], samples[2]);
-      printk("Sample two in big endian: %02X %02X %02X\n", samples[3], samples[4], samples[5]);
-      printk("Sample three in big endian: %02X %02X %02X\n", samples[6], samples[7], samples[8]);
-      printk("Sample four in big endian: %02X %02X %02X\n", samples[9], samples[10], samples[11]);
+      printk("Read %d samples:\n", len / 12);
 #endif
 
-      pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
-      memset(pkt, 0, sizeof(*pkt));
-      memcpy(pkt->samples, samples, sizeof(samples));
-      pkt->timestamp = cpu_to_be64(timestamp);
+      for(i = 0; i < len; i += 12){
+	pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
+	if(!pkt){
+	  printk(KERN_EMERG "%s:%d Failed to allocate packet.\n", __FILE__, __LINE__);
+	  continue;
+	}
+
+	memset(pkt, 0, sizeof(*pkt));
+	memcpy(pkt->samples, samples + i, sizeof(pkt->samples));
+	pkt->timestamp = cpu_to_be64(timestamp);
 #ifdef __GPS__
-      pkt->gps_us = cpu_to_be64(gps_us);
+	pkt->gps_us = cpu_to_be64(gps_us);
 #endif
      
-      pkt->seq = cpu_to_be32(seq++);
+	pkt->seq = cpu_to_be32(seq++);
 #ifdef DBG
-      printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
+	printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
 #endif
-      pkt->id = node_id;
-      send_it(pkt);
+	pkt->id = node_id;
+	send_it(pkt);
+	kfree(pkt);
+      }
+
+      kfree(samples);
     }
  
     //    schedule(); //We need to let others do stuff!!
