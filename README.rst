@@ -396,7 +396,7 @@ Wireless cards
     Simao 94:44:52:01:95:b3
 
 Setting up kthread to send data
-###############################
+===============================
 
 The kthread module resides inside ``kernel_sender`` folder and has several parameters which can be useful to configure it::
 
