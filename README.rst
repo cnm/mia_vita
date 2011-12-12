@@ -395,3 +395,41 @@ Wireless cards
 
     Simao 94:44:52:01:95:b3
 
+Setting up kthread to send data
+===============================
+
+The kthread module resides inside ``kernel_sender`` folder and has several parameters which can be useful to configure it::
+
+    # modinfo send_kthread.ko
+
+    filename:       sender_kthread.ko
+    description:    This module spawns a thread which reads the buffer exported by João ands sends samples accross the network.
+    author:         Frederico Gonçalves, [frederico.lopes.goncalves@gmail.com]
+    license:        GPL v2
+    depends:        int_mod
+    vermagic:       2.6.24.4 mod_unload ARMv4 
+    parm:           bind_ip:This is the ip which the kernel thread will bind to. Default is localhost. (charp)
+    parm:           sink_ip:This is the sink ip. Default is localhost. (charp)
+    parm:           sport:This is the UDP port which the sender thread will bind to. Default is 57843. (ushort)
+    parm:           sink_port:This is the sink UDP port. Default is 57843. (ushort)
+    parm:           node_id:This is the identifier of the node running this thread. Defaults to 0. (ushort)
+    parm:           read_t:The sleep time for reading the buffer. (uint)
+
+Every parameter has its own default value, but you'll probably want to specify ``bind_ip`` and ``sink_ip`` ::
+
+    # insmod sender_kthread.ko bind-ip="172.20.41.138" sink-ip="172.20.41.123"
+
+Don't forget to insert the ``int_mod.c`` module first and that's it. You'll just need to run the server program as ::
+
+    # user/main 
+
+You can specify aditional parameters ::
+    
+    # user/main -h
+
+    Usage: ./main [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>]
+    -i     Interface name on which the program will listen. Default is eth0
+    -p     UDP port on which the program will listen. Default is 57843
+    -b     Name of the binary file to where the data is going to be written. Default is miavita.bin
+    -j     Name of the json file to where the data is going to be written. Default is miavita.json
+    -t     Test the program against GPS time. Make sure to compile this program with -D__GPS__.

@@ -10,13 +10,18 @@
 #include <ifaddrs.h>
 #include <endian.h>
 #include <signal.h>
+#include <time.h>
 
+#ifdef __GPS__
+#include "syscall_wrapper.h"
+#endif
 #include "miavita_packet.h"
 
 uint16_t port = 57843;
 char* iface = "eth0";
 char* output_binary_file = "miavita.bin";
 char* output_json_file = "miavita.json";
+uint8_t test = 0;
 
 int sockfd = -1, bin_fd = -1, json_fd = -1;
 
@@ -26,6 +31,7 @@ void print_usage(char* cmd){
   printf("-p\tUDP port on which the program will listen. Default is %u\n", port);
   printf("-b\tName of the binary file to where the data is going to be written. Default is %s\n", output_binary_file);
   printf("-j\tName of the json file to where the data is going to be written. Default is %s\n", output_json_file);
+  printf("-t\tTest the program against GPS time. Make sure to compile this program with -D__GPS__.\n");
 }
 
 uint8_t parse_args(char** argv, int argc){
@@ -49,6 +55,11 @@ uint8_t parse_args(char** argv, int argc){
     if(!strcmp(argv[i], "-j")){
       output_json_file = argv[i + 1];
       i += 2;
+      continue;
+    }
+    if(!strcmp(argv[i], "-t")){
+      test = 1;
+      i++;
       continue;
     }
     print_usage(argv[0]);
@@ -147,6 +158,13 @@ void write_json(packet_t pkt){
   memcpy(&sample4, pkt.samples + 9, 3);
 
 #ifdef __GPS__
+  if(test){
+    struct timeval t;
+    gettimeofday(&t, NULL);
+
+    pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
+    pkt.gps_us = get_millis_offset() - pkt.gps_us;
+  }
   sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
   sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
@@ -182,13 +200,13 @@ void serve(){
 }
 
 uint8_t open_output_files(){
-  bin_fd = open(output_binary_file, O_WRONLY | O_TRUNC | O_CREAT);
+  bin_fd = open(output_binary_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if(bin_fd == -1){
     perror("Unable to open binary output file");
     return 0;
   }
 
-  json_fd = open(output_json_file, O_WRONLY | O_TRUNC | O_CREAT);
+  json_fd = open(output_json_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if(json_fd == -1){
     close(bin_fd);
     perror("Unable to open json output file");
