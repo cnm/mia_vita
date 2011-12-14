@@ -40,43 +40,7 @@ static void write_bin(packet_t pkt){
   }
 }
 
-
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-#define be64tocpu(BE)				\
-  do{						\
-    uint8_t* ___be = (uint8_t*) &(BE);		\
-    uint8_t ___t[8] = {0};			\
-    memcpy(___t, ___be, sizeof(___t));		\
-    ___be[0] = ___t[7];				\
-    ___be[1] = ___t[6];				\
-    ___be[2] = ___t[5];				\
-    ___be[3] = ___t[4];				\
-    ___be[4] = ___t[3];				\
-    ___be[5] = ___t[2];				\
-    ___be[6] = ___t[1];				\
-    ___be[7] = ___t[0];				\
-  }while(0)
-
-#define be32tocpu(BE)				\
-  do{						\
-    uint8_t* ___be = (uint8_t*) &(BE);		\
-    uint8_t ___t[4] = {0};			\
-    memcpy(___t, ___be, sizeof(___t));		\
-    ___be[0] = ___t[3];				\
-    ___be[1] = ___t[2];				\
-    ___be[2] = ___t[1];				\
-    ___be[3] = ___t[0];				\
-  }while(0)
-
-#define be16tocpu(BE)				\
-  do{						\
-    uint8_t* ___be = (uint8_t*) &(BE);		\
-    uint8_t ___t[2] = {0};			\
-    memcpy(___t, ___be, sizeof(___t));		\
-    ___be[0] = ___t[1];				\
-    ___be[1] = ___t[0];				\
-  }while(0)
-
 #define sample_to_le(S)				\
   do{						\
     uint8_t* ___s = (uint8_t*) (S);		\
@@ -87,18 +51,15 @@ static void write_bin(packet_t pkt){
   }while(0)
 #else
 #define sample_to_le(S)
-#define be64tocpu(BE)				
-#define be32tocpu(BE)				
-#define be16tocpu(BE)				
 #endif
 
 static packet_t ntohpkt(packet_t pkt){
 #ifdef __GPS__
-  be64tocpu( pkt.gps_us );
+  pkt.gps_us = be64toh( pkt.gps_us );
 #endif
-  be64tocpu( pkt.timestamp );
-  be64tocpu( pkt.air );
-  be32tocpu( pkt.seq );
+  pkt.timestamp = be64toh( pkt.timestamp );
+  pkt.air = be64toh( pkt.air );
+  pkt.seq = be32toh( pkt.seq );
   sample_to_le(pkt.samples);
   sample_to_le(pkt.samples + 3);
   sample_to_le(pkt.samples + 6);
