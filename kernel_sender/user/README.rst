@@ -9,3 +9,8 @@ This must be compiled with a recent toolchain, because functions in endian.h whi
     Copyright (C) 2010 Free Software Foundation, Inc.
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+What is this for?
+=================
+
+This program is the server, which receives samples and writes them to a binary and json file.
