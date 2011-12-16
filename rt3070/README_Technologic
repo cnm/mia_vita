@@ -1,0 +1,6 @@
+This source tree uses the newer ralink driver, it is fully compatibly with linux 2.6.  All of these can be built as a cross toolchain, make sure to update the variables in the Makefile for source location as well as toolchain location.  The module will be output in the current directory.  If the buildscript it used it will automatically append the model of the SBC to the module.  Please note that if the kernel being used to compile against is greater than (or equal to) linux 2.6.28, you need to set the variable GTLINUX2628 to TRUE in the makefile.  Around that time there was a change in the function name to some of the USE memory allocation routines.
+
+As an example, in order to compile for TS-4200, issue the following command:
+make clean && BOARD=4200 make
+
+Make sure the cross compiler and linux src tree are correctly set in the Makefile

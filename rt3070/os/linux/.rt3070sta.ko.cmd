@@ -1,0 +1,1 @@
+cmd_/home/fred/Desktop/wifi-n-usb-sources/TS-kernel-2.6/os/linux/rt3070sta.ko := arm-unknown-linux-gnu-ld -EL -r   --build-id -o /home/fred/Desktop/wifi-n-usb-sources/TS-kernel-2.6/os/linux/rt3070sta.ko /home/fred/Desktop/wifi-n-usb-sources/TS-kernel-2.6/os/linux/rt3070sta.o /home/fred/Desktop/wifi-n-usb-sources/TS-kernel-2.6/os/linux/rt3070sta.mod.o

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+make clean
+BOARD=7800 make
+mv rt3070sta.ko rt3070sta-7800.ko
+make clean
+BOARD=73x0 make
+mv rt3070sta.ko rt3070sta-73x0.ko
+make clean
+BOARD=7500 make
+mv rt3070sta.ko rt3070sta-7500.ko
+make clean
+BOARD=4200 make
+mv rt3070sta.ko rt3070sta-4200.ko
+
