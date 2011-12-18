@@ -1,3 +1,15 @@
+/*
+ *@Author Frederico Gonçalves [frederico.lopes.goncalves@gmail.com]
+ *
+ * This file contains code which will use João's interruption module to gather samples
+ * collected from the geophone and send them across the network. It already handles byte
+ * order.
+ *
+ * In the enventuallity that the fpga.c code changes the way it stores samples in the
+ * buffer, function read_nsamples will also need to be changed. This function is located
+ * in interruption/proc_entry.c
+ */
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/uaccess.h>
@@ -12,13 +24,20 @@
 #include "miavita_packet.h"
 #include "proc_entry.h"
 
+/*Kernel threads need to have a name. This may seem stupid but names with spaces cause kernel panics in 2.6.24.*/
 #define KTHREAD_NAME "miavita-sender"
+
+/*This was a workarround. I was using the macro SLEEP_TIME_MS which describes the time interval which the thread reads and
+ *send data as a constant. However, later I wanted to make this a module argument, so being as lazy as I can be, I've changed the macro
+ *to expand to the argument variable.
+ */
 #define SLEEP_TIME_MS read_t
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Frederico Gonçalves, [frederico.lopes.goncalves@gmail.com]");
 MODULE_DESCRIPTION("This module spawns a thread which reads the buffer exported by João ands sends samples accross the network.");
 
+/*Module argument variables. All are initialized to their default values.*/
 char* bind_ip = "127.0.0.1";
 char* sink_ip = "127.0.0.1";
 uint16_t sport = 57843;
@@ -44,10 +63,12 @@ MODULE_PARM_DESC(node_id, "This is the identifier of the node running this threa
 module_param(read_t, uint, 0000);
 MODULE_PARM_DESC(read_t, "The sleep time for reading the buffer.");
 
+/*Global structures*/
 static struct sockaddr_in my_addr;
 static struct task_struct * sender = NULL;
 static struct socket * udp_socket = NULL;
 
+/*Send the packet structure using the kernel structures for io vectors.*/
 static void send_it(packet_t* pkt) {
   struct msghdr msg;
   mm_segment_t oldfs;
@@ -59,6 +80,7 @@ static void send_it(packet_t* pkt) {
   addr.sin_addr.s_addr = in_aton(sink_ip);
   addr.sin_port = htons(sink_port);
 
+  /*The message name is just the memory address of destination address...*/
   msg.msg_name = &addr;
   msg.msg_namelen = sizeof(struct sockaddr_in);
   msg.msg_iov = &iov;
@@ -70,6 +92,9 @@ static void send_it(packet_t* pkt) {
   iov.iov_base = pkt;
   iov.iov_len = (__kernel_size_t) sizeof(*pkt);
 
+  /*Remove this and you'll regret it. I'm serious, removing this can corrupt the files on the sd card.
+   *It can even corrupt the Debian installation.
+   */
   oldfs = get_fs();
   set_fs(KERNEL_DS);
 
@@ -79,6 +104,9 @@ static void send_it(packet_t* pkt) {
   set_fs(oldfs);
 }
 
+/*
+ * This is the kthread function. Although I didn't used it you can always pass it values through the data variable.
+ */
 static int main_loop(void* data) {
   uint8_t *samples;
   uint32_t offset = 0, len, i;
@@ -104,6 +132,9 @@ static int main_loop(void* data) {
     return 0;
   }
 
+  /*
+   * If you need debug, just compile the code with -DDBG
+   */
 #ifdef DBG
   printk("Bound to %s:%u\n", bind_ip, sport);
 #endif
@@ -152,7 +183,7 @@ static int main_loop(void* data) {
       kfree(samples);
     }
  
-    //    schedule(); //We need to let others do stuff!!
+    //    schedule(); //This is similar to kill a fly with a bazooka, but it works.
     msleep(SLEEP_TIME_MS);
   }
   return 0;
