@@ -1,6 +1,3 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,31 +5,31 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <ifaddrs.h>
-#include <endian.h>
 #include <signal.h>
-#include <time.h>
 
 #ifdef __GPS__
 #include "syscall_wrapper.h"
 #endif
 #include "miavita_packet.h"
+#include "list.h"
 
 uint16_t port = 57843;
-char* iface = "eth0";
-char* output_binary_file = "miavita.bin";
-char* output_json_file = "miavita.json";
+char* iface = "eth0", *move_file_to = "miavita_old";
 uint8_t test = 0;
+uint32_t capacity = 100;
 
-int sockfd = -1, bin_fd = -1, json_fd = -1;
+int sockfd = -1;
 
 void print_usage(char* cmd){
-  printf("Usage: %s [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>]\n", cmd);
+  printf("Usage: %s [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>] [-o <moved_file_prefix>]\n", cmd);
   printf("-i\tInterface name on which the program will listen. Default is %s\n", iface);
   printf("-p\tUDP port on which the program will listen. Default is %u\n", port);
   printf("-b\tName of the binary file to where the data is going to be written. Default is %s\n", output_binary_file);
   printf("-j\tName of the json file to where the data is going to be written. Default is %s\n", output_json_file);
   printf("-t\tTest the program against GPS time. Make sure to compile this program with -D__GPS__.\n");
-}
+  printf("-o\tOutput file prefix when the file is moved by log rotation. Default is %s.\n", move_file_to);
+  printf("-c\tBuffer capacity expressed in terms of number of packets. Default is %d.\n", capacity);
+} 
 
 uint8_t parse_args(char** argv, int argc){
   uint32_t i;
@@ -47,6 +44,11 @@ uint8_t parse_args(char** argv, int argc){
       i += 2;
       continue;
     }
+    if(!strcmp(argv[i], "-c")){
+      capacity = atoi(argv[i + 1]);
+      i += 2;
+      continue;
+    }
     if(!strcmp(argv[i], "-b")){
       output_binary_file = argv[i + 1];
       i += 2;
@@ -54,6 +56,11 @@ uint8_t parse_args(char** argv, int argc){
     }
     if(!strcmp(argv[i], "-j")){
       output_json_file = argv[i + 1];
+      i += 2;
+      continue;
+    }
+    if(!strcmp(argv[i], "-o")){
+      move_file_to = argv[i + 1];
       i += 2;
       continue;
     }
@@ -98,89 +105,12 @@ uint8_t bind_socket() {
   return 1;
 }
 
-void write_bin(packet_t pkt){
-  int32_t to_write = sizeof(pkt), status, written = 0;
-  while(written < to_write){
-    status = write(bin_fd, ((char*) &pkt) + written, to_write - written);
-    if(status == -1){
-      perror("Unable to write binary data.\n");
-      return;
-    }
-    written += status;
-  }
-}
-
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#define sample_to_le(S)				\
-  do{						\
-    uint8_t* ___s = (uint8_t*) (S);		\
-    uint8_t ___t[3] = {0};			\
-    memcpy(___t, ___s, 3);			\
-    ___s[0] = ___t[2];				\
-    ___s[2] = ___t[0];				\
-  }while(0)
-#else
-#define sample_to_le(S)
-#endif
-
-packet_t ntohpkt(packet_t pkt){
-#ifdef __GPS__
-  pkt.gps_us = be64toh( pkt.gps_us );
-#endif
-  pkt.timestamp = be64toh( pkt.timestamp );
-  pkt.air = be64toh( pkt.air );
-  pkt.seq = be32toh( pkt.seq );
-  sample_to_le(pkt.samples);
-  sample_to_le(pkt.samples + 3);
-  sample_to_le(pkt.samples + 6);
-  sample_to_le(pkt.samples + 9);
-  return pkt;
-}
-
-void write_json(packet_t pkt){
-  static uint8_t first = 1;
-  char buff[2048] = {0};
-  uint32_t to_write, written = 0, status;
-  uint32_t sample1 = 0, sample2 = 0, sample3 = 0, sample4 = 0;  
-
-  pkt = ntohpkt(pkt);
-
-  if(!first)
-    write(json_fd, ",\n", 2);
-  else{
-    write(json_fd, "\n", 1);
-    first = 0;
-  }
-
-  memcpy(&sample1, pkt.samples, 3);
-  memcpy(&sample2, pkt.samples + 3, 3);
-  memcpy(&sample3, pkt.samples + 6, 3);
-  memcpy(&sample4, pkt.samples + 9, 3);
-
-#ifdef __GPS__
-  if(test){
-    struct timeval t;
-    gettimeofday(&t, NULL);
-
-    pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
-    pkt.gps_us = get_millis_offset() - pkt.gps_us;
-  }
-  sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
-#else
-  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
-#endif
-  to_write = strlen(buff);
-  while(written < to_write){
-    status = write(json_fd, buff + written, to_write - written);
-    if(status == -1){
-      perror("Unable to write to json file");
-      return;
-    }
-    written += status;
-  }
-}
+list *l;
 
 void serve(){
+
+  l = mklist(capacity, move_file_to);
+
   while(1){
     struct sockaddr_in sa;
     packet_t pkt;
@@ -194,38 +124,18 @@ void serve(){
       return;
     }
 
-    write_bin(pkt);
-    write_json(pkt);
+    insert(l, &pkt);
   }
-}
-
-uint8_t open_output_files(){
-  bin_fd = open(output_binary_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-  if(bin_fd == -1){
-    perror("Unable to open binary output file");
-    return 0;
-  }
-
-  json_fd = open(output_json_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-  if(json_fd == -1){
-    close(bin_fd);
-    perror("Unable to open json output file");
-    return 0;
-  }
-  write(json_fd, "{", 1);
-  return 1;
 }
 
 void cleanup(){
-  close(bin_fd);
-  write(json_fd, "\n}", 2);
-  close(json_fd);
   close(sockfd);
+  rmlist(l);
   exit(0);
 }
 
 int main(int argc, char** argv){
-  if(!parse_args(argv, argc) || !bind_socket() || !open_output_files())
+  if(!parse_args(argv, argc) || !bind_socket())
     return 1;
   signal(SIGINT, cleanup);
   serve();
