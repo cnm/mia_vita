@@ -14,3 +14,6 @@ syscall_wrapper.o: syscall_wrapper.h
 
 clean:
 	rm -f *~ *.o $(EXE)
+
+very_clean: clean
+	rm -f *.json *.bin

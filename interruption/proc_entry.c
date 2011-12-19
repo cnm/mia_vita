@@ -53,7 +53,7 @@ sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
  *as it can.
  *
  *be_samples is a pointer which will be allocated inside the function. It will contain the samples in big endian format.
- *len is a pointer to the size of be_samples.
+ *len is a pointer to the size of be_samples (IN BYTES!).
  */
 #ifdef __GPS__
 int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, int64_t* gps_us, uint32_t* offset){
@@ -115,7 +115,7 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
   }
 
   *offset = (*offset + to_copy) % DATA_SIZE;
-  *len = to_copy*3;
+  *len = to_copy * sizeof(unsigned int) * 3;
   return 1; //Read was successful 
 }
 EXPORT_SYMBOL(read_nsamples);

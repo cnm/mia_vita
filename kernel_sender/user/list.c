@@ -141,8 +141,8 @@ static void dump(list* l){
   rename(output_binary_file, buff);
 
   memset(buff, 0, sizeof(buff));
-  sprintf(buff, "%s.bin", l->new_filename);
-  rename(output_binary_file, buff);
+  sprintf(buff, "%s.json", l->new_filename);
+  rename(output_json_file, buff);
   
   if(open_output_files()){
     for(i = 0; i < l->lst_size; i++){
