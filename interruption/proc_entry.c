@@ -75,14 +75,10 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
   uint8_t* int2;
   uint8_t* int3;
   
-  printk("%s: Offset at %u, last_write %u\n", __FUNCTION__, *offset, last_write_tmp);
-
   if(*offset == last_write_tmp)
-    return 0; //Screw this... cannot read samples #####Need to check this######
+    return 0; //Screw this... cannot read samples 
 
   to_copy = (*offset > last_write_tmp)? last_write_tmp + DATA_SIZE - *offset : last_write_tmp - *offset;
-
-  printk("%s: Copying %u samples.\n", __FUNCTION__, to_copy);
 
   *be_samples = kmalloc(to_copy * sizeof(unsigned int) * 3, GFP_ATOMIC);
   if(!(*be_samples)){
