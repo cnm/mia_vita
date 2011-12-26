@@ -7,7 +7,6 @@
 #include <linux/net.h>
 #include <linux/sched.h>
 
-#include "pdu.h"
 #include "utils.h"
 #include "spin_lock_queue.h"
 #include "injection_thread.h"
