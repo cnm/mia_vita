@@ -153,6 +153,7 @@ static void dump(list* l){
   }
 }
 
+#warning "This implementation of __packet_comparator has bugs. It is not receiving the correct memory address of a and b."
 //Because timestamp is int64_t and this should return int we cannot just do a.timestamp - b.timestamp.
 int  __packet_comparator(const void* a, const void* b){
   int64_t at = ((packet_t*) a)->timestamp;
