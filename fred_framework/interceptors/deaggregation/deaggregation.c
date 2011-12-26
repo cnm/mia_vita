@@ -31,7 +31,7 @@ struct iphdr* scatters[MAX_SCATTERS] = {0};
 static unsigned int l3_deaggregate(struct sk_buff* skb) {
   struct iphdr* iph, *first;
   uint16_t agg_len, acc_len = 0;
-  uint64_t ts, first_ts, ts_acc = 0, in_time;
+  uint64_t ts, first_ts, ts_acc = 0;
   packet_t *pdu;
   uint8_t scatter_index, first_time = 1;
 
@@ -131,7 +131,7 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
       //prepend iphdr to new
       new = kmalloc(sizeof(struct iphdr)  + ntohs(udph->len), GFP_ATOMIC);
       memcpy(new, iph, iph->ihl << 2);
-      memcpy((((char*) new) + sizeof(struct iphdr) + sizeof(struct udphdr)), first, n_pdu_len(first));
+      memcpy((((char*) new) + sizeof(struct iphdr), udph, ntohs(udph->len));
 
       iph->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->len));
       iph->protocol = IPPROTO_UDP;
