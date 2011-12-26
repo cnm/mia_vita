@@ -14,3 +14,8 @@ What is this for?
 =================
 
 This program is the server, which receives samples and writes them to a binary and json file.
+
+Initialize the GPS counters in kernel
+=====================================
+
+This code also contains a program (init_counter) which will initialize the GPS variable in the modified kernel. (make init_counter).
