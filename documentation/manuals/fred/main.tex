@@ -308,6 +308,11 @@ O ficheiro {\tt miavita\_syscall.c} implementa não só as \emph{system calls} c
 		{\tt ./main -i rausbwifi}
 	\end{center}
 	
-	A partir deste ponto as placas estarão a enviar dados para o sink e este a recebê-los. Caso seja necessário testar o protocolo com GPS é preciso compilar os componentes com a \emph{flag} {\tt -D\_\_GPS\_\_} e antes de inserir qualquer módulo é preciso inicializar as variáveis no kernel (Secção \ref{sec:kernel}). Para tal é preciso usar o função {\tt set\_seconds} do ficheiro {\tt kernel\_sender/user/syscall\_wrapper.c}, que recebe como argumento o valor de segundos lidos do GPS.
+	A partir deste ponto as placas estarão a enviar dados para o sink e este a recebê-los. Caso seja necessário testar o protocolo com GPS é preciso compilar os componentes com a \emph{flag} {\tt -D\_\_GPS\_\_} e antes de inserir qualquer módulo é preciso inicializar as variáveis no kernel (Secção \ref{sec:kernel}). Para tal é preciso usar o programa {\tt init\_counter} dentro da directoria {\tt kernel\_sender/user/}. Compila-se com:
+        
+        \begin{center}
+          {\tt make CC=arm-unknown-linux-gnu-gcc init\_counter}
+        \end{center}
 	
+        A seguir é preciso correr o programa antes de inserir qualquer módulo. É preciso ter em conta que o programa inicializa o programa {\tt xuartctl}, que tem de ser terminado após o programa {\tt init\_counter} terminar. É ainda preciso ter atenção que o programa tenta abrir o \emph{device} do GPS mais comum que as placas criam ({\tt /dev/pts/1}). É possível especificar outro \emph{device} com a \emph{flag} {\tt -d}. Contudo, o nome do \emph{device} só é conhecido após o programa {\tt xuartctl} ter inicializado. Por esta razão, se o \emph{device} for outro é preciso matar o {\tt xuartctl} antes de correr outra vez o programa {\tt init\_counter}.
 \end{document}

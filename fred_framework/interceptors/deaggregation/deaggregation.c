@@ -10,39 +10,32 @@
 #include <linux/udp.h>
 #include "klist.h"
 #include "interceptor.h"
-#include "pdu.h"
+#include "miavita_packet.h"
 #include "utils.h"
 #include "injection_thread.h"
+
+/*
+ * Define new protocol numbers, which are currently unassigned.
+ */
+#define AGREGATED_APPLICATION_ENCAP_UDP_PROTO 143
+#define AGREGATED_IP_ENCAP_IP_PROTO 144
 
 #define INTERCEPTOR_NAME "deaggregation"
 #define MAX_SCATTERS 27
 
 interceptor_descriptor deagg_desc;
 
-//Should be the maximum for mtu. upperupperbound :)
+//Should be the maximum for mtu. upperupperbound 
 struct iphdr* scatters[MAX_SCATTERS] = {0};
-
-void dump_ip(struct iphdr* ip){
-  uint16_t i = 0;
-  for(; i < ntohs(ip->tot_len); i++)
-    printk("%02X ", (uint8_t) ((char*) ip)[i]);
-  printk("\n");
-}
 
 static unsigned int l3_deaggregate(struct sk_buff* skb) {
   struct iphdr* iph, *first;
   uint16_t agg_len, acc_len = 0;
   uint64_t ts, first_ts, ts_acc = 0, in_time;
-  __tp(pdu)* pdu;
-  control_byte* cb;
+  packet_t *pdu;
   uint8_t scatter_index, first_time = 1;
 
   iph = ip_hdr(skb);
-  if (iph->protocol != IPPROTO_UDP) {
-    printk("%d: Deggregation filter cannot deaggregate non UDP packets.",
-        __LINE__);
-    return NF_ACCEPT;
-  }
 
   memset(scatters, 0, sizeof(scatters));
 
