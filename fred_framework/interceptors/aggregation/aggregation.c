@@ -221,16 +221,6 @@ static unsigned int __push_ip_packet(aggregate_buffer* b, struct sk_buff* skb,
     case IPPROTO_UDP:
       pdu = (packet_t*) (((char*) seeker) + (seeker->ihl << 2) + sizeof(struct udphdr));
       break;
-    case AGREGATED_IP_ENCAP_IP_PROTO:
-      seeker = (struct iphdr*) (((char*) seeker) + (seeker->ihl << 2));
-      switch(seeker->protocol){
-	/*These cases are the same*/
-      case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
-      case IPPROTO_UDP:
-	pdu = (packet_t*) (((char*) seeker) + (seeker->ihl << 2) + sizeof(struct udphdr));
-	break;
-      }
-      break;
     default:
       printk(KERN_EMERG "%s: Ip protocol not supported. Error occurred while timestamping a previous packet.", __FUNCTION__);
       return NF_ACCEPT;
@@ -245,15 +235,8 @@ static unsigned int __push_ip_packet(aggregate_buffer* b, struct sk_buff* skb,
     to_push = (packet_t*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr));
     break;
   case AGREGATED_IP_ENCAP_IP_PROTO:
-    iph = (struct iphdr*) (((char*) iph) + (iph->ihl << 2));
-    switch(iph->protocol){
-      /*These cases are the same*/
-    case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
-    case IPPROTO_UDP:
-      to_push = (packet_t*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr));
-      break;
-    }
-    break;
+    debug("%s: Packet already aggregated at network level.\n", __FUNCTION__);
+    return NF_ACCEPT;
   default:
     printk(KERN_EMERG "%s: Ip protocol not supported. Error occurred while timestamping a previous packet.", __FUNCTION__);
     return NF_ACCEPT;

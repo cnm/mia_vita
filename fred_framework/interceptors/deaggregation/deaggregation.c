@@ -49,10 +49,12 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
   case IPPROTO_UDP:
     pdu = (packet_t*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr));
+    first_ts = cpu_to_be64(pdu->timestamp);
     break;
-  swap_pdu_byte_order(pdu);
-  first_ts = ts = pdu->timestamp;
-  swap_pdu_byte_order(pdu);
+  default:
+    printk(KERN_EMERG "%s: Encapsulated packet Ip protocol not supported.\n", __FUNCTION__);
+    return NF_ACCEPT;
+  }
 
   scatter_index = MAX_SCATTERS - 1;
   
@@ -61,18 +63,23 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   for (acc_len = 0, first = iph; acc_len < agg_len; scatter_index--) {
     acc_len += ntohs(first->tot_len);
     scatters[scatter_index] = first;
-    pdu = (__tp(pdu)*) (((char*) first) + (first->ihl << 2)
-         + sizeof(struct udphdr) + sizeof(control_byte));
-    cb = (control_byte*) (((char*) first) + (first->ihl << 2)
-          + sizeof(struct udphdr));
-    cb->synched = 1;
-    swap_pdu_byte_order(pdu);
+    switch(first->protocol){
+    case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
+    case IPPROTO_UDP:
+      pdu = (packet_t*) (((char*) first) + (first->ihl << 2) + sizeof(struct udphdr));
+      break;
+    default:
+      printk(KERN_EMERG "%s: Encapsulated packet Ip protocol not supported. Possibly there was an error in the aggregation process. Packet will be dropped.\n", __FUNCTION__);
+      return NF_DROP;
+    }
+ 
     pdu->timestamp = ts - ts_acc;
     if(!first_time)
       ts_acc += pdu->timestamp;
     else
       first_time = 0;
-    swap_pdu_byte_order(pdu);
+    pdu->timestamp = cpu_to_be64(pdu->timestamp);
+
     first = (struct iphdr*) (((char*) first) + ntohs(first->tot_len));
   }
   
@@ -87,95 +94,63 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
 static unsigned int app_deagregate(struct sk_buff* skb) {
   struct iphdr* iph, *new;
   struct udphdr* udph;
-  __tp(pdu)* first, *pdu;
+  packet_t* first, *pdu;
   control_byte* cb;
   uint32_t agg_len, acc_len = 0;
-  uint64_t ts, first_ts, ts_acc = 0, in_time;
-  __be32 preserve_saddr, preserve_daddr;
-  __be16 preserve_sport, preserve_dport;
+  uint64_t ts, first_ts, ts_acc = 0;
   uint8_t scatter_index, first_time = 1;
 
   iph = ip_hdr(skb);
-  preserve_daddr = iph->daddr;
-  preserve_saddr = iph->saddr;
 
-  udph = (struct udphdr*) (((char*) iph) + (iph->ihl << 2));
-  preserve_dport = udph->dest;
-  preserve_sport = udph->source;
+  switch(iph->protocol){
+  case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
+    //First UDP
+    udph = (struct udphdr*) (((char*) iph) + (iph->ihl << 2));
+    first = (packet_t*) (((char*) udph) + sizeof(struct udphdr));
 
-  first = pdu_skb(skb);
-  if (!first)
-    return NF_ACCEPT;
+    memset(scatters, 0, sizeof(scatters));
 
-  memset(scatters, 0, sizeof(scatters));
+    //Size of aggregated data
+    agg_len = ntohs(iph->tot_len) - (iph->ihl << 2);
+    //Get first ts
+    first_ts = ts = be64_to_cpu(first->timestamp);
 
-  //Size of aggregated data
-  agg_len = ntohs(iph->tot_len) - (iph->ihl << 2) - sizeof(struct udphdr)
-      - sizeof(control_byte);
-  //jump to first pdu
-  pdu = first;
-  swap_pdu_byte_order(first);
-  first_ts = ts = first->timestamp;
-  swap_pdu_byte_order(first);
-
-  scatter_index = MAX_SCATTERS - 1;
+    scatter_index = MAX_SCATTERS - 1;
   
-  ts = first_ts;
-  //Iterate the aggregate packet and keep track of time stamp
-  for (acc_len = 0, first = pdu; acc_len < agg_len; scatter_index--) {
-    acc_len += n_pdu_len(first);
-    swap_pdu_byte_order(first);
-    first->timestamp = ts - ts_acc;
-    if(!first_time)
-      ts_acc += pdu->timestamp;
-    else
-      first_time = 0;
-    swap_pdu_byte_order(first);
+    //Iterate the aggregated packet and keep track of time stamp
+    for (acc_len = 0; acc_len < agg_len; scatter_index--) {
+      debug("%s:%d: Desaggregating UDP packet.\n", __FUNCTION__, __LINE__);
+      acc_len += ntohs(udph->length) - sizeof(struct udphdr);
+
+      first->timestamp = ts - ts_acc;
+      if(!first_time)
+	ts_acc += pdu->timestamp;
+      else
+	first_time = 0;
+      first->timestamp = cpu_to_be64(first->timestamp);
     
-    //prepend iphdr, udphdr and control byte to new
-    new = kmalloc(
-        sizeof(struct iphdr) + sizeof(struct udphdr) + sizeof(control_byte)
-            + n_pdu_len(first), GFP_ATOMIC);
-    iph = new;
-    udph = (struct udphdr*) (((char*) new) + sizeof(struct iphdr));
-    cb = (control_byte*) (((char*) new) + sizeof(struct iphdr)
-        + sizeof(struct udphdr));
-    memcpy(
-        (((char*) new) + sizeof(struct iphdr) + sizeof(struct udphdr)
-            + sizeof(control_byte)), first, n_pdu_len(first));
+      //prepend iphdr to new
+      new = kmalloc(sizeof(struct iphdr)  + ntohs(udph->length), GFP_ATOMIC);
+      memcpy(new, iph, iph->ihl << 2);
+      memcpy((((char*) new) + sizeof(struct iphdr) + sizeof(struct udphdr)), first, n_pdu_len(first));
 
-    iph->ihl = 5;
-    iph->version = 4;
-    iph->tos = 0;
-    iph->tot_len = htons(
-        sizeof(struct iphdr) + sizeof(struct udphdr) + sizeof(control_byte)
-            + n_pdu_len(first));
-    iph->id = 0;
-    iph->frag_off = 0;
-    iph->ttl = 60;
-    iph->protocol = IPPROTO_UDP;
-    iph->check = 0;
-    iph->saddr = preserve_saddr;
-    iph->daddr = preserve_daddr;
-    iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
+      iph->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->length));
+      iph->protocol = IPPROTO_UDP;
+      iph->check = 0;
+      iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
 
-    udph->len = htons(
-        sizeof(control_byte) + n_pdu_len(first) + sizeof(struct udphdr));
-    udph->dest = preserve_dport;
-    udph->source = preserve_sport;
+      scatters[scatter_index] = new;
+      udph = (struct udphdr*) (((char*) udph) + ntohs(udph->length));
+    }
 
-    udph->check = 0;
-
-    memset(cb, 0, sizeof(control_byte));
-    cb->synched = 1;
-    cb->deaggregated = 1;
-    scatters[scatter_index] = new;
-    first = (__tp(pdu)*) (((char*) first) + n_pdu_len(first));
-  }
-
-  for(scatter_index++; scatter_index < MAX_SCATTERS; scatter_index++){
-    inject_packet(scatters[scatter_index]);
-    kfree(scatters[scatter_index]);
+    for(scatter_index++; scatter_index < MAX_SCATTERS; scatter_index++){
+      inject_packet(scatters[scatter_index]);
+      kfree(scatters[scatter_index]);
+    }
+    break;
+  default:
+    printk(KERN_EMERG "%s: Unable to deaggregate packet. Protocol IP not supported.\n", __FUNCTION__);
+    return NF_ACCEPT;
   }
 
   kfree_skb(skb);
