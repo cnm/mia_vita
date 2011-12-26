@@ -154,22 +154,36 @@ static void dump(list* l){
 }
 
 //Because timestamp is int64_t and this should return int we cannot just do a.timestamp - b.timestamp.
-static int  __packet_comparator(const void* a, const void* b){
-  int64_t at = (*((packet_t*) a)).timestamp;
-  int64_t bt = (*((packet_t*) b)).timestamp;
+int  __packet_comparator(const void* a, const void* b){
+  int64_t at = ((packet_t*) a)->timestamp;
+  int64_t bt = ((packet_t*) b)->timestamp;
 
-  if(at < bt)
+  printf("A seq: %u\n", ((packet_t*) a)->seq);
+
+  if(at < bt){
+    printf("%lld < %lld\n", at, bt);
     return -1;
-  if(at > bt)
+  }
+  if(at > bt){
+    printf("%lld > %lld\n", at, bt);
     return 1;
+  }
+  printf("%lld == %lld\n", at, bt);
   return 0;
 }
 
 static void rotate(list* l){
-  qsort(l->buff, l->lst_size, sizeof(packet_t), __packet_comparator);
+  /*
+   * Every packet in the buffer is sorted, but only half of the packets are written to file.
+   * This is to avoid (not completed) that packets which arrive to late are also sorted correctly.
+   * If every packet was written to file, then it is likely to happen that a delayed packet gets out
+   * of order.
+   */
+  qsort(l->buff, l->lst_size, sizeof(l->buff[0]), &__packet_comparator);
+  //This will make sure that dump only dumps half of the packets
+  l->lst_size = (l->lst_size & 0x00000001)? l->lst_size / 2 + 1 : l->lst_size / 2 + 1;
   dump(l);
-  l->lst_size = 0;
-  memset(l->buff, 0, sizeof(l->rotate_at));
+  memmove(l->buff, l->buff + l->lst_size + 1, l->rotate_at - l->lst_size);
 }
 
 void insert(list* l, packet_t* p){
