@@ -434,8 +434,8 @@ You can specify aditional parameters ::
     -t     Test the program against GPS time. Make sure to compile this program with -D__GPS__.
 
 
-Tests
-=====
+Test Results (made by Simao)
+============================
 
 Check the following url:
 
