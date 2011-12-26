@@ -40,13 +40,16 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   memset(scatters, 0, sizeof(scatters));
 
   //Size of aggregated data
-  agg_len = ntohs(iph->tot_len) - (iph->ihl << 2) - sizeof(struct udphdr)
-      - sizeof(control_byte);
+  agg_len = ntohs(iph->tot_len) - (ip->ihl << 2);
+
   //jump to first iphdr
-  iph = (struct iphdr*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr)
-      + sizeof(control_byte));
-  pdu = (__tp(pdu)*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr)
-      + sizeof(control_byte));
+  iph = (struct iphdr*) (((char*) iph) + (iph->ihl << 2));
+
+  switch(iph->protocol){
+  case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
+  case IPPROTO_UDP:
+    pdu = (packet_t*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr));
+    break;
   swap_pdu_byte_order(pdu);
   first_ts = ts = pdu->timestamp;
   swap_pdu_byte_order(pdu);
@@ -183,7 +186,7 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
 unsigned int deaggregation_local_in_hook(filter_specs* sp, unsigned int hooknum,
     struct sk_buff* skb, const struct net_device* in,
     const struct net_device *out, int(*okfn)(struct sk_buff*)) {
-  control_byte* cb;
+  struct iphdr* iph = ip_hdr(skb);
 
   if (!skb)
     return NF_ACCEPT;
@@ -191,19 +194,17 @@ unsigned int deaggregation_local_in_hook(filter_specs* sp, unsigned int hooknum,
   if (!skb_network_header(skb))
     return NF_ACCEPT;
 
-  cb = control_byte_skb(skb);
-  if (!cb)
-    return NF_ACCEPT;
-
-  if (cb->deaggregated) {
-    return NF_ACCEPT;
-  }
-
-  if (cb->l3_aggregated)
-    return l3_deaggregate(skb);
-
-  if (cb->app_aggregated)
+  switch(iph->protocol){
+  case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
+    debug("Deaggregating udp encapsulated in ip.\n");
     return app_deagregate(skb);
+  case AGREGATED_IP_ENCAP_IP_PROTO:
+    debug("Deaggregating ip encapsulated in ip.\n");
+    return l3_deaggregate(skb);
+  default:
+    debug("Packet is already deaggregated.\n");
+    break;
+  }
 
   return NF_ACCEPT;
 }
@@ -218,8 +219,7 @@ rule* create_rule_for_specs(filter_specs* sp) {
   if (!r)
     return NULL;
 
-  local_in_filter = create_filter(FILTER_PRIO_FIRST, sp, r, FILTER_AT_LOCAL_IN,
-      deaggregation_local_in_hook);
+  local_in_filter = create_filter(FILTER_PRIO_FIRST, sp, r, FILTER_AT_LOCAL_IN, deaggregation_local_in_hook);
   (r->filters)[0] = local_in_filter;
 
   r->interceptor = &deagg_desc;
@@ -227,31 +227,30 @@ rule* create_rule_for_specs(filter_specs* sp) {
 }
 
 int __init init_module() {
-	if (!start_injection_thread()) {
-		printk(KERN_EMERG "Could not create injection thread.\n");
-		return -1;
-	}
+  if (!start_injection_thread()) {
+    printk(KERN_EMERG "Could not create injection thread.\n");
+    return -1;
+  }
 
-	deagg_desc.name = INTERCEPTOR_NAME;
-	deagg_desc.create_rule_for_specs_cb = create_rule_for_specs;
+  deagg_desc.name = INTERCEPTOR_NAME;
+  deagg_desc.create_rule_for_specs_cb = create_rule_for_specs;
 
-	if (!register_interceptor(&deagg_desc)) {
-		printk(KERN_EMERG "Failed to register deaggregation filter.\n");
-		return -1;
-	}
+  if (!register_interceptor(&deagg_desc)) {
+    printk(KERN_EMERG "Failed to register deaggregation filter.\n");
+    return -1;
+  }
 
-	printk(KERN_INFO "Deaggregation module loaded.\n");
+  printk(KERN_INFO "Deaggregation module loaded.\n");
 
-	return 0;
+  return 0;
 }
 
 void __exit cleanup_module() {
-	stop_injection_thread();
-	if (!unregister_interceptor(INTERCEPTOR_NAME))
-		printk(
-				"Unable to unregister deaggregation interceptor. Interceptor framework will panic soon.\n");
+  stop_injection_thread();
+  if (!unregister_interceptor(INTERCEPTOR_NAME))
+    printk("Unable to unregister deaggregation interceptor. Interceptor framework will panic soon.\n");
 
-printk (KERN_INFO "Deaggregation module unloaded.\n");
+  printk(KERN_INFO "Deaggregation module unloaded.\n");
 }
 
 MODULE_LICENSE("GPL v2");
