@@ -40,7 +40,7 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   memset(scatters, 0, sizeof(scatters));
 
   //Size of aggregated data
-  agg_len = ntohs(iph->tot_len) - (ip->ihl << 2);
+  agg_len = ntohs(iph->tot_len) - (iph->ihl << 2);
 
   //jump to first iphdr
   iph = (struct iphdr*) (((char*) iph) + (iph->ihl << 2));
@@ -95,7 +95,6 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
   struct iphdr* iph, *new;
   struct udphdr* udph;
   packet_t* first, *pdu;
-  control_byte* cb;
   uint32_t agg_len, acc_len = 0;
   uint64_t ts, first_ts, ts_acc = 0;
   uint8_t scatter_index, first_time = 1;
@@ -120,7 +119,7 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
     //Iterate the aggregated packet and keep track of time stamp
     for (acc_len = 0; acc_len < agg_len; scatter_index--) {
       debug("%s:%d: Desaggregating UDP packet.\n", __FUNCTION__, __LINE__);
-      acc_len += ntohs(udph->length) - sizeof(struct udphdr);
+      acc_len += ntohs(udph->len) - sizeof(struct udphdr);
 
       first->timestamp = ts - ts_acc;
       if(!first_time)
@@ -130,17 +129,17 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
       first->timestamp = cpu_to_be64(first->timestamp);
     
       //prepend iphdr to new
-      new = kmalloc(sizeof(struct iphdr)  + ntohs(udph->length), GFP_ATOMIC);
+      new = kmalloc(sizeof(struct iphdr)  + ntohs(udph->len), GFP_ATOMIC);
       memcpy(new, iph, iph->ihl << 2);
       memcpy((((char*) new) + sizeof(struct iphdr) + sizeof(struct udphdr)), first, n_pdu_len(first));
 
-      iph->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->length));
+      iph->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->len));
       iph->protocol = IPPROTO_UDP;
       iph->check = 0;
       iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
 
       scatters[scatter_index] = new;
-      udph = (struct udphdr*) (((char*) udph) + ntohs(udph->length));
+      udph = (struct udphdr*) (((char*) udph) + ntohs(udph->len));
     }
 
     for(scatter_index++; scatter_index < MAX_SCATTERS; scatter_index++){
