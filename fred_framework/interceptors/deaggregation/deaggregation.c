@@ -131,7 +131,7 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
       //prepend iphdr to new
       new = kmalloc(sizeof(struct iphdr)  + ntohs(udph->len), GFP_ATOMIC);
       memcpy(new, iph, iph->ihl << 2);
-      memcpy((((char*) new) + sizeof(struct iphdr), udph, ntohs(udph->len));
+      memcpy((((char*) new) + sizeof(struct iphdr)), udph, ntohs(udph->len));
 
       iph->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->len));
       iph->protocol = IPPROTO_UDP;
