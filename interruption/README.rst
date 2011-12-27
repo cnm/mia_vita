@@ -1,24 +1,24 @@
 Files Structure
 ===============
 
-    .
-    ├── README
-    ├── fpga.c                 - Communicates with the FPGA
-    ├── int.c                  - Main file. Registers the interruption and has most of the logic
-    ├── mem_addr.h             - Provides the MEM addresses
-    ├── proc_entry.c           - Provides a proc file for retrieving the values
-    ├── proc_entry.h           - Just has the function headers for proc_entry
-    ├── userland_reader.c      - Userland app to read the data from the created proc entry
-    ├── Makefile
-    ├── sdctl                  - Changed binary to make sdctl not ruin the SPI bus for the interruption
-    │   ├── Makefile
-    │   ├── sdcore2.c
-    │   ├── sdctl.c
-    │   └── README
-    └── xuartctl              - Changed binary to make xuartctl not ruin the SPI bus for the interruption
-        ├── Makefile
-        ├── xuartcore.c
-        └── xuartctl.c
+   .
+   ├── README
+   ├── fpga.c                 - Communicates with the FPGA
+   ├── int.c                  - Main file. Registers the interruption and has most of the logic
+   ├── mem_addr.h             - Provides the MEM addresses
+   ├── proc_entry.c           - Provides a proc file for retrieving the values
+   ├── proc_entry.h           - Just has the function headers for proc_entry
+   ├── userland_reader.c      - Userland app to read the data from the created proc entry
+   ├── Makefile
+   ├── sdctl                  - Changed binary to make sdctl not ruin the SPI bus for the interruption
+   │   ├── Makefile
+   │   ├── sdcore2.c
+   │   ├── sdctl.c
+   │   └── README
+   └── xuartctl              - Changed binary to make xuartctl not ruin the SPI bus for the interruption
+       ├── Makefile
+       ├── xuartcore.c
+       └── xuartctl.c
 
 Instructions to upload and use the module
 =========================================
