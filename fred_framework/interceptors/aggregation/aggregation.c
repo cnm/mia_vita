@@ -104,6 +104,8 @@ static void flush_buffer_app(struct sk_buff* skb, aggregate_buffer* b,
   skb_set_network_header(skb, 0);
   skb_set_transport_header(skb, sizeof(struct iphdr));
 
+  debug("Flushing application buffer\n");
+
   reset_buffer(b);
   return;
 }
@@ -159,6 +161,8 @@ static void flush_buffer_ip(struct sk_buff* skb, aggregate_buffer* b,
   iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
   skb_set_network_header(skb, 0);
   skb_set_transport_header(skb, sizeof(struct iphdr));
+
+  debug("Flushing ip buffer\n");
 
   reset_buffer(b);
   return;
@@ -249,6 +253,8 @@ static unsigned int __push_ip_packet(aggregate_buffer* b, struct sk_buff* skb,
     flush_buffer_ip(skb, b, out);
     return NF_ACCEPT;
   }
+
+  debug("Pushing %d bytes\n", tot_len);
 
   if (push_bytes(b, (char*) iph, tot_len)) {
     panic(

@@ -1,3 +1,5 @@
+CC=gcc
+
 MK_OUT=mkrule
 RM_OUT=rmrule
 

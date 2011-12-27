@@ -1,7 +1,7 @@
 obj-m += interceptor_framework.o
 interceptor_framework-objs := main.o interceptor_manager.o klist.o rule_manager.o rule.o filter.o chains.o hooks.o proc_entry.o proc_registry.o   
 
-EXTRA_CFLAGS += -I$(PWD)
+EXTRA_CFLAGS += -I$(PWD) 
 
 KERNEL_PATH=/lib/modules/$(shell uname -r)/build
 

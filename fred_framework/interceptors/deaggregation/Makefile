@@ -1,7 +1,7 @@
 obj-m += deaggregate.o
 deaggregate-objs := deaggregation.o spin_lock_queue.o injection_thread.o
 
-EXTRA_CFLAGS += -I$(PWD)/../../ -I$(PWD)/../
+EXTRA_CFLAGS += -I$(PWD)/../../ -I$(PWD)/../ -DDBG
 
 KERNEL_PATH=/lib/modules/$(shell uname -r)/build
 

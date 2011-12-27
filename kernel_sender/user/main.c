@@ -123,7 +123,7 @@ void serve(){
       perror("recvfrom()");
       return;
     }
-
+    printf("Received packet.\n");
     insert(l, &pkt);
   }
 }

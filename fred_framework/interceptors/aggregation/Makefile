@@ -1,7 +1,7 @@
 obj-m += aggregate.o
 aggregate-objs := aggregation.o byte_buffer.o
 
-EXTRA_CFLAGS += -I$(PWD)/../../ -I$(PWD)/../
+EXTRA_CFLAGS += -I$(PWD)/../../ -I$(PWD)/../ -DDBG
 
 KERNEL_PATH=/lib/modules/$(shell uname -r)/build
 

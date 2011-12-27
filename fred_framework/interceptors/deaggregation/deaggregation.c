@@ -118,7 +118,7 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
   
     //Iterate the aggregated packet and keep track of time stamp
     for (acc_len = 0; acc_len < agg_len; scatter_index--) {
-      debug("%s:%d: Desaggregating UDP packet.\n", __FUNCTION__, __LINE__);
+      debug("%s:%d: Deaggregating UDP packet.\n", __FUNCTION__, __LINE__);
       acc_len += ntohs(udph->len) - sizeof(struct udphdr);
 
       first->timestamp = ts - ts_acc;
@@ -131,12 +131,12 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
       //prepend iphdr to new
       new = kmalloc(sizeof(struct iphdr)  + ntohs(udph->len), GFP_ATOMIC);
       memcpy(new, iph, iph->ihl << 2);
-      memcpy((((char*) new) + sizeof(struct iphdr)), udph, ntohs(udph->len));
+      memcpy((((char*) new) + (new->ihl << 2)), udph, ntohs(udph->len));
 
-      iph->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->len));
-      iph->protocol = IPPROTO_UDP;
-      iph->check = 0;
-      iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
+      new->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->len));
+      new->protocol = IPPROTO_UDP;
+      new->check = 0;
+      new->check = csum((uint16_t*) new, new->ihl << 1);
 
       scatters[scatter_index] = new;
       udph = (struct udphdr*) (((char*) udph) + ntohs(udph->len));
@@ -162,14 +162,21 @@ unsigned int deaggregation_local_in_hook(filter_specs* sp, unsigned int hooknum,
     const struct net_device *out, int(*okfn)(struct sk_buff*)) {
   struct iphdr* iph = ip_hdr(skb);
 
-  if (!skb)
+  if (!skb){
+    printk("Be sure once\n");
+    debug("SKB is null.\n");
     return NF_ACCEPT;
+  }
 
-  if (!skb_network_header(skb))
+  if (!skb_network_header(skb)){
+    printk("Be sure twice\n");
+    debug("SKB does not have a network header.\n");
     return NF_ACCEPT;
+  }
 
   switch(iph->protocol){
   case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
+    printk("E o debug n funciona\n");
     debug("Deaggregating udp encapsulated in ip.\n");
     return app_deagregate(skb);
   case AGREGATED_IP_ENCAP_IP_PROTO:
