@@ -1,4 +1,6 @@
-Files:
+Files Structure
+===============
+
 .
 ├── README
 ├── fpga.c                 - Communicates with the FPGA
@@ -18,6 +20,10 @@ Files:
     ├── xuartcore.c
     └── xuartctl.c
 
+Instructions to upload and use the module
+=========================================
+
+We need to kill this processes in order to limit the access to the spi. In the case of sdctl we do not kill it but use the modified binary in the sdctl directory. (If xuartctl is needed do the same)
 
 Upload the module:
 
@@ -26,5 +32,7 @@ Upload the module:
    rmmod int_mod.ko; scp jtrindade@172.20.41.204:/home/workspace/mia_vita/interruption/int_mod.ko .; insmod int_mod.ko;
 
 
-Notes on ADC: 
-Data should be **read** on the **rising edge** and changes on the failing edge
+Notes on ADC
+============
+
+Data should be **read** on the SPI **rising edge** and changes occur on the SPI failing edge
