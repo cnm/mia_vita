@@ -104,7 +104,7 @@ De notar que embora o comando {\tt git branch -a} mostre vários \emph{branches}
 
     Como seria de esperar, o módulo que envia os dados depende do módulo que recolhe as amostras. Como tal, este último tem de ser compilado primeiro. Na directoria {\tt kernel\_sender/} encontra-se um \emph{script} com o nome \emph{compile.bash}. Este \emph{script} trata de compilar tanto o módulo \emph{int\_mod.ko} como o módulo \emph{sender\_kthread.ko}, resolvendo todas as dependências.
 
-    Quando o módulo \emph{sender\_kthread.ko} foi desenvolvido, o protocol de sincronização estava em fase de testes. O objectivo dos testes era comparar o atraso dado por dispositivos GPS, face ao atraso dado pelo protocolo. Por esta razão, várias zonas do código encontram-se circunscritas por {\tt \#ifdef \_\_GPS\_\_ ... \#endif}. Para que o código seja compilado para os testes com GPS basta passar ao compilador a \emph{flag} {\tt -D\_\_GPS\_\_}. Como isto trata-se de um módulo de kernel, é preciso abrir a Makefile e adicionar a linha:
+    Quando o módulo \emph{sender\_kthread.ko} foi desenvolvido, o protocol de sincronização estava em fase de testes. O objectivo dos testes era comparar o atraso dado por dispositivos GPS, face ao atraso medido pelo protocolo. Por esta razão, várias zonas do código encontram-se circunscritas por {\tt \#ifdef \_\_GPS\_\_ ... \#endif}. Para que o código seja compilado para os testes com GPS basta passar ao compilador a \emph{flag} {\tt -D\_\_GPS\_\_}. Como isto trata-se de um módulo de kernel, é preciso abrir a Makefile e adicionar a linha:
 
     \begin{center}
       {\tt EXTRA\_CFLAGS+=-D\_\_GPS\_\_}
@@ -112,11 +112,12 @@ De notar que embora o comando {\tt git branch -a} mostre vários \emph{branches}
 
     Note-se que ao compilar este módulo para correr os testes com GPS, é necessário também compilar o código do driver (Secção \ref{sec:driver}) e o programa que recebe os dados com a mesma \emph{flag}.
 
-    É extremamente importante perceber que esta \emph{flag} não faz com que o valor de criação do pacote passe a ser dado pelo GPS. Apenas prepara o código para os testes com GPS. O valor de criação do pacote continua a ser dado pelo protocolo de sincronização. Para alterar o código de modo a usar o valor do GPS como tempo de criação do pacote é necessário alterar as zonas marcadas com comentários no código.
+    É extremamente importante perceber que esta \emph{flag} não faz com que o valor de criação do pacote passe a ser medido pelo GPS. Apenas prepara o código para os testes com GPS. O valor de criação do pacote continua a ser medido pelo protocolo de sincronização. Para alterar o código de modo a usar o valor do GPS como tempo de criação do pacote é necessário alterar as zonas marcadas com comentários no código.
+    (TODO Fred Marca com comentários e faz listagem dos ficheiros sff)
 
     É ainda possível compilar o módulo com informação de \emph{debug} que é emitida para {\tt /var/log/syslog}. Neste caso é necessária a \emph{flag} {\tt -DDBG}.
 
-    O módulo \emph{sender\_kthread.ko} tem uma funcionalidade muito simples. Limita-se a criar uma \emph{thread}, que por sua vez abre um socket e de X em X tempo vai lendo N amostras do \emph{buffer} de amostras em \emph{int\_mod.ko}. Por cada amostra é criado um pacote e os dados são enviados para o \emph{sink}. É preciso especificar pelo menos o IP do \emph{sink} e o do próprio nó. Isto pode ser feito em \emph{runtime}. Para saber todos os parâmetros de um módulo basta usar o comando:
+    O módulo \emph{sender\_kthread.ko} tem uma funcionalidade muito simples. Limita-se a criar uma \emph{thread}, que por sua vez abre um socket e de X em X tempo vai lendo N amostras do \emph{buffer} de amostras em \emph{int\_mod.ko} (ficheiro source: proc\_entry.c). Por cada amostra é criado um pacote e os dados são enviados para o \emph{sink}. É preciso especificar pelo menos o IP do \emph{sink} e o do próprio nó. Isto pode ser feito em \emph{runtime}. Para saber todos os parâmetros de um módulo basta usar o comando:
 
     \begin{flushleft}
       {\tt 
@@ -158,7 +159,7 @@ De notar que embora o comando {\tt git branch -a} mostre vários \emph{branches}
       {\tt make CC=arm-unknown-linux-gnu-gcc}
     \end{flushleft}
 
-    Tal como os módulos do kernel, este código também pode ser compilado para ser usado nos testes com GPS. Neste caso é preciso adicionar à \emph{flag} {\tt CFLAGS} a opção {\tt -D\_\_GPS\_\_}, dentro da Makefile. O \emph{output} do programa são dois ficheiros, um em formato binário e outro em formato json (ver Secção \ref{sec:packet_specification}). É preciso ter em conta que quando são feitos os testes com GPS, o campo \emph{timestamp} reflecte o atraso dado pelo protocolo de sincronização e um campo adicional (\emph{gps\_us}) reflecte o atraso dado pelo GPS. O primeiro encontra-se em nanosegundos e o último em microsegundos.
+    Tal como os módulos do kernel, este código também pode ser compilado para ser usado nos testes com GPS. Neste caso é preciso adicionar à \emph{flag} {\tt CFLAGS} a opção {\tt -D\_\_GPS\_\_}, dentro da Makefile. O \emph{output} do programa são dois ficheiros, um em formato binário e outro em formato json (ver Secção \ref{sec:packet_specification}). É preciso ter em conta que quando são feitos os testes com GPS, o campo \emph{timestamp} reflecte o atraso medido pelo protocolo de sincronização e um campo adicional (\emph{gps\_us}) reflecte o atraso medido pelo GPS. O primeiro encontra-se em nanosegundos e o último em microsegundos.
 
     Os pacotes são escritos para o ficheiro binário tal e qual como chegam ao socket. Contudo, antes de serem escritos para o formato json, são convertidos para a \emph{byte order} do CPU. Tanto o ficheiro binário, como o ficheiro json são rotativos. Os pacotes são escritos para um ficheiro A. Na próxima escrita, o ficheiro A é movido para um ficheiro B e rescrito com os novos pacotes. Todos os nomes e tamanhos do ficheiro são configuráveis em \emph{runtime}:
 
@@ -182,7 +183,7 @@ O driver fornecido pela Ralink foi modificado para sincronizar os pacotes de aco
 
 A ideia é conseguir interceptar os pacotes enviados no último momento possível. Neste caso, trata-se da função que submete o pacote ao controlador de USB (função {\tt RTUSBBulkOutDataPacket} no ficheiro {\tt rtusb\_bulk.c}). Por outro lado, também é necessário interceptar os pacotes recebidos o mais cedo possível. Neste caso, trata-se da \emph{callback} chamada pelo controlador de USB (função {\tt REPORT\_ETHERNET\_FRAME\_TO\_LLC} no ficheiro {\tt rtusb\_data.c}).
 
-As funções que sincronizam os pacotes enviados e recebidos encontram-se no ficheiro {\tt sync\_proto.c}. É preciso notar que as funções que submetem pacotes ao controlador de USB e recebem pacotes do mesmo, são chamadas para todos os pacotes enviados e recebidos. Por esta razão é preciso impedir que o \emph{driver} tente sincronizar pacotes que nada têm haver com o módulo \emph{sender\_kthread.ko}. Como por exemplo pacotes ARP. Para este efeito pensou-se no conceito de filtros, muito semelhante ao modo como funcionam as \emph{iptables}. Neste caso, são definidos um conjunto de filtros que indicam qual o tráfego a sincronizar. Estes filtros encontram-se implementados no ficheiro {\tt filter\_chains.c}. Quando nenhum filtro é especificado, nenhum pacote é sincronizado. Contudo, é possível definir filtros para sincronizar, por exemplo, todo o tráfego gerado na porta 57843 pelo IP 192.168.0.123. O driver assume que quando um pacote passa nas especificações de um filtro tem o formato especificado em \ref{sec:packet_specification}.
+As funções que sincronizam os pacotes enviados e recebidos encontram-se no ficheiro {\tt sync\_proto.c}. É preciso notar que as funções que submetem pacotes ao controlador de USB e recebem pacotes do mesmo, são chamadas para todos os pacotes enviados e recebidos. Por esta razão é preciso impedir que o \emph{driver} tente sincronizar pacotes que nada têm haver com o módulo \emph{sender\_kthread.ko}. Como por exemplo pacotes ARP. Para este efeito pensou-se no conceito de filtros, muito semelhante ao modo como funcionam as \emph{iptables}. Neste caso, são definidos um conjunto de filtros que indicam qual o tráfego a sincronizar. Estes filtros encontram-se implementados no ficheiro {\tt filter\_chains.c}. Quando nenhum filtro é especificado, nenhum pacote é sincronizado. Contudo, é possível definir filtros para sincronizar, por exemplo, todo o tráfego gerado na porta 57843 pelo IP 192.168.0.123. O driver assume que quando um pacote passa nas especificações de um filtro tem o formato especificado no capitulo \ref{sec:packet_specification}.
 
 Uma vez mais, se todos os outros componentes foram compilados para os testes com GPS, este também o deverá ser (Adicionar a \emph{flag} {\tt EXTRA\_CFLAGS+=-D\_\_GPS\_\_} à Makefile).
 
@@ -201,10 +202,10 @@ Este comando imprime também todas as especificações dos filtros criados. É p
 O kernel fornecido pela TS foi modificado de modo a conter mais duas \emph{system calls}. Uma é usada para fazer \emph{set} ao tempo do GPS e outro é usada para obter este tempo. O ficheiro {\tt README.rst} no repositório do miavita, explica como adicionar \emph{system calls} ao ARM. Este kernel pode ser obtido fazendo:
 
 \begin{center}
-{\tt git clone git://github.com/fgoncalves/Modified-TS7500-Kernel.git}
+{\tt git clone https://github.com/cnm/ts7500\_kernel}
 \end{center}
 
-O tempo do GPS é mantido em duas variáveis dentro do kernel. Uma mantém os segundos dados pelo GPS a outra mantém os microsegundos dados pelo ARM. Não é possível obter menos do que um segundo do GPS, pelo que os microsegundos do ARM são usados. Assume-se que dentro de um segundo o \emph{drift} do cristal do ARM não é significativo.
+O tempo do GPS é mantido em duas variáveis dentro do kernel (\_miavita\_elapsed\_secs, \_miavita\_elapsed\_usecs). Uma mantém os segundos dados pelo GPS a outra mantém os microsegundos dados pelo ARM. Não é possível obter menos do que um segundo do GPS, pelo que os microsegundos do ARM são usados. Assume-se que dentro de um segundo o \emph{drift} do cristal do ARM não é significativo.
 
 Ambas as variáveis têm 64 bits e são \emph{signed}. Encontram-se dentro da directoria {\tt ipc} dentro das \emph{sources} do kernel, no ficheiro {\tt miavita\_syscall.c}. A função {\tt pulse\_miavita\_xtime} é chamada pelo módulo \emph{int\_mod.c} (Secção \ref{sec:sender}) a cada interrupção dada pelo PPS do GPS. Isto garante que a variável que mantém os segundos tem a mesma precisão que o PPS do GPS, que é cerca de 50 nanosegundos.
 

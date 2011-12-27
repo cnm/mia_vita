@@ -15,8 +15,6 @@
 #ifndef __MIAVITA_PACKET_H__
 #define __MIAVITA_PACKET_H__
 
-#include <linux/kernel.h> /*uint32_t, int32_t, etc.*/
-
 typedef struct __attribute__ ((__packed__)){
 
 #ifdef __GPS__
