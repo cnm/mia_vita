@@ -3,8 +3,10 @@ Files Structure
 
    .
    ├── README
+
    ├── fpga.c                 - Communicates with the FPGA
    ├── int.c                  - Main file. Registers the interruption and has most of the logic
+
    ├── mem_addr.h             - Provides the MEM addresses
    ├── proc_entry.c           - Provides a proc file for retrieving the values
    ├── proc_entry.h           - Just has the function headers for proc_entry
