@@ -15,19 +15,19 @@
 #ifndef __MIAVITA_PACKET_H__
 #define __MIAVITA_PACKET_H__
 
-typedef struct __attribute__ ((__packed__)){
+typedef struct __attribute__ ((__packed__)){ // specifies that the minimum required memory be used to represent the type.
 
 #ifdef __GPS__
-  int64_t gps_us;
+  int64_t gps_us;                            // where to store the GPS time
 #endif
 
-  int64_t timestamp;
-  int64_t air;
-  uint32_t seq;
-  uint8_t fails;
-  uint8_t retries;
-  uint8_t samples[12];
-  uint8_t id;
+  int64_t timestamp;                         // Signed Transmission time since packet was created
+  int64_t air;                               // Estimated time the packet was "on the air"
+  uint32_t seq;                              // Sequence number
+  uint8_t fails;                             // Fails since last packet was received
+  uint8_t retries;                           // Retries ...
+  uint8_t samples[12];                       // Samples for the four channels
+  uint8_t id;                                // ID of the originator node
 }packet_t;
 
 #endif
