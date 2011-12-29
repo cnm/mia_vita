@@ -169,13 +169,14 @@ static void flush_buffer_ip(struct sk_buff* skb, aggregate_buffer* b,
 static unsigned int __push_app_packet(aggregate_buffer* b, struct sk_buff* skb,
     const struct net_device* out) {
   struct iphdr* iph = ip_hdr(skb);
+  struct udphdr *udp_helper;
   char* to_push;
-  packet_t* pdu = NULL, *push_packet = NULL;
+  packet_t* pdu = NULL, *pushed_pdu = NULL;
   uint16_t len;
 
   switch(iph->protocol){
   case IPPROTO_UDP:
-    push_packet = (packet_t*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr));
+    pushed_pdu = (packet_t*) (((char*) iph) + (iph->ihl << 2) + sizeof(struct udphdr));
     break;
   default:
     printk(KERN_EMERG "%s: Unable to aggregate packet. Ip protocol not supported.\n", __FUNCTION__);
@@ -187,9 +188,12 @@ static unsigned int __push_app_packet(aggregate_buffer* b, struct sk_buff* skb,
 
   debug("Pushing %d bytes to buffer\n", len);
 
-  pdu = (packet_t*) peek_packet(b);
-  if (pdu) 
-    pdu->timestamp = cpu_to_be64(be64_to_cpu(push_packet->timestamp) - be64_to_cpu(pdu->timestamp));
+  //Don't forget that buffer contains only UDP packets, but we must get the pdu inside the udp packet.
+  udp_helper = (struct udphdr*) peek_packet(b);
+  if (udp_helper){ 
+    pdu = (packet_t*) (((char*) udp_helper) + sizeof(struct udphdr));
+    pdu->timestamp = cpu_to_be64(be64_to_cpu(pushed_pdu->timestamp) - be64_to_cpu(pdu->timestamp));
+  }
 
   if (buffer_data_len(b) + len >= buffer_len(b)) {
     flush_buffer_app(skb, b, out);
@@ -317,7 +321,6 @@ unsigned int aggregation_post_routing_hook(filter_specs* sp,
     unsigned int hooknum, struct sk_buff* skb, const struct net_device* in,
     const struct net_device *out, int(*okfn)(struct sk_buff*)) {
   struct iphdr* iph;
-  struct udphdr* udph;
   aggregate_buffer* ab;
 
   if (!skb)
@@ -327,11 +330,7 @@ unsigned int aggregation_post_routing_hook(filter_specs* sp,
     return NF_ACCEPT;
 
   iph = ip_hdr(skb);
-  switch (iph->protocol) {
-  case IPPROTO_UDP:
-    udph = (struct udphdr*) (((char*) iph) + (iph->ihl << 2));
-    break;
-  default:
+  switch (iph->protocol != IPPROTO_UDP && iph->protocol != AGREGATED_APPLICATION_ENCAP_UDP_PROTO) {
     printk("Aggregation hook does not support ip protocol.\n");
     return NF_ACCEPT;
   }
@@ -346,7 +345,6 @@ unsigned int aggregation_local_out_hook(filter_specs* sp, unsigned int hooknum,
     struct sk_buff* skb, const struct net_device* in,
     const struct net_device *out, int(*okfn)(struct sk_buff*)) {
   struct iphdr* iph;
-  struct udphdr* udph;
   aggregate_buffer* ab;
 
   if (!skb)
@@ -356,11 +354,7 @@ unsigned int aggregation_local_out_hook(filter_specs* sp, unsigned int hooknum,
     return NF_ACCEPT;
 
   iph = ip_hdr(skb);
-  switch (iph->protocol) {
-  case IPPROTO_UDP:
-    udph = (struct udphdr*) (((char*) iph) + (iph->ihl << 2));
-    break;
-  default:
+  if (iph->protocol !=IPPROTO_UDP){
     printk("Aggregation hook does not support ip protocol.\n");
     return NF_ACCEPT;
   }
