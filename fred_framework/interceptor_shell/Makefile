@@ -6,16 +6,16 @@ RM_OUT=rmrule
 all: mkrule rmrule
 
 mkrule: mkrule.c cmd_line_parser.o operations.o
-	$(CC) -o $(MK_OUT) mkrule.c cmd_line_parser.o operations.o
+	$(CC) -o $(MK_OUT) -I../ mkrule.c cmd_line_parser.o operations.o
 
 rmrule: rmrule.c cmd_line_parser.o operations.o
-	$(CC) -o $(RM_OUT) rmrule.c cmd_line_parser.o operations.o
+	$(CC) -o $(RM_OUT) -I../ rmrule.c cmd_line_parser.o operations.o
 
 cmd_line_parser.o: cmd_line_parser.h cmd_line_parser.c
-	$(CC) -c cmd_line_parser.c
+	$(CC) -I../ -c cmd_line_parser.c
 
 operations.o: operations.h operations.c
-	$(CC) -c operations.c
+	$(CC) -I../ -c operations.c
 
 clean:
 	rm -f *~ *.o $(MK_OUT) $(RM_OUT)

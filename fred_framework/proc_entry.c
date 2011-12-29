@@ -30,6 +30,7 @@
 #include "interceptor.h"
 #include "interceptor_manager.h"
 #include "rule_manager.h"
+#include "new_ip_protocols.h"
 
 #define PROC_FILE_NAME "interceptor_list"
 
@@ -112,6 +113,12 @@ static void fill_buffer_with_filter(filter* f) {
 	switch (sp->protocol) {
 	case IPPROTO_UDP:
 		append_to_buffer("UDP\t\t", 5);
+		break;
+	case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
+		append_to_buffer("APPAGG\t", 7);
+		break;
+	case AGREGATED_IP_ENCAP_IP_PROTO:
+		append_to_buffer("NETAGG\t", 7);
 		break;
 	default:
 		append_to_buffer("--\t\t", 4);

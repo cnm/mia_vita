@@ -13,12 +13,7 @@
 #include "miavita_packet.h"
 #include "utils.h"
 #include "byte_buffer.h"
-
-/*
- * Define new protocol numbers, which are currently unassigned.
- */
-#define AGREGATED_APPLICATION_ENCAP_UDP_PROTO 143
-#define AGREGATED_IP_ENCAP_IP_PROTO 144
+#include "new_ip_protocols.h"
 
 static unsigned short aggregate_app_packets = 0;
 module_param(aggregate_app_packets, ushort, 0000);
@@ -60,7 +55,7 @@ static void flush_buffer_app(struct sk_buff* skb, aggregate_buffer* b,
   uint16_t len;
   
   iph = ip_hdr(skb);
-  len = ntohs(iph->tot_len);
+  len = ntohs(iph->tot_len) - (iph->ihl << 2);
 
   //Remove iphdr
   skb_pull(skb, (iph->ihl << 2));

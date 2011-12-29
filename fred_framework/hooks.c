@@ -27,12 +27,16 @@
 #include "hooks.h"
 #include "chains.h"
 #include "filter.h"
+#include "new_ip_protocols.h"
 
 /*Each matching function returns 0 if match fails and 1 otherwise.*/
 
 static uint8_t match_src_addr(filter* f, struct sk_buff* skb) {
   filter_specs *sp = f->filter_specs;
   struct iphdr* ip_header = ip_hdr(skb);
+
+  if(ip_header->protocol == AGREGATED_APPLICATION_ENCAP_UDP_PROTO)
+    printk("IP source addr is %d and sp is %d\n", ip_header->daddr, sp->dst_addr);
 
   if ((sp->filter_by & FILTER_BY_SRC_ADDR) && (sp->src_addr
 					       != ip_header->saddr))
@@ -44,47 +48,54 @@ static uint8_t match_dst_addr(filter* f, struct sk_buff* skb) {
   filter_specs* sp = f->filter_specs;
   struct iphdr* ip_header = ip_hdr(skb);
 
+  if(ip_header->protocol == AGREGATED_APPLICATION_ENCAP_UDP_PROTO)
+    printk("IP dest addr is %d and sp is %d\n", ip_header->daddr, sp->dst_addr);
+
   if ((sp->filter_by & FILTER_BY_DST_ADDR) && (sp->dst_addr
 					       != ip_header->daddr))
     return 0;
   return 1;
 }
 
-static uint8_t match_proto_and_ports(filter* f, struct sk_buff* skb) {
+static uint8_t match_ports(filter* f, struct sk_buff* skb) {
   filter_specs* sp = f->filter_specs;
   struct iphdr* ip_header = ip_hdr(skb);
   struct udphdr* udp_header;
 
-  if (sp->filter_by & FILTER_BY_L4_PROTO) {
-    if (ip_header->protocol != sp->protocol)
+  if(ip_header->protocol == AGREGATED_IP_ENCAP_IP_PROTO)
+    ip_header = (struct iphdr*) (((char*)ip_header) + (ip_header->ihl << 2));
+
+  switch (ip_header->protocol) {
+  case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
+    printk("Trying to match an application aggregated packet.\n");
+  case IPPROTO_UDP:
+    udp_header = (struct udphdr*) (((char*) ip_header)
+				   + (ip_header->ihl << 2));
+    if ((sp->filter_by & FILTER_BY_DST_PORT) && (sp->dst_port
+						 != udp_header->dest))
       return 0;
-    else {
-      switch (sp->protocol) {
-      case IPPROTO_UDP:
-	udp_header = (struct udphdr*) (((char*) ip_header)
-				       + (ip_header->ihl << 2));
-	if ((sp->filter_by & FILTER_BY_DST_PORT) && (sp->dst_port
-						     != udp_header->dest))
-	  return 0;
-	if ((sp->filter_by & FILTER_BY_SRC_PORT) && (sp->src_port
-						     != udp_header->source))
-	  return 0;
-	break;
-      }
-    }
+    if ((sp->filter_by & FILTER_BY_SRC_PORT) && (sp->src_port
+						 != udp_header->source))
+      return 0;
+    break;
+  default:
+    return 0; //Other protocols won't be handled by the interceptors.
   }
+
   return 1;
 }
 
 static uint8_t match_filter(filter* f, struct sk_buff* skb) {
+  
   if (!match_src_addr(f, skb))
     return 0;
 
   if (!match_dst_addr(f, skb))
     return 0;
 
-  if (!match_proto_and_ports(f, skb))
+  if (!match_ports(f, skb))
     return 0;
+  printk("Matched ports.\n");
   return 1;
 }
 

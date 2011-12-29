@@ -13,12 +13,7 @@
 #include "miavita_packet.h"
 #include "utils.h"
 #include "injection_thread.h"
-
-/*
- * Define new protocol numbers, which are currently unassigned.
- */
-#define AGREGATED_APPLICATION_ENCAP_UDP_PROTO 143
-#define AGREGATED_IP_ENCAP_IP_PROTO 144
+#include "new_ip_protocols.h"
 
 #define INTERCEPTOR_NAME "deaggregation"
 #define MAX_SCATTERS 27
