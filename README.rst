@@ -14,10 +14,10 @@ This is the file structure::
     interruption        - Module to treat the two interruptions
     kernel_sender       - Fred module which sends packets
     old_stuff           - Just for historical purposes. Should be deleted soon.
-    rt2501              - 
+    rt2501              - Module changed to do the synchronization
     rt3070              - 
-    syscall             -
-    timestamp-module    -
+    syscall             - Simple syscall to access the time set by the GPS
+    timestamp-module    - ?
     ts7500ctl           -
     ts7500_kernel       - Modified kernel for working in the TS7500
 
