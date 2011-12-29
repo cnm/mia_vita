@@ -8,6 +8,9 @@ KERNEL_PATH=/lib/modules/$(shell uname -r)/build
 all:	
 	make -C $(KERNEL_PATH) M=$(PWD) modules
 
+error_msg: error_msg.c
+	gcc -o emsg error_msg.c
+
 clean:
 	make -C $(KERNEL_PATH) M=$(PWD) clean
-	rm -f *~
+	rm -f *~ emsg
