@@ -1,5 +1,6 @@
 Files Structure
 ===============
+This is the file structure::
 
    .
    ├── README
