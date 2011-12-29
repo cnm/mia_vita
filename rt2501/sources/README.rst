@@ -1,3 +1,11 @@
+Download the driver
+===================
+Url: ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/
+
+File: wifi-g-usb-2_rt2501usb-sources.tar.gz
+
+File Structure
+==============
 
 .
 ├── Module
