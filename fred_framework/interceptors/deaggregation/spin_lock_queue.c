@@ -24,7 +24,7 @@ sl_queue_t* make_spin_lock_queue(void) {
     return NULL;
   }
   memset(q, 0, sizeof(sl_queue_t));
-  q->queue_lock = SPIN_LOCK_UNLOCKED;
+  spin_lock_init(&(q->queue_lock));
   return q;
 }
 

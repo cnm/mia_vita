@@ -13,12 +13,7 @@
 #include "miavita_packet.h"
 #include "utils.h"
 #include "byte_buffer.h"
-
-/*
- * Define new protocol numbers, which are currently unassigned.
- */
-#define AGREGATED_APPLICATION_ENCAP_UDP_PROTO 143
-#define AGREGATED_IP_ENCAP_IP_PROTO 144
+#include "new_ip_protocols.h"
 
 static unsigned short aggregate_app_packets = 0;
 module_param(aggregate_app_packets, ushort, 0000);
@@ -60,7 +55,7 @@ static void flush_buffer_app(struct sk_buff* skb, aggregate_buffer* b,
   uint16_t len;
   
   iph = ip_hdr(skb);
-  len = ntohs(iph->tot_len);
+  len = ntohs(iph->tot_len) - (iph->ihl << 2);
 
   //Remove iphdr
   skb_pull(skb, (iph->ihl << 2));
@@ -103,6 +98,8 @@ static void flush_buffer_app(struct sk_buff* skb, aggregate_buffer* b,
   iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
   skb_set_network_header(skb, 0);
   skb_set_transport_header(skb, sizeof(struct iphdr));
+
+  debug("Flushing application buffer\n");
 
   reset_buffer(b);
   return;
@@ -159,6 +156,8 @@ static void flush_buffer_ip(struct sk_buff* skb, aggregate_buffer* b,
   iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
   skb_set_network_header(skb, 0);
   skb_set_transport_header(skb, sizeof(struct iphdr));
+
+  debug("Flushing ip buffer\n");
 
   reset_buffer(b);
   return;
@@ -249,6 +248,8 @@ static unsigned int __push_ip_packet(aggregate_buffer* b, struct sk_buff* skb,
     flush_buffer_ip(skb, b, out);
     return NF_ACCEPT;
   }
+
+  debug("Pushing %d bytes\n", tot_len);
 
   if (push_bytes(b, (char*) iph, tot_len)) {
     panic(
