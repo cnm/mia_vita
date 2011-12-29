@@ -1,6 +1,25 @@
 README
 ------
-Put here the stuff to work with the RT7550
+
+File Structure
+==============
+
+    .
+    clean               - Directory for cleaning up the TS-7500 debian partition
+    crosstool           - Crosstools binaries to compile for ARM
+    documentation       - Documentation
+    fred_framework      - 
+    interruption        - Module to treat the two interruptions
+    kernel_sender       - Fred module which sends packets
+    old_stuff           - Just for historical purposes. Should be deleted soon.
+    rt2501              - 
+    rt3070              - 
+    syscall             -
+    timestamp-module    -
+    ts7500ctl           -
+    ts7500_kernel       - Modified kernel for working in the TS7500
+
+
 
 How to pull the git sub modules
 ===============================
