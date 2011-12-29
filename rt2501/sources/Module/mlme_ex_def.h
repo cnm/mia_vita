@@ -7,21 +7,21 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
 
 	Module Name:
@@ -33,7 +33,7 @@
 	Who			When			What
 	--------	----------		----------------------------------------------
 	Fonchi		2007-06-25		Extend original mlme APIs to support multi-entries
-	
+
 */
 #ifndef __MLME_EX_DEF_H__
 #define __MLME_EX_DEF_H__
@@ -43,11 +43,11 @@ typedef VOID (*STATE_MACHINE_FUNC_EX)(VOID *Adaptor, MLME_QUEUE_ELEM *Elem, PULO
 
 typedef struct _STA_STATE_MACHINE_EX
 {
-	ULONG					Base;
-	ULONG					NrState;
-	ULONG					NrMsg;
-	ULONG					CurrState;
-	STATE_MACHINE_FUNC_EX	*TransFunc;
+    ULONG					Base;
+    ULONG					NrState;
+    ULONG					NrMsg;
+    ULONG					CurrState;
+    STATE_MACHINE_FUNC_EX	*TransFunc;
 } STATE_MACHINE_EX, *PSTA_STATE_MACHINE_EX;
 
 #endif // __MLME_EX_DEF_H__

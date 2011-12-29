@@ -7,21 +7,21 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
 
 	Module Name:
@@ -59,7 +59,7 @@
 #define TYPE_RXD					1
 #endif
 
-//WEP 
+//WEP
 #define WEP_SMALL_KEY_LEN	(40/8)
 #define WEP_LARGE_KEY_LEN	(104/8)
 
@@ -240,10 +240,10 @@
 #define MAX_LEN_OF_KEY                    32      // 32 octets == 256 bits, Redefine for WPA
 
 #define MAX_NUM_OF_CHANNELS               43    //1-14, 36/40/44/48/52/56/60/64/100/104/108/112/116/120/124/ 
-                                                //128/132/136/140/149/153/157/161/165/34/38/42/46 + 1 as NULL termination
+//128/132/136/140/149/153/157/161/165/34/38/42/46 + 1 as NULL termination
 #define MAX_NUM_OF_A_CHANNELS             24    //36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 149, 153, 157, 161, 165
 #define J52_CHANNEL_START_OFFSET          38    //1-14, 36/40/44/48/52/56/60/64/100/104/108/112/116/120/124/
-                                                //128/132/136/140/149/153/157/161/165/
+//128/132/136/140/149/153/157/161/165/
 #define MAX_LEN_OF_SSID                   32
 #define CIPHER_TEXT_LEN                   128
 #define MAX_LEN_OF_MLME_BUFFER            2048
@@ -305,7 +305,7 @@
 #define MLME_SUCCESS                      0
 #define MLME_UNSPECIFY_FAIL               1
 #define MLME_CANNOT_SUPPORT_CAP           10
-#define MLME_REASSOC_DENY_ASSOC_EXIST     11 
+#define MLME_REASSOC_DENY_ASSOC_EXIST     11
 #define MLME_ASSOC_DENY_OUT_SCOPE         12
 #define MLME_ALG_NOT_SUPPORT              13
 #define MLME_SEQ_NR_OUT_OF_SEQUENCE       14
@@ -423,7 +423,7 @@
 #define ASSOC_MACHINE_BASE              0
 #define MT2_MLME_ASSOC_REQ              0
 #define MT2_MLME_REASSOC_REQ            1
-#define MT2_MLME_DISASSOC_REQ           2  
+#define MT2_MLME_DISASSOC_REQ           2
 #define MT2_PEER_DISASSOC_REQ           3
 #define MT2_PEER_ASSOC_REQ              4
 #define MT2_PEER_ASSOC_RSP              5
@@ -492,7 +492,7 @@
 
 //
 // STA's WPA-PSK State machine: states, events, total function #
-// 
+//
 #define WPA_PSK_IDLE					0
 #define MAX_WPA_PSK_STATE				1
 
@@ -652,7 +652,7 @@
 #define CIPHER_CKIP64			5
 #define CIPHER_CKIP128			6
 #define CIPHER_TKIP_NO_MIC		7	 // MIC has been appended by driver, not a valid value in hardware key table 
-									
+
 
 // value domain for pAd->RfIcType
 #define RFIC_5226				1  //A/B/G

@@ -7,23 +7,23 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
- 
+
     Module Name:
     rtmp_type.h
 
@@ -134,61 +134,68 @@ typedef unsigned __int64    UINT64;
 
 
 // Ralink timer control block
-typedef struct  _RALINK_TIMER_STRUCT    {
-	BOOLEAN				Valid;			// Set to True when call RTMPInitTimer
+typedef struct  _RALINK_TIMER_STRUCT
+{
+    BOOLEAN				Valid;			// Set to True when call RTMPInitTimer
     struct timer_list	TimerObj;       // Ndis Timer object
     ULONG               TimerValue;     // Timer value in milliseconds
     BOOLEAN             State;          // True if timer cancelled
     BOOLEAN             Repeat;         // True if periodic timer
-	ULONG				cookie;			// os specific object
+    ULONG				cookie;			// os specific object
 }   RALINK_TIMER_STRUCT, *PRALINK_TIMER_STRUCT;
 
-typedef struct	PACKED _RSN_IE_HEADER_STRUCT	{
-	UCHAR		Eid;
-	UCHAR		Length;
-	USHORT		Version;	// Little endian format
+typedef struct	PACKED _RSN_IE_HEADER_STRUCT
+{
+    UCHAR		Eid;
+    UCHAR		Length;
+    USHORT		Version;	// Little endian format
 }	RSN_IE_HEADER_STRUCT, *PRSN_IE_HEADER_STRUCT;
 
 // Cipher suite selector types
-typedef struct PACKED _CIPHER_SUITE_STRUCT	{
-	UCHAR		Oui[3];
-	UCHAR		Type;
+typedef struct PACKED _CIPHER_SUITE_STRUCT
+{
+    UCHAR		Oui[3];
+    UCHAR		Type;
 }	CIPHER_SUITE_STRUCT, *PCIPHER_SUITE_STRUCT;
 
 // Authentication and Key Management suite selector
-typedef struct PACKED _AKM_SUITE_STRUCT	{
-	UCHAR		Oui[3];
-	UCHAR		Type;
+typedef struct PACKED _AKM_SUITE_STRUCT
+{
+    UCHAR		Oui[3];
+    UCHAR		Type;
 }	AKM_SUITE_STRUCT, *PAKM_SUITE_STRUCT;
 
 #ifdef BIG_ENDIAN
-typedef struct	_RSN_CAPABILITY	{
-	USHORT		PreAuth:1;
-	USHORT		NoPairwise:1;
-	USHORT		PTKSAReplayCnt:2;
-	USHORT		GTKSAReplayCnt:2;
-	USHORT		Rsv:10;
+typedef struct	_RSN_CAPABILITY
+{
+    USHORT		PreAuth:1;
+    USHORT		NoPairwise:1;
+    USHORT		PTKSAReplayCnt:2;
+    USHORT		GTKSAReplayCnt:2;
+    USHORT		Rsv:10;
 }	RSN_CAPABILITY, *PRSN_CAPABILITY;
 #else
 // RSN capability
-typedef struct	_RSN_CAPABILITY	{
-	USHORT		Rsv:10;
-	USHORT		GTKSAReplayCnt:2;
-	USHORT		PTKSAReplayCnt:2;
-	USHORT		NoPairwise:1;
-	USHORT		PreAuth:1;
+typedef struct	_RSN_CAPABILITY
+{
+    USHORT		Rsv:10;
+    USHORT		GTKSAReplayCnt:2;
+    USHORT		PTKSAReplayCnt:2;
+    USHORT		NoPairwise:1;
+    USHORT		PreAuth:1;
 }	RSN_CAPABILITY, *PRSN_CAPABILITY;
 #endif /* !BIG_ENDIAN */
 
-typedef struct _CIPHER_KEY {
-	UCHAR	BssId[6];
-	UCHAR	CipherAlg;			// 0-none, 1:WEP64, 2:WEP128, 3:TKIP, 4:AES, 5:CKIP64, 6:CKIP128
-	UCHAR	KeyLen; 			// Key length for each key, 0: entry is invalid
-	UCHAR	Key[16];			// right now we implement 4 keys, 128 bits max
-	UCHAR	RxMic[8];
-	UCHAR	TxMic[8];
-	UCHAR	TxTsc[6];			// 48bit TSC value
-	UCHAR	RxTsc[6];			// 48bit TSC value
-	UCHAR	Type;				// Indicate Pairwise/Group when reporting MIC error
+typedef struct _CIPHER_KEY
+{
+    UCHAR	BssId[6];
+    UCHAR	CipherAlg;			// 0-none, 1:WEP64, 2:WEP128, 3:TKIP, 4:AES, 5:CKIP64, 6:CKIP128
+    UCHAR	KeyLen; 			// Key length for each key, 0: entry is invalid
+    UCHAR	Key[16];			// right now we implement 4 keys, 128 bits max
+    UCHAR	RxMic[8];
+    UCHAR	TxMic[8];
+    UCHAR	TxTsc[6];			// 48bit TSC value
+    UCHAR	RxTsc[6];			// 48bit TSC value
+    UCHAR	Type;				// Indicate Pairwise/Group when reporting MIC error
 }	CIPHER_KEY, *PCIPHER_KEY;
 #endif	// __RTMP_TYPE_H__

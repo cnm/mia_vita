@@ -10,13 +10,14 @@
 #include <linux/kernel.h>
 #include <linux/ip.h>
 
-typedef struct{
-  uint8_t proto;
-  uint32_t dst_addr;
-  uint32_t src_addr;
-  uint16_t dst_port;
-  uint16_t src_port;
-}filter;
+typedef struct
+{
+    uint8_t proto;
+    uint32_t dst_addr;
+    uint32_t src_addr;
+    uint16_t dst_port;
+    uint16_t src_port;
+} filter;
 
 #define MAX_FILTERS 256
 
