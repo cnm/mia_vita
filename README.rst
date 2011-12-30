@@ -15,10 +15,10 @@ This is the file structure::
     kernel_sender       - Fred module which sends packets
     old_stuff           - Just for historical purposes. Should be deleted soon.
     rt2501              - Module changed to do the synchronization
-    rt3070              - 
+    rt3070              - Module rt3070 for the wireless devices. It has not be changed.
     syscall             - Simple syscall to access the time set by the GPS
-    timestamp-module    - ?
-    ts7500ctl           -
+    timestamp-module    - 
+    ts7500ctl           - Binary of the ts7500ctl not changed. Just usefull to test big banging.
     ts7500_kernel       - Modified kernel for working in the TS7500
 
 
