@@ -13,6 +13,7 @@
 #include <linux/in.h>
 #include <linux/net.h>
 #include <linux/sched.h>
+#include <linux/inet.h>
 
 #include "new_ip_protocols.h"
 #include "utils.h"
