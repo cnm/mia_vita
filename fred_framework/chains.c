@@ -45,7 +45,10 @@ static void __unregister_filter(int chain, filter* f) {
 	free_klist_iterator(it);
 }
 
-/*Unregister the filter pointed by 'f'*/
+/*
+ * Unregister the filter pointed by 'f'
+ *
+ * */
 void unregister_filter(filter* f) {
 	switch (f->filter_at) {
 	case FILTER_AT_LOCAL_IN:

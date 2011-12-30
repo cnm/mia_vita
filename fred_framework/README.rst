@@ -1,56 +1,33 @@
 README
 ======
 
-File structure:
+File structure::
 
-.
-├── chains.c
-├── chains.h
-├── compile.sh
-├── error_msg.c
-├── filter.c
-├── filter.h
-├── hooks.c
-├── hooks.h
-├── interceptor.h
-├── interceptor_manager.c
-├── interceptor_manager.h
-├── interceptors
-│   ├── aggregation
-│   │   ├── aggregation.c
-│   │   ├── byte_buffer.c
-│   │   ├── byte_buffer.h
-│   │   └── Makefile
-│   ├── deaggregation
-│   │   ├── deaggregation.c
-│   │   ├── injection_thread.c
-│   │   ├── injection_thread.h
-│   │   ├── Makefile
-│   │   ├── spin_lock_queue.c
-│   │   └── spin_lock_queue.h
-│   ├── miavita_packet.h -> ../../kernel_sender/miavita_packet.h
-│   └── utils.h
-├── interceptor_shell
-│   ├── cmd_line_parser.c
-│   ├── cmd_line_parser.h
-│   ├── macros.h
-│   ├── Makefile
-│   ├── mkrule.c
-│   ├── operations.c
-│   ├── operations.h
-│   └── rmrule.c
-├── klist.c
-├── klist.h
-├── main.c
-├── Makefile
-├── proc_entry.c
-├── proc_entry.h
-├── proc_registry.c
-├── proc_registry.h
-├── rule.c
-├── rule.h
-├── rule_manager.c
-├── rule_manager.h
-└── uncompress_kernel_image.bash
-
-
+    .
+    ├── chains.c                        - Chains are an equivalent to the chain in iptables
+    ├── chains.h
+    ├── compile.sh                      - Script to compile things
+    ├── error_msg.c
+    ├── filter.c                        - Filters are the lowest class. THey are the one which see if a packet matches
+    ├── filter.h
+    ├── hooks.c                         - The hooks are the "windows" for filters to match a packet (by source, destination, ports)
+    ├── hooks.h
+    ├── interceptor.h
+    ├── interceptor_manager.c
+    ├── interceptor_manager.h
+    ├── interceptors
+    │   ├── aggregation                 - Chain responsible to do the aggregation
+    │   └── deaggregation
+    ├── interceptor_shell
+    ├── klist.c                         - List structures to be used in the kernel
+    ├── klist.h
+    ├── main.c                          - Main for the interceptor framework kernel module
+    ├── proc_entry.c                    - Creates a proc device for communication
+    ├── proc_entry.h
+    ├── proc_registry.c                 - 
+    ├── proc_registry.h
+    ├── rule.c                          - Rules contain chains
+    ├── rule.h
+    ├── rule_manager.c                  - 
+    ├── rule_manager.h
+    └── uncompress_kernel_image.bash

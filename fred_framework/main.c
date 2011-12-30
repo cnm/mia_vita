@@ -31,6 +31,24 @@
 #include "proc_entry.h"
 #include "proc_registry.h"
 
+/*
+ * Function which registers the interceptor framework kernel module
+ *
+ * It:
+ *   1.     Creates a proc entry for listing the installed interceptors and their rules
+ *      1.1    Creates the buffer to be used in proc
+ *      1.2    Creates /proc/interceptor_list
+ *   2.     Creates a proc to allow for rules to be inserted and removed
+ *      2.1    Created the /proc/interceptor_registry
+ *   3.     Starts the chains
+ *      3.1    Initializes 5 changes (Pre, LocalIn, Fwd, LocalOut, Post
+ *      3.2    Each chain has a klist which are the filters
+ *   4.     Starts hooks
+ *   5.     Starts interceptor manager
+ *      5.1    Start a klist for receiving the interceptors (like aggregation or desaggregation)
+ *   6.     Starts rule manager
+ *      6.1    Start a klist for receiving the rules (many rules can be for one interceptor)
+ * */
 int init_module() {
 	//Register interceptors and rules
 	create_interceptor_proc_entry();
@@ -52,6 +70,9 @@ int init_module() {
 	return 0;
 }
 
+/*
+ * Function which unloads the module
+ * */
 void cleanup_module() {
 	stop_interceptor_manager();
 	stop_rule_manager();

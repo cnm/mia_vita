@@ -244,6 +244,9 @@ static int procfile_read(char *buffer, char **buffer_location, off_t offset,
 	return how_many_can_we_cpy;
 }
 
+/*
+ * Create /proc/interceptor_list
+ */
 static void create_proc_file(void) {
 	proc_file_entry = create_proc_entry(PROC_FILE_NAME, 0644, NULL);
 
