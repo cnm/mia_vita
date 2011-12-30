@@ -17,8 +17,8 @@ This is the file structure::
     rt2501              - Module changed to do the synchronization
     rt3070              - 
     syscall             - Simple syscall to access the time set by the GPS
-    timestamp-module    - ?
-    ts7500ctl           -
+    timestamp-module    - 
+    ts7500ctl           - Binary of the ts7500ctl not changed. Just usefull to test big banging.
     ts7500_kernel       - Modified kernel for working in the TS7500
 
 
