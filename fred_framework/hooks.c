@@ -264,6 +264,10 @@ static unsigned int nf_ip_post_routing_hook(unsigned int hooknum,
   return NF_ACCEPT;
 }
 
+/*
+ * Initialize the hooks for the netfilters
+ *
+ */
 void init_hooks(void) {
   nf_ip_local_out.hook = nf_ip_local_out_hook;
   nf_ip_local_out.pf = PF_INET;

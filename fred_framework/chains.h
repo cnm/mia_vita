@@ -24,7 +24,7 @@ typedef struct {
 #define POST_ROUTING_CHAIN 4
 
 //Change this and kernel will die...
-#define CHAINS_SIZE 5
+#define CHAINS_SIZE 5              // And the five are PRE, LocalIn, FWD, LocalOut, POST
 
 extern void init_chains(void);
 extern int register_filter(filter* f);

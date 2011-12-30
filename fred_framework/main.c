@@ -41,9 +41,13 @@
  *   2.     Creates a proc to allow for rules to be inserted and removed
  *      2.1    Created the /proc/interceptor_registry
  *   3.     Starts the chains
+ *      3.1    Initializes 5 changes (Pre, LocalIn, Fwd, LocalOut, Post
+ *      3.2    Each chain has a klist which are the filters
  *   4.     Starts hooks
  *   5.     Starts interceptor manager
+ *      5.1    Start a klist for receiving the interceptors (like aggregation or desaggregation)
  *   6.     Starts rule manager
+ *      6.1    Start a klist for receiving the rules (many rules can be for one interceptor)
  * */
 int init_module() {
 	//Register interceptors and rules
