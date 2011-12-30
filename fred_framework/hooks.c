@@ -35,9 +35,6 @@ static uint8_t match_src_addr(filter* f, struct sk_buff* skb) {
   filter_specs *sp = f->filter_specs;
   struct iphdr* ip_header = ip_hdr(skb);
 
-  if(ip_header->protocol == AGREGATED_APPLICATION_ENCAP_UDP_PROTO)
-    printk("IP source addr is %d and sp is %d\n", ip_header->daddr, sp->dst_addr);
-
   if ((sp->filter_by & FILTER_BY_SRC_ADDR) && (sp->src_addr
 					       != ip_header->saddr))
     return 0;
@@ -47,9 +44,6 @@ static uint8_t match_src_addr(filter* f, struct sk_buff* skb) {
 static uint8_t match_dst_addr(filter* f, struct sk_buff* skb) {
   filter_specs* sp = f->filter_specs;
   struct iphdr* ip_header = ip_hdr(skb);
-
-  if(ip_header->protocol == AGREGATED_APPLICATION_ENCAP_UDP_PROTO)
-    printk("IP dest addr is %d and sp is %d\n", ip_header->daddr, sp->dst_addr);
 
   if ((sp->filter_by & FILTER_BY_DST_ADDR) && (sp->dst_addr
 					       != ip_header->daddr))
@@ -67,7 +61,6 @@ static uint8_t match_ports(filter* f, struct sk_buff* skb) {
 
   switch (ip_header->protocol) {
   case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
-    printk("Trying to match an application aggregated packet.\n");
   case IPPROTO_UDP:
     udp_header = (struct udphdr*) (((char*) ip_header)
 				   + (ip_header->ihl << 2));
@@ -95,7 +88,7 @@ static uint8_t match_filter(filter* f, struct sk_buff* skb) {
 
   if (!match_ports(f, skb))
     return 0;
-  printk("Matched ports.\n");
+
   return 1;
 }
 
