@@ -7,21 +7,21 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
 
 	Module Name:
@@ -54,7 +54,7 @@
 #define WPA1_KEY_DESC		        0xFE
 #define WPA2_KEY_DESC		        0x2
 
-#define LEN_MASTER_KEY              32  
+#define LEN_MASTER_KEY              32
 
 // EAPOL EK, MK
 #define LEN_EAP_EK                  16
@@ -90,41 +90,44 @@
 
 /* RFC 3748 - Extensible Authentication Protocol (EAP) */
 
-struct eap_hdr {
-	u8 code;
-	u8 identifier;
-	u16 length; /* including code and identifier; network byte order */
-	/* followed by length-4 octets of data */
+struct eap_hdr
+{
+    u8 code;
+    u8 identifier;
+    u16 length; /* including code and identifier; network byte order */
+    /* followed by length-4 octets of data */
 } __attribute__ ((packed));
 
 enum { EAP_CODE_REQUEST = 1, EAP_CODE_RESPONSE = 2, EAP_CODE_SUCCESS = 3,
-       EAP_CODE_FAILURE = 4 };
+       EAP_CODE_FAILURE = 4
+     };
 
 #define	LENGTH_EAP_H				4
 
 /* EAP Request and Response data begins with one octet Type. Success and
  * Failure do not have additional data. */
 
-typedef enum {
-	EAP_TYPE_NONE = 0,
-	EAP_TYPE_IDENTITY = 1 /* RFC 3748 */,
-	EAP_TYPE_NOTIFICATION = 2 /* RFC 3748 */,
-	EAP_TYPE_NAK = 3 /* Response only, RFC 3748 */,
-	EAP_TYPE_MD5 = 4, /* RFC 3748 */
-	EAP_TYPE_OTP = 5 /* RFC 3748 */,
-	EAP_TYPE_GTC = 6, /* RFC 3748 */
-	EAP_TYPE_TLS = 13 /* RFC 2716 */,
-	EAP_TYPE_LEAP = 17 /* Cisco proprietary */,
-	EAP_TYPE_SIM = 18 /* draft-haverinen-pppext-eap-sim-12.txt */,
-	EAP_TYPE_TTLS = 21 /* draft-ietf-pppext-eap-ttls-02.txt */,
-	EAP_TYPE_AKA = 23 /* draft-arkko-pppext-eap-aka-12.txt */,
-	EAP_TYPE_PEAP = 25 /* draft-josefsson-pppext-eap-tls-eap-06.txt */,
-	EAP_TYPE_MSCHAPV2 = 26 /* draft-kamath-pppext-eap-mschapv2-00.txt */,
-	EAP_TYPE_TLV = 33 /* draft-josefsson-pppext-eap-tls-eap-07.txt */,
-	EAP_TYPE_FAST = 43 /* draft-cam-winget-eap-fast-00.txt */,
-	EAP_TYPE_PAX = 46, /* draft-clancy-eap-pax-04.txt */
-	EAP_TYPE_EXPANDED_NAK = 254 /* RFC 3748 */,
-	EAP_TYPE_PSK = 255 /* EXPERIMENTAL - type not yet allocated
+typedef enum
+{
+    EAP_TYPE_NONE = 0,
+    EAP_TYPE_IDENTITY = 1 /* RFC 3748 */,
+    EAP_TYPE_NOTIFICATION = 2 /* RFC 3748 */,
+    EAP_TYPE_NAK = 3 /* Response only, RFC 3748 */,
+    EAP_TYPE_MD5 = 4, /* RFC 3748 */
+    EAP_TYPE_OTP = 5 /* RFC 3748 */,
+    EAP_TYPE_GTC = 6, /* RFC 3748 */
+    EAP_TYPE_TLS = 13 /* RFC 2716 */,
+    EAP_TYPE_LEAP = 17 /* Cisco proprietary */,
+    EAP_TYPE_SIM = 18 /* draft-haverinen-pppext-eap-sim-12.txt */,
+    EAP_TYPE_TTLS = 21 /* draft-ietf-pppext-eap-ttls-02.txt */,
+    EAP_TYPE_AKA = 23 /* draft-arkko-pppext-eap-aka-12.txt */,
+    EAP_TYPE_PEAP = 25 /* draft-josefsson-pppext-eap-tls-eap-06.txt */,
+    EAP_TYPE_MSCHAPV2 = 26 /* draft-kamath-pppext-eap-mschapv2-00.txt */,
+    EAP_TYPE_TLV = 33 /* draft-josefsson-pppext-eap-tls-eap-07.txt */,
+    EAP_TYPE_FAST = 43 /* draft-cam-winget-eap-fast-00.txt */,
+    EAP_TYPE_PAX = 46, /* draft-clancy-eap-pax-04.txt */
+    EAP_TYPE_EXPANDED_NAK = 254 /* RFC 3748 */,
+    EAP_TYPE_PSK = 255 /* EXPERIMENTAL - type not yet allocated
 			    * draft-bersani-eap-psk-09 */
 } EapType;
 //#endif
@@ -171,7 +174,7 @@ typedef struct PACKED _KEY_DESCRIPTER
     UCHAR       KeyRsc[LEN_KEY_DESC_RSC];
     UCHAR       KeyId[LEN_KEY_DESC_ID];
     UCHAR       KeyMic[LEN_KEY_DESC_MIC];
-    UCHAR       KeyDataLen[2];     
+    UCHAR       KeyDataLen[2];
     UCHAR       KeyData[MAX_LEN_OF_RSNIE];
 }   KEY_DESCRIPTER, *PKEY_DESCRIPTER;
 

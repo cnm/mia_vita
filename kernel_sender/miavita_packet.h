@@ -15,19 +15,37 @@
 #ifndef __MIAVITA_PACKET_H__
 #define __MIAVITA_PACKET_H__
 
-typedef struct __attribute__ ((__packed__)){
+typedef struct __attribute__ ((__packed__)){ // specifies that the minimum required memory be used to represent the type.
 
 #ifdef __GPS__
-  int64_t gps_us;
+  int64_t gps_us;                            // where to store the GPS time
 #endif
 
-  int64_t timestamp;
-  int64_t air;
-  uint32_t seq;
-  uint8_t fails;
-  uint8_t retries;
-  uint8_t samples[12];
-  uint8_t id;
-}packet_t;
+  int64_t timestamp;                         // Signed Transmission time the packet was created (1) or the time since packet was created (2)
+  int64_t air;                               // Estimated time the packet was "on the air"
+  uint32_t seq;                              // Sequence number
+  uint8_t fails;                             // Fails since last packet was received
+  uint8_t retries;                           // Retries ...
+  uint8_t samples[12];                       // Samples for the four channels
+  uint8_t id;                                // ID of the originator node
+} packet_t;
 
+/*
+ *  +---------+                                             +---------+                         +---------+
+ *  |   App   |  (1)        (Kernel Module)                 |   App   |                     (1) |   App   |
+ *  |---------|   |                                         |---------|                      ↑  |---------|
+ *  |  Trans  |   |         (UDP)                           |  Trans  |                      |  |  Trans  |
+ *  |---------|   |                                         |---------|                      |  |---------|
+ *  |  Inter  |   |         (IP)                            |  Inter  |                      |  |  Inter  |
+ *  |---------|   |                                         |---------|                      |  |---------|
+ *  |         |   ↓                                       ↔ |         | ↔                    |  |         |
+ *  |  Link   |  (1->2)     (MAC - Kernel Module)    (2->1) |  Link   | (1->2)           (2->1) |  Link   |
+ *  |         |   --------------------------------------->  |         | --------------------->  |         |
+ *  +---------+                                             +---------+                         +---------+
+ *
+ *
+ * 1    )  Happens at the interruption at proc_entry.c  (function: read_four_channels in interruption/fpga.c)
+ * 1-2  )  Happens in the rt2501 module                 (function: synch_out_data_packet in rt2501/sources/Module/sync_proto.c)
+ * 2-1  )  Happens at the rt2501 module                 (function: synch_in_data_packet  in rt2501/sources/Module/sync_proto.c)
+ */
 #endif

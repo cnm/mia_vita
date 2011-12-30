@@ -7,23 +7,23 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
-	
+
     Module Name:
     md5.c
 
@@ -53,13 +53,13 @@
  */
 void md5_mac(u8 *key, size_t key_len, u8 *data, size_t data_len, u8 *mac)
 {
-	MD5_CTX	context;
+    MD5_CTX	context;
 
-	MD5Init(&context);
-	MD5Update(&context,	key, key_len);
-	MD5Update(&context,	data, data_len);
-	MD5Update(&context,	key, key_len);
-	MD5Final(mac, &context);
+    MD5Init(&context);
+    MD5Update(&context,	key, key_len);
+    MD5Update(&context,	data, data_len);
+    MD5Update(&context,	key, key_len);
+    MD5Final(mac, &context);
 }
 
 /**
@@ -76,59 +76,61 @@ void md5_mac(u8 *key, size_t key_len, u8 *data, size_t data_len, u8 *mac)
  */
 void hmac_md5(u8 *key, size_t key_len, u8 *data, size_t data_len, u8 *mac)
 {
-	MD5_CTX	context;
+    MD5_CTX	context;
     u8 k_ipad[65]; /* inner padding - key XORd with ipad */
     u8 k_opad[65]; /* outer padding - key XORd with opad */
     u8 tk[16];
-	int	i;
+    int	i;
 
-	//assert(key != NULL && data != NULL && mac != NULL);
+    //assert(key != NULL && data != NULL && mac != NULL);
 
-	/* if key is longer	than 64	bytes reset	it to key =	MD5(key) */
-	if (key_len	> 64) {
-		MD5_CTX	ttcontext;
+    /* if key is longer	than 64	bytes reset	it to key =	MD5(key) */
+    if (key_len	> 64)
+    {
+        MD5_CTX	ttcontext;
 
-		MD5Init(&ttcontext);
-		MD5Update(&ttcontext, key, key_len);
-		MD5Final(tk, &ttcontext);
-		//key=(PUCHAR)ttcontext.buf;
-		key	= tk;
-		key_len	= 16;
-	}
+        MD5Init(&ttcontext);
+        MD5Update(&ttcontext, key, key_len);
+        MD5Final(tk, &ttcontext);
+        //key=(PUCHAR)ttcontext.buf;
+        key	= tk;
+        key_len	= 16;
+    }
 
-	/* the HMAC_MD5	transform looks	like:
-	 *
-	 * MD5(K XOR opad, MD5(K XOR ipad, text))
-	 *
-	 * where K is an n byte	key
-	 * ipad	is the byte	0x36 repeated 64 times
-	 * opad	is the byte	0x5c repeated 64 times
-	 * and text	is the data	being protected	*/
+    /* the HMAC_MD5	transform looks	like:
+     *
+     * MD5(K XOR opad, MD5(K XOR ipad, text))
+     *
+     * where K is an n byte	key
+     * ipad	is the byte	0x36 repeated 64 times
+     * opad	is the byte	0x5c repeated 64 times
+     * and text	is the data	being protected	*/
 
-	/* start out by	storing	key	in pads	*/
-	NdisZeroMemory(k_ipad, sizeof(k_ipad));
-	NdisZeroMemory(k_opad,	sizeof(k_opad));
-	//assert(key_len < sizeof(k_ipad));
-	NdisMoveMemory(k_ipad, key,	key_len);
-	NdisMoveMemory(k_opad, key,	key_len);
+    /* start out by	storing	key	in pads	*/
+    NdisZeroMemory(k_ipad, sizeof(k_ipad));
+    NdisZeroMemory(k_opad,	sizeof(k_opad));
+    //assert(key_len < sizeof(k_ipad));
+    NdisMoveMemory(k_ipad, key,	key_len);
+    NdisMoveMemory(k_opad, key,	key_len);
 
-	/* XOR key with	ipad and opad values */
-	for	(i = 0;	i <	64;	i++) {
-		k_ipad[i] ^= 0x36;
-		k_opad[i] ^= 0x5c;
-	}
+    /* XOR key with	ipad and opad values */
+    for	(i = 0;	i <	64;	i++)
+    {
+        k_ipad[i] ^= 0x36;
+        k_opad[i] ^= 0x5c;
+    }
 
-	/* perform inner MD5 */
-	MD5Init(&context);					 /*	init context for 1st pass */
-	MD5Update(&context,	k_ipad,	64);	 /*	start with inner pad */
-	MD5Update(&context,	data, data_len); /*	then text of datagram */
-	MD5Final(mac, &context);			 /*	finish up 1st pass */
+    /* perform inner MD5 */
+    MD5Init(&context);					 /*	init context for 1st pass */
+    MD5Update(&context,	k_ipad,	64);	 /*	start with inner pad */
+    MD5Update(&context,	data, data_len); /*	then text of datagram */
+    MD5Final(mac, &context);			 /*	finish up 1st pass */
 
-	/* perform outer MD5 */
-	MD5Init(&context);					 /*	init context for 2nd pass */
-	MD5Update(&context,	k_opad,	64);	 /*	start with outer pad */
-	MD5Update(&context,	mac, 16);		 /*	then results of	1st	hash */
-	MD5Final(mac, &context);			 /*	finish up 2nd pass */
+    /* perform outer MD5 */
+    MD5Init(&context);					 /*	init context for 2nd pass */
+    MD5Update(&context,	k_opad,	64);	 /*	start with outer pad */
+    MD5Update(&context,	mac, 16);		 /*	then results of	1st	hash */
+    MD5Final(mac, &context);			 /*	finish up 2nd pass */
 }
 
 #ifndef BIG_ENDIAN
@@ -137,18 +139,20 @@ void hmac_md5(u8 *key, size_t key_len, u8 *data, size_t data_len, u8 *mac)
 void byteReverse(unsigned char *buf, unsigned longs);
 void byteReverse(unsigned char *buf, unsigned longs)
 {
-    do {
+    do
+    {
         *(ULONG *)buf = SWAP32(*(ULONG *)buf);
         buf += 4;
-    } while (--longs);
+    }
+    while (--longs);
 }
 #endif
 
 
-/* ==========================  MD5 implementation =========================== */ 
-// four base functions for MD5 
-#define MD5_F1(x, y, z) (((x) & (y)) | ((~x) & (z))) 
-#define MD5_F2(x, y, z) (((x) & (z)) | ((y) & (~z))) 
+/* ==========================  MD5 implementation =========================== */
+// four base functions for MD5
+#define MD5_F1(x, y, z) (((x) & (y)) | ((~x) & (z)))
+#define MD5_F2(x, y, z) (((x) & (z)) | ((y) & (~z)))
 #define MD5_F3(x, y, z) ((x) ^ (y) ^ (z))
 #define MD5_F4(x, y, z) ((y) ^ ((x) | (~z)))
 #define CYCLIC_LEFT_SHIFT(w, s) (((w) << (s)) | ((w) >> (32-(s))))
@@ -165,7 +169,7 @@ void byteReverse(unsigned char *buf, unsigned longs)
  *      pCtx        Pointer	to MD5 context
  *
  *  Return Value:
- *      None	    
+ *      None
  */
 VOID MD5Init(MD5_CTX *pCtx)
 {
@@ -181,9 +185,9 @@ VOID MD5Init(MD5_CTX *pCtx)
 
 /*
  *  Function Description:
- *      Update MD5 Context, allow of an arrary of octets as the next portion 
+ *      Update MD5 Context, allow of an arrary of octets as the next portion
  *      of the message
- *      
+ *
  *  Arguments:
  *      pCtx		Pointer	to MD5 context
  * 	    pData       Pointer to input data
@@ -193,47 +197,47 @@ VOID MD5Init(MD5_CTX *pCtx)
  *      None
  *
  *  Note:
- *      Called after MD5Init or MD5Update(itself)   
+ *      Called after MD5Init or MD5Update(itself)
  */
 VOID MD5Update(MD5_CTX *pCtx, UCHAR *pData, ULONG LenInBytes)
 {
-    
+
     ULONG TfTimes;
     ULONG temp;
-	unsigned int i;
-    
+    unsigned int i;
+
     temp = pCtx->LenInBitCount[0];
 
     pCtx->LenInBitCount[0] = (ULONG) (pCtx->LenInBitCount[0] + (LenInBytes << 3));
- 
+
     if (pCtx->LenInBitCount[0] < temp)
         pCtx->LenInBitCount[1]++;   //carry in
 
     pCtx->LenInBitCount[1] += LenInBytes >> 29;
 
     // mod 64 bytes
-    temp = (temp >> 3) & 0x3f;  
-    
-    // process lacks of 64-byte data 
-    if (temp) 
+    temp = (temp >> 3) & 0x3f;
+
+    // process lacks of 64-byte data
+    if (temp)
     {
         UCHAR *pAds = (UCHAR *) pCtx->Input + temp;
-        
+
         if ((temp+LenInBytes) < 64)
         {
-            NdisMoveMemory(pAds, (UCHAR *)pData, LenInBytes);   
+            NdisMoveMemory(pAds, (UCHAR *)pData, LenInBytes);
             return;
         }
-        
-        NdisMoveMemory(pAds, (UCHAR *)pData, 64-temp);               
+
+        NdisMoveMemory(pAds, (UCHAR *)pData, 64-temp);
         byteReverse(pCtx->Input, 16);
         MD5Transform(pCtx->Buf, (ULONG *)pCtx->Input);
 
         pData += 64-temp;
-        LenInBytes -= 64-temp; 
+        LenInBytes -= 64-temp;
     } // end of if (temp)
-    
-     
+
+
     TfTimes = (LenInBytes >> 6);
 
     for (i=TfTimes; i>0; i--)
@@ -247,25 +251,25 @@ VOID MD5Update(MD5_CTX *pCtx, UCHAR *pData, ULONG LenInBytes)
 
     // buffering lacks of 64-byte data
     if(LenInBytes)
-        NdisMoveMemory(pCtx->Input, (UCHAR *)pData, LenInBytes);   
-   
+        NdisMoveMemory(pCtx->Input, (UCHAR *)pData, LenInBytes);
+
 }
 
 
 /*
  *  Function Description:
- *      Append padding bits and length of original message in the tail 
- *      The message digest has to be completed in the end  
- *  
+ *      Append padding bits and length of original message in the tail
+ *      The message digest has to be completed in the end
+ *
  *  Arguments:
  *      Digest		Output of Digest-Message for MD5
  *  	pCtx        Pointer	to MD5 context
- * 	
+ *
  *  Return Value:
  *      None
- *  
+ *
  *  Note:
- *      Called after MD5Update  
+ *      Called after MD5Update
  */
 VOID MD5Final(UCHAR Digest[16], MD5_CTX *pCtx)
 {
@@ -273,11 +277,11 @@ VOID MD5Final(UCHAR Digest[16], MD5_CTX *pCtx)
     UCHAR PadLenInBytes;
     UCHAR *pAppend=0;
     unsigned int i;
-    
+
     Remainder = (UCHAR)((pCtx->LenInBitCount[0] >> 3) & 0x3f);
 
     PadLenInBytes = (Remainder < 56) ? (56-Remainder) : (120-Remainder);
-    
+
     pAppend = (UCHAR *)pCtx->Input + Remainder;
 
     // padding bits without crossing block(64-byte based) boundary
@@ -285,43 +289,43 @@ VOID MD5Final(UCHAR Digest[16], MD5_CTX *pCtx)
     {
         *pAppend = 0x80;
         PadLenInBytes --;
-        
-        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, PadLenInBytes); 
-		
-		// add data-length field, from low to high
-       	for (i=0; i<4; i++)
+
+        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, PadLenInBytes);
+
+        // add data-length field, from low to high
+        for (i=0; i<4; i++)
         {
-        	pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[0] >> (i << 3)) & 0xff);
-        	pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[1] >> (i << 3)) & 0xff);
-      	}
-      	
+            pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[0] >> (i << 3)) & 0xff);
+            pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[1] >> (i << 3)) & 0xff);
+        }
+
         byteReverse(pCtx->Input, 16);
         MD5Transform(pCtx->Buf, (ULONG *)pCtx->Input);
     } // end of if
-    
+
     // padding bits with crossing block(64-byte based) boundary
     else
     {
         // the first block ===
         *pAppend = 0x80;
         PadLenInBytes --;
-       
-        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, (64-Remainder-1)); 
+
+        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, (64-Remainder-1));
         PadLenInBytes -= (64 - Remainder - 1);
-        
+
         byteReverse(pCtx->Input, 16);
         MD5Transform(pCtx->Buf, (ULONG *)pCtx->Input);
-        
+
 
         // the second block ===
-        NdisZeroMemory((UCHAR *)pCtx->Input, PadLenInBytes); 
+        NdisZeroMemory((UCHAR *)pCtx->Input, PadLenInBytes);
 
         // add data-length field
         for (i=0; i<4; i++)
         {
-        	pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[0] >> (i << 3)) & 0xff);
-        	pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[1] >> (i << 3)) & 0xff);
-      	}
+            pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[0] >> (i << 3)) & 0xff);
+            pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[1] >> (i << 3)) & 0xff);
+        }
 
         byteReverse(pCtx->Input, 16);
         MD5Transform(pCtx->Buf, (ULONG *)pCtx->Input);
@@ -330,119 +334,119 @@ VOID MD5Final(UCHAR Digest[16], MD5_CTX *pCtx)
 
     NdisMoveMemory((UCHAR *)Digest, (ULONG *)pCtx->Buf, 16); // output
     byteReverse((UCHAR *)Digest, 4);
-    NdisZeroMemory(pCtx, sizeof(pCtx)); // memory free 
+    NdisZeroMemory(pCtx, sizeof(pCtx)); // memory free
 }
 
 
 /*
  *  Function Description:
- *      The central algorithm of MD5, consists of four rounds and sixteen 
+ *      The central algorithm of MD5, consists of four rounds and sixteen
  *  	steps per round
- * 
+ *
  *  Arguments:
- *      Buf     Buffers of four states (output: 16 bytes)		
- * 	    Mes     Input data (input: 64 bytes) 
- *  
+ *      Buf     Buffers of four states (output: 16 bytes)
+ * 	    Mes     Input data (input: 64 bytes)
+ *
  *  Return Value:
  *      None
- *  	
+ *
  *  Note:
  *      Called by MD5Update or MD5Final
  */
 VOID MD5Transform(ULONG Buf[4], ULONG Mes[16])
-{  
-    ULONG Reg[4], Temp; 
-	unsigned int i;
-    
-    static UCHAR LShiftVal[16] = 
-    { 	
-        7, 12, 17, 22, 	
-		5, 9 , 14, 20, 
-		4, 11, 16, 23, 
- 		6, 10, 15, 21, 
- 	};
+{
+    ULONG Reg[4], Temp;
+    unsigned int i;
 
-	
-	// [equal to 4294967296*abs(sin(index))]
-    static ULONG MD5Table[64] = 
-	{ 
-		0xd76aa478,	0xe8c7b756,	0x242070db,	0xc1bdceee,	
-		0xf57c0faf,	0x4787c62a,	0xa8304613, 0xfd469501,	
-		0x698098d8,	0x8b44f7af,	0xffff5bb1,	0x895cd7be,
-    	0x6b901122,	0xfd987193,	0xa679438e,	0x49b40821,
-    	
-    	0xf61e2562,	0xc040b340,	0x265e5a51,	0xe9b6c7aa,
-    	0xd62f105d,	0x02441453,	0xd8a1e681,	0xe7d3fbc8,
-    	0x21e1cde6,	0xc33707d6,	0xf4d50d87,	0x455a14ed,
-    	0xa9e3e905,	0xfcefa3f8,	0x676f02d9,	0x8d2a4c8a,
-    	           
-    	0xfffa3942,	0x8771f681,	0x6d9d6122,	0xfde5380c,
-    	0xa4beea44,	0x4bdecfa9,	0xf6bb4b60,	0xbebfbc70,
-    	0x289b7ec6,	0xeaa127fa,	0xd4ef3085,	0x04881d05,
-    	0xd9d4d039,	0xe6db99e5,	0x1fa27cf8,	0xc4ac5665,
-    	           
-    	0xf4292244,	0x432aff97,	0xab9423a7,	0xfc93a039,
-   		0x655b59c3,	0x8f0ccc92,	0xffeff47d,	0x85845dd1,
-    	0x6fa87e4f,	0xfe2ce6e0,	0xa3014314,	0x4e0811a1,
-    	0xf7537e82,	0xbd3af235,	0x2ad7d2bb,	0xeb86d391
-	};
- 
-				
+    static UCHAR LShiftVal[16] =
+    {
+        7, 12, 17, 22,
+        5, 9 , 14, 20,
+        4, 11, 16, 23,
+        6, 10, 15, 21,
+    };
+
+
+    // [equal to 4294967296*abs(sin(index))]
+    static ULONG MD5Table[64] =
+    {
+        0xd76aa478,	0xe8c7b756,	0x242070db,	0xc1bdceee,
+        0xf57c0faf,	0x4787c62a,	0xa8304613, 0xfd469501,
+        0x698098d8,	0x8b44f7af,	0xffff5bb1,	0x895cd7be,
+        0x6b901122,	0xfd987193,	0xa679438e,	0x49b40821,
+
+        0xf61e2562,	0xc040b340,	0x265e5a51,	0xe9b6c7aa,
+        0xd62f105d,	0x02441453,	0xd8a1e681,	0xe7d3fbc8,
+        0x21e1cde6,	0xc33707d6,	0xf4d50d87,	0x455a14ed,
+        0xa9e3e905,	0xfcefa3f8,	0x676f02d9,	0x8d2a4c8a,
+
+        0xfffa3942,	0x8771f681,	0x6d9d6122,	0xfde5380c,
+        0xa4beea44,	0x4bdecfa9,	0xf6bb4b60,	0xbebfbc70,
+        0x289b7ec6,	0xeaa127fa,	0xd4ef3085,	0x04881d05,
+        0xd9d4d039,	0xe6db99e5,	0x1fa27cf8,	0xc4ac5665,
+
+        0xf4292244,	0x432aff97,	0xab9423a7,	0xfc93a039,
+        0x655b59c3,	0x8f0ccc92,	0xffeff47d,	0x85845dd1,
+        0x6fa87e4f,	0xfe2ce6e0,	0xa3014314,	0x4e0811a1,
+        0xf7537e82,	0xbd3af235,	0x2ad7d2bb,	0xeb86d391
+    };
+
+
     for (i=0; i<4; i++)
         Reg[i]=Buf[i];
-			
-				
+
+
     // 64 steps in MD5 algorithm
-    for (i=0; i<16; i++)                    
+    for (i=0; i<16; i++)
     {
-        MD5Step(MD5_F1, Reg[0], Reg[1], Reg[2], Reg[3], Mes[i],               
+        MD5Step(MD5_F1, Reg[0], Reg[1], Reg[2], Reg[3], Mes[i],
                 MD5Table[i], LShiftVal[i & 0x3]);
 
         // one-word right shift
-        Temp   = Reg[3]; 
+        Temp   = Reg[3];
         Reg[3] = Reg[2];
         Reg[2] = Reg[1];
         Reg[1] = Reg[0];
-        Reg[0] = Temp;            
+        Reg[0] = Temp;
     }
-    for (i=16; i<32; i++)                    
+    for (i=16; i<32; i++)
     {
-        MD5Step(MD5_F2, Reg[0], Reg[1], Reg[2], Reg[3], Mes[(5*(i & 0xf)+1) & 0xf], 
-                MD5Table[i], LShiftVal[(0x1 << 2)+(i & 0x3)]);    
+        MD5Step(MD5_F2, Reg[0], Reg[1], Reg[2], Reg[3], Mes[(5*(i & 0xf)+1) & 0xf],
+                MD5Table[i], LShiftVal[(0x1 << 2)+(i & 0x3)]);
 
         // one-word right shift
-        Temp   = Reg[3]; 
+        Temp   = Reg[3];
         Reg[3] = Reg[2];
         Reg[2] = Reg[1];
         Reg[1] = Reg[0];
-        Reg[0] = Temp;           
+        Reg[0] = Temp;
     }
-    for (i=32; i<48; i++)                    
+    for (i=32; i<48; i++)
     {
-        MD5Step(MD5_F3, Reg[0], Reg[1], Reg[2], Reg[3], Mes[(3*(i & 0xf)+5) & 0xf], 
-                MD5Table[i], LShiftVal[(0x1 << 3)+(i & 0x3)]);        
+        MD5Step(MD5_F3, Reg[0], Reg[1], Reg[2], Reg[3], Mes[(3*(i & 0xf)+5) & 0xf],
+                MD5Table[i], LShiftVal[(0x1 << 3)+(i & 0x3)]);
 
         // one-word right shift
-        Temp   = Reg[3]; 
+        Temp   = Reg[3];
         Reg[3] = Reg[2];
         Reg[2] = Reg[1];
         Reg[1] = Reg[0];
-        Reg[0] = Temp;          
+        Reg[0] = Temp;
     }
-    for (i=48; i<64; i++)                    
+    for (i=48; i<64; i++)
     {
-        MD5Step(MD5_F4, Reg[0], Reg[1], Reg[2], Reg[3], Mes[(7*(i & 0xf)) & 0xf], 
-                MD5Table[i], LShiftVal[(0x3 << 2)+(i & 0x3)]);   
+        MD5Step(MD5_F4, Reg[0], Reg[1], Reg[2], Reg[3], Mes[(7*(i & 0xf)) & 0xf],
+                MD5Table[i], LShiftVal[(0x3 << 2)+(i & 0x3)]);
 
         // one-word right shift
-        Temp   = Reg[3]; 
+        Temp   = Reg[3];
         Reg[3] = Reg[2];
         Reg[2] = Reg[1];
         Reg[1] = Reg[0];
-        Reg[0] = Temp;           
+        Reg[0] = Temp;
     }
-    
-      
+
+
     // (temporary)output
     for (i=0; i<4; i++)
         Buf[i] += Reg[i];
@@ -453,8 +457,8 @@ VOID MD5Transform(ULONG Buf[4], ULONG Mes[16])
 
 /* =========================  SHA-1 implementation ========================== */
 // four base functions for SHA-1
-#define SHA1_F1(b, c, d)    (((b) & (c)) | ((~b) & (d)))         
-#define SHA1_F2(b, c, d)    ((b) ^ (c) ^ (d)) 
+#define SHA1_F1(b, c, d)    (((b) & (c)) | ((~b) & (d)))
+#define SHA1_F2(b, c, d)    ((b) ^ (c) ^ (d))
 #define SHA1_F3(b, c, d)    (((b) & (c)) | ((b) & (d)) | ((c) & (d)))
 
 
@@ -462,7 +466,7 @@ VOID MD5Transform(ULONG Buf[4], ULONG Mes[16])
     ( e	+= ( f(b, c, d) + w + k + CYCLIC_LEFT_SHIFT(a, 5)) & 0xffffffff, \
       b = CYCLIC_LEFT_SHIFT(b, 30) )
 
-//Initiate SHA-1 Context satisfied in RFC 3174  
+//Initiate SHA-1 Context satisfied in RFC 3174
 VOID SHAInit(SHA_CTX *pCtx)
 {
     pCtx->Buf[0]=0x67452301;
@@ -470,7 +474,7 @@ VOID SHAInit(SHA_CTX *pCtx)
     pCtx->Buf[2]=0x98badcfe;
     pCtx->Buf[3]=0x10325476;
     pCtx->Buf[4]=0xc3d2e1f0;
-    
+
     pCtx->LenInBitCount[0]=0;
     pCtx->LenInBitCount[1]=0;
 }
@@ -479,25 +483,25 @@ VOID SHAInit(SHA_CTX *pCtx)
  *  Function Description:
  *      Update SHA-1 Context, allow of an arrary of octets as the next
  *      portion of the message
- *      
+ *
  *  Arguments:
  *      pCtx		Pointer	to SHA-1 context
  * 	    pData       Pointer to input data
  *      LenInBytes  The length of input data (unit: byte)
  *
  *  Return Value:
- *      error       indicate more than pow(2,64) bits of data  
+ *      error       indicate more than pow(2,64) bits of data
  *
  *  Note:
- *      Called after SHAInit or SHAUpdate(itself)   
+ *      Called after SHAInit or SHAUpdate(itself)
  */
 UCHAR SHAUpdate(SHA_CTX *pCtx, UCHAR *pData, ULONG LenInBytes)
 {
     ULONG TfTimes;
     ULONG temp1,temp2;
-	unsigned int i;
-	UCHAR err=1;
-    
+    unsigned int i;
+    UCHAR err=1;
+
     temp1 = pCtx->LenInBitCount[0];
     temp2 = pCtx->LenInBitCount[1];
 
@@ -509,40 +513,40 @@ UCHAR SHAUpdate(SHA_CTX *pCtx, UCHAR *pData, ULONG LenInBytes)
     pCtx->LenInBitCount[1] = (ULONG) (pCtx->LenInBitCount[1] +(LenInBytes >> 29));
     if (pCtx->LenInBitCount[1] < temp2)
         return (err);   //check total length of original data
- 
+
 
     // mod 64 bytes
-    temp1 = (temp1 >> 3) & 0x3f;  
-    
-    // process lacks of 64-byte data 
-    if (temp1) 
+    temp1 = (temp1 >> 3) & 0x3f;
+
+    // process lacks of 64-byte data
+    if (temp1)
     {
         UCHAR *pAds = (UCHAR *) pCtx->Input + temp1;
-        
+
         if ((temp1+LenInBytes) < 64)
         {
-            NdisMoveMemory(pAds, (UCHAR *)pData, LenInBytes);   
+            NdisMoveMemory(pAds, (UCHAR *)pData, LenInBytes);
             return (0);
         }
-        
-        NdisMoveMemory(pAds, (UCHAR *)pData, 64-temp1);              
-        byteReverse((UCHAR *)pCtx->Input, 16);               
-        
+
+        NdisMoveMemory(pAds, (UCHAR *)pData, 64-temp1);
+        byteReverse((UCHAR *)pCtx->Input, 16);
+
         NdisZeroMemory((UCHAR *)pCtx->Input + 64, 16);
         SHATransform(pCtx->Buf, (ULONG *)pCtx->Input);
 
         pData += 64-temp1;
-        LenInBytes -= 64-temp1; 
+        LenInBytes -= 64-temp1;
     } // end of if (temp1)
-    
-     
+
+
     TfTimes = (LenInBytes >> 6);
 
     for (i=TfTimes; i>0; i--)
     {
         NdisMoveMemory(pCtx->Input, (UCHAR *)pData, 64);
         byteReverse((UCHAR *)pCtx->Input, 16);
-        
+
         NdisZeroMemory((UCHAR *)pCtx->Input + 64, 16);
         SHATransform(pCtx->Buf, (ULONG *)pCtx->Input);
         pData += 64;
@@ -553,12 +557,12 @@ UCHAR SHAUpdate(SHA_CTX *pCtx, UCHAR *pData, ULONG LenInBytes)
     if(LenInBytes)
         NdisMoveMemory(pCtx->Input, (UCHAR *)pData, LenInBytes);
 
-	return (0);
+    return (0);
 
 }
 
-// Append padding bits and length of original message in the tail 
-// The message digest has to be completed in the end 
+// Append padding bits and length of original message in the tail
+// The message digest has to be completed in the end
 VOID SHAFinal(SHA_CTX *pCtx, UCHAR Digest[20])
 {
     UCHAR Remainder;
@@ -571,134 +575,135 @@ VOID SHAFinal(SHA_CTX *pCtx, UCHAR Digest[20])
     pAppend = (UCHAR *)pCtx->Input + Remainder;
 
     PadLenInBytes = (Remainder < 56) ? (56-Remainder) : (120-Remainder);
-    
+
     // padding bits without crossing block(64-byte based) boundary
     if (Remainder < 56)
-    {       
+    {
         *pAppend = 0x80;
         PadLenInBytes --;
-        
-        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, PadLenInBytes); 
-		 
-		// add data-length field, from high to low
+
+        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, PadLenInBytes);
+
+        // add data-length field, from high to low
         for (i=0; i<4; i++)
         {
-        	pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[1] >> ((3-i) << 3)) & 0xff);
-        	pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[0] >> ((3-i) << 3)) & 0xff);
-      	}
-      	
+            pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[1] >> ((3-i) << 3)) & 0xff);
+            pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[0] >> ((3-i) << 3)) & 0xff);
+        }
+
         byteReverse((UCHAR *)pCtx->Input, 16);
         NdisZeroMemory((UCHAR *)pCtx->Input + 64, 14);
         SHATransform(pCtx->Buf, (ULONG *)pCtx->Input);
     } // end of if
-    
+
     // padding bits with crossing block(64-byte based) boundary
     else
     {
         // the first block ===
         *pAppend = 0x80;
         PadLenInBytes --;
-        
-        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, (64-Remainder-1)); 
+
+        NdisZeroMemory((UCHAR *)pCtx->Input + Remainder+1, (64-Remainder-1));
         PadLenInBytes -= (64 - Remainder - 1);
-        
+
         byteReverse((UCHAR *)pCtx->Input, 16);
         NdisZeroMemory((UCHAR *)pCtx->Input + 64, 16);
         SHATransform(pCtx->Buf, (ULONG *)pCtx->Input);
 
 
         // the second block ===
-        NdisZeroMemory((UCHAR *)pCtx->Input, PadLenInBytes); 
-			
-		// add data-length field
-		for (i=0; i<4; i++)
+        NdisZeroMemory((UCHAR *)pCtx->Input, PadLenInBytes);
+
+        // add data-length field
+        for (i=0; i<4; i++)
         {
-        	pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[1] >> ((3-i) << 3)) & 0xff);
-        	pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[0] >> ((3-i) << 3)) & 0xff);
-      	}
-      	
+            pCtx->Input[56+i] = (UCHAR)((pCtx->LenInBitCount[1] >> ((3-i) << 3)) & 0xff);
+            pCtx->Input[60+i] = (UCHAR)((pCtx->LenInBitCount[0] >> ((3-i) << 3)) & 0xff);
+        }
+
         byteReverse((UCHAR *)pCtx->Input, 16);
-        NdisZeroMemory((UCHAR *)pCtx->Input + 64, 16); 
+        NdisZeroMemory((UCHAR *)pCtx->Input + 64, 16);
         SHATransform(pCtx->Buf, (ULONG *)pCtx->Input);
     } // end of else
-	
-		
+
+
     //Output, bytereverse
     for (i=0; i<20; i++)
     {
         Digest [i] = (UCHAR)(pCtx->Buf[i>>2] >> 8*(3-(i & 0x3)));
     }
-    
-    NdisZeroMemory(pCtx, sizeof(pCtx)); // memory free 
+
+    NdisZeroMemory(pCtx, sizeof(pCtx)); // memory free
 }
 
 
-// The central algorithm of SHA-1, consists of four rounds and 
+// The central algorithm of SHA-1, consists of four rounds and
 // twenty steps per round
 VOID SHATransform(ULONG Buf[5], ULONG Mes[20])
 {
-    ULONG Reg[5],Temp; 
-	unsigned int i;
-    ULONG W[80]; 
-   
-    static ULONG SHA1Table[4] = { 0x5a827999, 0x6ed9eba1, 
-                                  0x8f1bbcdc, 0xca62c1d6 };
- 
+    ULONG Reg[5],Temp;
+    unsigned int i;
+    ULONG W[80];
+
+    static ULONG SHA1Table[4] = { 0x5a827999, 0x6ed9eba1,
+                                  0x8f1bbcdc, 0xca62c1d6
+                                };
+
     Reg[0]=Buf[0];
-	Reg[1]=Buf[1];
-	Reg[2]=Buf[2];
-	Reg[3]=Buf[3];
-	Reg[4]=Buf[4];
+    Reg[1]=Buf[1];
+    Reg[2]=Buf[2];
+    Reg[3]=Buf[3];
+    Reg[4]=Buf[4];
 
     //the first octet of a word is stored in the 0th element, bytereverse
-	for(i = 0; i < 16; i++)
-    { 
-    	W[i]  = (Mes[i] >> 24) & 0xff;
+    for(i = 0; i < 16; i++)
+    {
+        W[i]  = (Mes[i] >> 24) & 0xff;
         W[i] |= (Mes[i] >> 8 ) & 0xff00;
         W[i] |= (Mes[i] << 8 ) & 0xff0000;
         W[i] |= (Mes[i] << 24) & 0xff000000;
     }
-    
-		 
+
+
     for	(i = 0; i < 64; i++)
-	    W[16+i] = CYCLIC_LEFT_SHIFT(W[i] ^ W[2+i] ^ W[8+i] ^ W[13+i], 1);
-	    
-    
+        W[16+i] = CYCLIC_LEFT_SHIFT(W[i] ^ W[2+i] ^ W[8+i] ^ W[13+i], 1);
+
+
     // 80 steps in SHA-1 algorithm
-    for (i=0; i<80; i++)                    
+    for (i=0; i<80; i++)
     {
         if (i<20)
-            SHA1Step(SHA1_F1, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4], 
+            SHA1Step(SHA1_F1, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4],
                      W[i], SHA1Table[0]);
-        
-        else if (i>=20 && i<40)
-            SHA1Step(SHA1_F2, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4], 
-                     W[i], SHA1Table[1]);
-			
-		else if (i>=40 && i<60)
-            SHA1Step(SHA1_F3, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4], 
-                      W[i], SHA1Table[2]);
-			
-        else
-            SHA1Step(SHA1_F2, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4], 
-                     W[i], SHA1Table[3]);
-			
 
-       // one-word right shift
-		Temp   = Reg[4];
+        else if (i>=20 && i<40)
+            SHA1Step(SHA1_F2, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4],
+                     W[i], SHA1Table[1]);
+
+        else if (i>=40 && i<60)
+            SHA1Step(SHA1_F3, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4],
+                     W[i], SHA1Table[2]);
+
+        else
+            SHA1Step(SHA1_F2, Reg[0], Reg[1], Reg[2], Reg[3], Reg[4],
+                     W[i], SHA1Table[3]);
+
+
+        // one-word right shift
+        Temp   = Reg[4];
         Reg[4] = Reg[3];
         Reg[3] = Reg[2];
         Reg[2] = Reg[1];
         Reg[1] = Reg[0];
-        Reg[0] = Temp;       
-  
+        Reg[0] = Temp;
+
     } // end of for-loop
 
 
     // (temporary)output
     for (i=0; i<5; i++)
         Buf[i] += Reg[i];
-    
+
 }
 
 
@@ -707,38 +712,38 @@ VOID SHATransform(ULONG Buf[5], ULONG Mes[20])
 /* forward S-box */
 static uint32 FSb[256] =
 {
-	0x63, 0x7C,	0x77, 0x7B,	0xF2, 0x6B,	0x6F, 0xC5,
-	0x30, 0x01,	0x67, 0x2B,	0xFE, 0xD7,	0xAB, 0x76,
-	0xCA, 0x82,	0xC9, 0x7D,	0xFA, 0x59,	0x47, 0xF0,
-	0xAD, 0xD4,	0xA2, 0xAF,	0x9C, 0xA4,	0x72, 0xC0,
-	0xB7, 0xFD,	0x93, 0x26,	0x36, 0x3F,	0xF7, 0xCC,
-	0x34, 0xA5,	0xE5, 0xF1,	0x71, 0xD8,	0x31, 0x15,
-	0x04, 0xC7,	0x23, 0xC3,	0x18, 0x96,	0x05, 0x9A,
-	0x07, 0x12,	0x80, 0xE2,	0xEB, 0x27,	0xB2, 0x75,
-	0x09, 0x83,	0x2C, 0x1A,	0x1B, 0x6E,	0x5A, 0xA0,
-	0x52, 0x3B,	0xD6, 0xB3,	0x29, 0xE3,	0x2F, 0x84,
-	0x53, 0xD1,	0x00, 0xED,	0x20, 0xFC,	0xB1, 0x5B,
-	0x6A, 0xCB,	0xBE, 0x39,	0x4A, 0x4C,	0x58, 0xCF,
-	0xD0, 0xEF,	0xAA, 0xFB,	0x43, 0x4D,	0x33, 0x85,
-	0x45, 0xF9,	0x02, 0x7F,	0x50, 0x3C,	0x9F, 0xA8,
-	0x51, 0xA3,	0x40, 0x8F,	0x92, 0x9D,	0x38, 0xF5,
-	0xBC, 0xB6,	0xDA, 0x21,	0x10, 0xFF,	0xF3, 0xD2,
-	0xCD, 0x0C,	0x13, 0xEC,	0x5F, 0x97,	0x44, 0x17,
-	0xC4, 0xA7,	0x7E, 0x3D,	0x64, 0x5D,	0x19, 0x73,
-	0x60, 0x81,	0x4F, 0xDC,	0x22, 0x2A,	0x90, 0x88,
-	0x46, 0xEE,	0xB8, 0x14,	0xDE, 0x5E,	0x0B, 0xDB,
-	0xE0, 0x32,	0x3A, 0x0A,	0x49, 0x06,	0x24, 0x5C,
-	0xC2, 0xD3,	0xAC, 0x62,	0x91, 0x95,	0xE4, 0x79,
-	0xE7, 0xC8,	0x37, 0x6D,	0x8D, 0xD5,	0x4E, 0xA9,
-	0x6C, 0x56,	0xF4, 0xEA,	0x65, 0x7A,	0xAE, 0x08,
-	0xBA, 0x78,	0x25, 0x2E,	0x1C, 0xA6,	0xB4, 0xC6,
-	0xE8, 0xDD,	0x74, 0x1F,	0x4B, 0xBD,	0x8B, 0x8A,
-	0x70, 0x3E,	0xB5, 0x66,	0x48, 0x03,	0xF6, 0x0E,
-	0x61, 0x35,	0x57, 0xB9,	0x86, 0xC1,	0x1D, 0x9E,
-	0xE1, 0xF8,	0x98, 0x11,	0x69, 0xD9,	0x8E, 0x94,
-	0x9B, 0x1E,	0x87, 0xE9,	0xCE, 0x55,	0x28, 0xDF,
-	0x8C, 0xA1,	0x89, 0x0D,	0xBF, 0xE6,	0x42, 0x68,
-	0x41, 0x99,	0x2D, 0x0F,	0xB0, 0x54,	0xBB, 0x16
+    0x63, 0x7C,	0x77, 0x7B,	0xF2, 0x6B,	0x6F, 0xC5,
+    0x30, 0x01,	0x67, 0x2B,	0xFE, 0xD7,	0xAB, 0x76,
+    0xCA, 0x82,	0xC9, 0x7D,	0xFA, 0x59,	0x47, 0xF0,
+    0xAD, 0xD4,	0xA2, 0xAF,	0x9C, 0xA4,	0x72, 0xC0,
+    0xB7, 0xFD,	0x93, 0x26,	0x36, 0x3F,	0xF7, 0xCC,
+    0x34, 0xA5,	0xE5, 0xF1,	0x71, 0xD8,	0x31, 0x15,
+    0x04, 0xC7,	0x23, 0xC3,	0x18, 0x96,	0x05, 0x9A,
+    0x07, 0x12,	0x80, 0xE2,	0xEB, 0x27,	0xB2, 0x75,
+    0x09, 0x83,	0x2C, 0x1A,	0x1B, 0x6E,	0x5A, 0xA0,
+    0x52, 0x3B,	0xD6, 0xB3,	0x29, 0xE3,	0x2F, 0x84,
+    0x53, 0xD1,	0x00, 0xED,	0x20, 0xFC,	0xB1, 0x5B,
+    0x6A, 0xCB,	0xBE, 0x39,	0x4A, 0x4C,	0x58, 0xCF,
+    0xD0, 0xEF,	0xAA, 0xFB,	0x43, 0x4D,	0x33, 0x85,
+    0x45, 0xF9,	0x02, 0x7F,	0x50, 0x3C,	0x9F, 0xA8,
+    0x51, 0xA3,	0x40, 0x8F,	0x92, 0x9D,	0x38, 0xF5,
+    0xBC, 0xB6,	0xDA, 0x21,	0x10, 0xFF,	0xF3, 0xD2,
+    0xCD, 0x0C,	0x13, 0xEC,	0x5F, 0x97,	0x44, 0x17,
+    0xC4, 0xA7,	0x7E, 0x3D,	0x64, 0x5D,	0x19, 0x73,
+    0x60, 0x81,	0x4F, 0xDC,	0x22, 0x2A,	0x90, 0x88,
+    0x46, 0xEE,	0xB8, 0x14,	0xDE, 0x5E,	0x0B, 0xDB,
+    0xE0, 0x32,	0x3A, 0x0A,	0x49, 0x06,	0x24, 0x5C,
+    0xC2, 0xD3,	0xAC, 0x62,	0x91, 0x95,	0xE4, 0x79,
+    0xE7, 0xC8,	0x37, 0x6D,	0x8D, 0xD5,	0x4E, 0xA9,
+    0x6C, 0x56,	0xF4, 0xEA,	0x65, 0x7A,	0xAE, 0x08,
+    0xBA, 0x78,	0x25, 0x2E,	0x1C, 0xA6,	0xB4, 0xC6,
+    0xE8, 0xDD,	0x74, 0x1F,	0x4B, 0xBD,	0x8B, 0x8A,
+    0x70, 0x3E,	0xB5, 0x66,	0x48, 0x03,	0xF6, 0x0E,
+    0x61, 0x35,	0x57, 0xB9,	0x86, 0xC1,	0x1D, 0x9E,
+    0xE1, 0xF8,	0x98, 0x11,	0x69, 0xD9,	0x8E, 0x94,
+    0x9B, 0x1E,	0x87, 0xE9,	0xCE, 0x55,	0x28, 0xDF,
+    0x8C, 0xA1,	0x89, 0x0D,	0xBF, 0xE6,	0x42, 0x68,
+    0x41, 0x99,	0x2D, 0x0F,	0xB0, 0x54,	0xBB, 0x16
 };
 
 /* forward table */
@@ -831,38 +836,38 @@ static uint32 FT3[256] = { FT };
 
 static uint32 RSb[256] =
 {
-	0x52, 0x09,	0x6A, 0xD5,	0x30, 0x36,	0xA5, 0x38,
-	0xBF, 0x40,	0xA3, 0x9E,	0x81, 0xF3,	0xD7, 0xFB,
-	0x7C, 0xE3,	0x39, 0x82,	0x9B, 0x2F,	0xFF, 0x87,
-	0x34, 0x8E,	0x43, 0x44,	0xC4, 0xDE,	0xE9, 0xCB,
-	0x54, 0x7B,	0x94, 0x32,	0xA6, 0xC2,	0x23, 0x3D,
-	0xEE, 0x4C,	0x95, 0x0B,	0x42, 0xFA,	0xC3, 0x4E,
-	0x08, 0x2E,	0xA1, 0x66,	0x28, 0xD9,	0x24, 0xB2,
-	0x76, 0x5B,	0xA2, 0x49,	0x6D, 0x8B,	0xD1, 0x25,
-	0x72, 0xF8,	0xF6, 0x64,	0x86, 0x68,	0x98, 0x16,
-	0xD4, 0xA4,	0x5C, 0xCC,	0x5D, 0x65,	0xB6, 0x92,
-	0x6C, 0x70,	0x48, 0x50,	0xFD, 0xED,	0xB9, 0xDA,
-	0x5E, 0x15,	0x46, 0x57,	0xA7, 0x8D,	0x9D, 0x84,
-	0x90, 0xD8,	0xAB, 0x00,	0x8C, 0xBC,	0xD3, 0x0A,
-	0xF7, 0xE4,	0x58, 0x05,	0xB8, 0xB3,	0x45, 0x06,
-	0xD0, 0x2C,	0x1E, 0x8F,	0xCA, 0x3F,	0x0F, 0x02,
-	0xC1, 0xAF,	0xBD, 0x03,	0x01, 0x13,	0x8A, 0x6B,
-	0x3A, 0x91,	0x11, 0x41,	0x4F, 0x67,	0xDC, 0xEA,
-	0x97, 0xF2,	0xCF, 0xCE,	0xF0, 0xB4,	0xE6, 0x73,
-	0x96, 0xAC,	0x74, 0x22,	0xE7, 0xAD,	0x35, 0x85,
-	0xE2, 0xF9,	0x37, 0xE8,	0x1C, 0x75,	0xDF, 0x6E,
-	0x47, 0xF1,	0x1A, 0x71,	0x1D, 0x29,	0xC5, 0x89,
-	0x6F, 0xB7,	0x62, 0x0E,	0xAA, 0x18,	0xBE, 0x1B,
-	0xFC, 0x56,	0x3E, 0x4B,	0xC6, 0xD2,	0x79, 0x20,
-	0x9A, 0xDB,	0xC0, 0xFE,	0x78, 0xCD,	0x5A, 0xF4,
-	0x1F, 0xDD,	0xA8, 0x33,	0x88, 0x07,	0xC7, 0x31,
-	0xB1, 0x12,	0x10, 0x59,	0x27, 0x80,	0xEC, 0x5F,
-	0x60, 0x51,	0x7F, 0xA9,	0x19, 0xB5,	0x4A, 0x0D,
-	0x2D, 0xE5,	0x7A, 0x9F,	0x93, 0xC9,	0x9C, 0xEF,
-	0xA0, 0xE0,	0x3B, 0x4D,	0xAE, 0x2A,	0xF5, 0xB0,
-	0xC8, 0xEB,	0xBB, 0x3C,	0x83, 0x53,	0x99, 0x61,
-	0x17, 0x2B,	0x04, 0x7E,	0xBA, 0x77,	0xD6, 0x26,
-	0xE1, 0x69,	0x14, 0x63,	0x55, 0x21,	0x0C, 0x7D
+    0x52, 0x09,	0x6A, 0xD5,	0x30, 0x36,	0xA5, 0x38,
+    0xBF, 0x40,	0xA3, 0x9E,	0x81, 0xF3,	0xD7, 0xFB,
+    0x7C, 0xE3,	0x39, 0x82,	0x9B, 0x2F,	0xFF, 0x87,
+    0x34, 0x8E,	0x43, 0x44,	0xC4, 0xDE,	0xE9, 0xCB,
+    0x54, 0x7B,	0x94, 0x32,	0xA6, 0xC2,	0x23, 0x3D,
+    0xEE, 0x4C,	0x95, 0x0B,	0x42, 0xFA,	0xC3, 0x4E,
+    0x08, 0x2E,	0xA1, 0x66,	0x28, 0xD9,	0x24, 0xB2,
+    0x76, 0x5B,	0xA2, 0x49,	0x6D, 0x8B,	0xD1, 0x25,
+    0x72, 0xF8,	0xF6, 0x64,	0x86, 0x68,	0x98, 0x16,
+    0xD4, 0xA4,	0x5C, 0xCC,	0x5D, 0x65,	0xB6, 0x92,
+    0x6C, 0x70,	0x48, 0x50,	0xFD, 0xED,	0xB9, 0xDA,
+    0x5E, 0x15,	0x46, 0x57,	0xA7, 0x8D,	0x9D, 0x84,
+    0x90, 0xD8,	0xAB, 0x00,	0x8C, 0xBC,	0xD3, 0x0A,
+    0xF7, 0xE4,	0x58, 0x05,	0xB8, 0xB3,	0x45, 0x06,
+    0xD0, 0x2C,	0x1E, 0x8F,	0xCA, 0x3F,	0x0F, 0x02,
+    0xC1, 0xAF,	0xBD, 0x03,	0x01, 0x13,	0x8A, 0x6B,
+    0x3A, 0x91,	0x11, 0x41,	0x4F, 0x67,	0xDC, 0xEA,
+    0x97, 0xF2,	0xCF, 0xCE,	0xF0, 0xB4,	0xE6, 0x73,
+    0x96, 0xAC,	0x74, 0x22,	0xE7, 0xAD,	0x35, 0x85,
+    0xE2, 0xF9,	0x37, 0xE8,	0x1C, 0x75,	0xDF, 0x6E,
+    0x47, 0xF1,	0x1A, 0x71,	0x1D, 0x29,	0xC5, 0x89,
+    0x6F, 0xB7,	0x62, 0x0E,	0xAA, 0x18,	0xBE, 0x1B,
+    0xFC, 0x56,	0x3E, 0x4B,	0xC6, 0xD2,	0x79, 0x20,
+    0x9A, 0xDB,	0xC0, 0xFE,	0x78, 0xCD,	0x5A, 0xF4,
+    0x1F, 0xDD,	0xA8, 0x33,	0x88, 0x07,	0xC7, 0x31,
+    0xB1, 0x12,	0x10, 0x59,	0x27, 0x80,	0xEC, 0x5F,
+    0x60, 0x51,	0x7F, 0xA9,	0x19, 0xB5,	0x4A, 0x0D,
+    0x2D, 0xE5,	0x7A, 0x9F,	0x93, 0xC9,	0x9C, 0xEF,
+    0xA0, 0xE0,	0x3B, 0x4D,	0xAE, 0x2A,	0xF5, 0xB0,
+    0xC8, 0xEB,	0xBB, 0x3C,	0x83, 0x53,	0x99, 0x61,
+    0x17, 0x2B,	0x04, 0x7E,	0xBA, 0x77,	0xD6, 0x26,
+    0xE1, 0x69,	0x14, 0x63,	0x55, 0x21,	0x0C, 0x7D
 };
 
 /* reverse table */
@@ -956,9 +961,9 @@ static uint32 RT3[256] = { RT };
 
 static uint32 RCON[10] =
 {
-	0x01000000,	0x02000000,	0x04000000,	0x08000000,
-	0x10000000,	0x20000000,	0x40000000,	0x80000000,
-	0x1B000000,	0x36000000
+    0x01000000,	0x02000000,	0x04000000,	0x08000000,
+    0x10000000,	0x20000000,	0x40000000,	0x80000000,
+    0x1B000000,	0x36000000
 };
 
 /* key schedule	tables */
@@ -992,157 +997,172 @@ static uint32 KT3[256];
 
 int	aes_set_key( aes_context *ctx, uint8 *key, int nbits )
 {
-	int	i;
-	uint32 *RK,	*SK;
+    int	i;
+    uint32 *RK,	*SK;
 
-	switch(	nbits )
-	{
-		case 128: ctx->nr =	10;	break;
-		case 192: ctx->nr =	12;	break;
-		case 256: ctx->nr =	14;	break;
-		default	: return( 1	);
-	}
+    switch(	nbits )
+    {
+    case 128:
+        ctx->nr =	10;
+        break;
+    case 192:
+        ctx->nr =	12;
+        break;
+    case 256:
+        ctx->nr =	14;
+        break;
+    default	:
+        return( 1	);
+    }
 
-	RK = ctx->erk;
+    RK = ctx->erk;
 
-	for( i = 0;	i <	(nbits >> 5); i++ )
-	{
-		GET_UINT32(	RK[i], key,	i *	4 );
-	}
+    for( i = 0;	i <	(nbits >> 5); i++ )
+    {
+        GET_UINT32(	RK[i], key,	i *	4 );
+    }
 
-	/* setup encryption	round keys */
+    /* setup encryption	round keys */
 
-	switch(	nbits )
-	{
-	case 128:
+    switch(	nbits )
+    {
+    case 128:
 
-		for( i = 0;	i <	10;	i++, RK	+= 4 )
-		{
-			RK[4]  = RK[0] ^ RCON[i] ^
-						( FSb[ (uint8) ( RK[3] >> 16 ) ] <<	24 ) ^
-						( FSb[ (uint8) ( RK[3] >>  8 ) ] <<	16 ) ^
-						( FSb[ (uint8) ( RK[3]		 ) ] <<	 8 ) ^
-						( FSb[ (uint8) ( RK[3] >> 24 ) ]	   );
+        for( i = 0;	i <	10;	i++, RK	+= 4 )
+        {
+            RK[4]  = RK[0] ^ RCON[i] ^
+                     ( FSb[ (uint8) ( RK[3] >> 16 ) ] <<	24 ) ^
+                     ( FSb[ (uint8) ( RK[3] >>  8 ) ] <<	16 ) ^
+                     ( FSb[ (uint8) ( RK[3]		 ) ] <<	 8 ) ^
+                     ( FSb[ (uint8) ( RK[3] >> 24 ) ]	   );
 
-			RK[5]  = RK[1] ^ RK[4];
-			RK[6]  = RK[2] ^ RK[5];
-			RK[7]  = RK[3] ^ RK[6];
-		}
-		break;
+            RK[5]  = RK[1] ^ RK[4];
+            RK[6]  = RK[2] ^ RK[5];
+            RK[7]  = RK[3] ^ RK[6];
+        }
+        break;
 
-	case 192:
+    case 192:
 
-		for( i = 0;	i <	8; i++,	RK += 6	)
-		{
-			RK[6]  = RK[0] ^ RCON[i] ^
-						( FSb[ (uint8) ( RK[5] >> 16 ) ] <<	24 ) ^
-						( FSb[ (uint8) ( RK[5] >>  8 ) ] <<	16 ) ^
-						( FSb[ (uint8) ( RK[5]		 ) ] <<	 8 ) ^
-						( FSb[ (uint8) ( RK[5] >> 24 ) ]	   );
+        for( i = 0;	i <	8; i++,	RK += 6	)
+        {
+            RK[6]  = RK[0] ^ RCON[i] ^
+                     ( FSb[ (uint8) ( RK[5] >> 16 ) ] <<	24 ) ^
+                     ( FSb[ (uint8) ( RK[5] >>  8 ) ] <<	16 ) ^
+                     ( FSb[ (uint8) ( RK[5]		 ) ] <<	 8 ) ^
+                     ( FSb[ (uint8) ( RK[5] >> 24 ) ]	   );
 
-			RK[7]  = RK[1] ^ RK[6];
-			RK[8]  = RK[2] ^ RK[7];
-			RK[9]  = RK[3] ^ RK[8];
-			RK[10] = RK[4] ^ RK[9];
-			RK[11] = RK[5] ^ RK[10];
-		}
-		break;
+            RK[7]  = RK[1] ^ RK[6];
+            RK[8]  = RK[2] ^ RK[7];
+            RK[9]  = RK[3] ^ RK[8];
+            RK[10] = RK[4] ^ RK[9];
+            RK[11] = RK[5] ^ RK[10];
+        }
+        break;
 
-	case 256:
+    case 256:
 
-		for( i = 0;	i <	7; i++,	RK += 8	)
-		{
-			RK[8]  = RK[0] ^ RCON[i] ^
-						( FSb[ (uint8) ( RK[7] >> 16 ) ] <<	24 ) ^
-						( FSb[ (uint8) ( RK[7] >>  8 ) ] <<	16 ) ^
-						( FSb[ (uint8) ( RK[7]		 ) ] <<	 8 ) ^
-						( FSb[ (uint8) ( RK[7] >> 24 ) ]	   );
+        for( i = 0;	i <	7; i++,	RK += 8	)
+        {
+            RK[8]  = RK[0] ^ RCON[i] ^
+                     ( FSb[ (uint8) ( RK[7] >> 16 ) ] <<	24 ) ^
+                     ( FSb[ (uint8) ( RK[7] >>  8 ) ] <<	16 ) ^
+                     ( FSb[ (uint8) ( RK[7]		 ) ] <<	 8 ) ^
+                     ( FSb[ (uint8) ( RK[7] >> 24 ) ]	   );
 
-			RK[9]  = RK[1] ^ RK[8];
-			RK[10] = RK[2] ^ RK[9];
-			RK[11] = RK[3] ^ RK[10];
+            RK[9]  = RK[1] ^ RK[8];
+            RK[10] = RK[2] ^ RK[9];
+            RK[11] = RK[3] ^ RK[10];
 
-			RK[12] = RK[4] ^
-						( FSb[ (uint8) ( RK[11]	>> 24 )	] << 24	) ^
-						( FSb[ (uint8) ( RK[11]	>> 16 )	] << 16	) ^
-						( FSb[ (uint8) ( RK[11]	>>	8 )	] <<  8	) ^
-						( FSb[ (uint8) ( RK[11]		  )	]		);
+            RK[12] = RK[4] ^
+                     ( FSb[ (uint8) ( RK[11]	>> 24 )	] << 24	) ^
+                     ( FSb[ (uint8) ( RK[11]	>> 16 )	] << 16	) ^
+                     ( FSb[ (uint8) ( RK[11]	>>	8 )	] <<  8	) ^
+                     ( FSb[ (uint8) ( RK[11]		  )	]		);
 
-			RK[13] = RK[5] ^ RK[12];
-			RK[14] = RK[6] ^ RK[13];
-			RK[15] = RK[7] ^ RK[14];
-		}
-		break;
-	}
+            RK[13] = RK[5] ^ RK[12];
+            RK[14] = RK[6] ^ RK[13];
+            RK[15] = RK[7] ^ RK[14];
+        }
+        break;
+    }
 
-	/* setup decryption	round keys */
+    /* setup decryption	round keys */
 
-	if(	KT_init	)
-	{
-		for( i = 0;	i <	256; i++ )
-		{
-			KT0[i] = RT0[ FSb[i] ];
-			KT1[i] = RT1[ FSb[i] ];
-			KT2[i] = RT2[ FSb[i] ];
-			KT3[i] = RT3[ FSb[i] ];
-		}
+    if(	KT_init	)
+    {
+        for( i = 0;	i <	256; i++ )
+        {
+            KT0[i] = RT0[ FSb[i] ];
+            KT1[i] = RT1[ FSb[i] ];
+            KT2[i] = RT2[ FSb[i] ];
+            KT3[i] = RT3[ FSb[i] ];
+        }
 
-		KT_init	= 0;
-	}
+        KT_init	= 0;
+    }
 
-	SK = ctx->drk;
+    SK = ctx->drk;
 
-	*SK++ =	*RK++;
-	*SK++ =	*RK++;
-	*SK++ =	*RK++;
-	*SK++ =	*RK++;
+    *SK++ =	*RK++;
+    *SK++ =	*RK++;
+    *SK++ =	*RK++;
+    *SK++ =	*RK++;
 
-	for( i = 1;	i <	ctx->nr; i++ )
-	{
-		RK -= 8;
+    for( i = 1;	i <	ctx->nr; i++ )
+    {
+        RK -= 8;
 
-		*SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
-				KT1[ (uint8) ( *RK >> 16 ) ] ^
-				KT2[ (uint8) ( *RK >>  8 ) ] ^
-				KT3[ (uint8) ( *RK		 ) ]; RK++;
+        *SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
+                KT1[ (uint8) ( *RK >> 16 ) ] ^
+                KT2[ (uint8) ( *RK >>  8 ) ] ^
+                KT3[ (uint8) ( *RK		 ) ];
+        RK++;
 
-		*SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
-				KT1[ (uint8) ( *RK >> 16 ) ] ^
-				KT2[ (uint8) ( *RK >>  8 ) ] ^
-				KT3[ (uint8) ( *RK		 ) ]; RK++;
+        *SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
+                KT1[ (uint8) ( *RK >> 16 ) ] ^
+                KT2[ (uint8) ( *RK >>  8 ) ] ^
+                KT3[ (uint8) ( *RK		 ) ];
+        RK++;
 
-		*SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
-				KT1[ (uint8) ( *RK >> 16 ) ] ^
-				KT2[ (uint8) ( *RK >>  8 ) ] ^
-				KT3[ (uint8) ( *RK		 ) ]; RK++;
+        *SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
+                KT1[ (uint8) ( *RK >> 16 ) ] ^
+                KT2[ (uint8) ( *RK >>  8 ) ] ^
+                KT3[ (uint8) ( *RK		 ) ];
+        RK++;
 
-		*SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
-				KT1[ (uint8) ( *RK >> 16 ) ] ^
-				KT2[ (uint8) ( *RK >>  8 ) ] ^
-				KT3[ (uint8) ( *RK		 ) ]; RK++;
-	}
+        *SK++ =	KT0[ (uint8) ( *RK >> 24 ) ] ^
+                KT1[ (uint8) ( *RK >> 16 ) ] ^
+                KT2[ (uint8) ( *RK >>  8 ) ] ^
+                KT3[ (uint8) ( *RK		 ) ];
+        RK++;
+    }
 
-	RK -= 8;
+    RK -= 8;
 
-	*SK++ =	*RK++;
-	*SK++ =	*RK++;
-	*SK++ =	*RK++;
-	*SK++ =	*RK++;
+    *SK++ =	*RK++;
+    *SK++ =	*RK++;
+    *SK++ =	*RK++;
+    *SK++ =	*RK++;
 
-	return(	0 );
+    return(	0 );
 }
 
 /* AES 128-bit block encryption	routine	*/
 
 void aes_encrypt(aes_context *ctx, uint8 input[16],	uint8 output[16] )
 {
-	uint32 *RK,	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3;
+    uint32 *RK,	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3;
 
-	RK = ctx->erk;
-	GET_UINT32(	X0,	input,	0 ); X0	^= RK[0];
-	GET_UINT32(	X1,	input,	4 ); X1	^= RK[1];
-	GET_UINT32(	X2,	input,	8 ); X2	^= RK[2];
-	GET_UINT32(	X3,	input, 12 ); X3	^= RK[3];
+    RK = ctx->erk;
+    GET_UINT32(	X0,	input,	0 );
+    X0	^= RK[0];
+    GET_UINT32(	X1,	input,	4 );
+    X1	^= RK[1];
+    GET_UINT32(	X2,	input,	8 );
+    X2	^= RK[2];
+    GET_UINT32(	X3,	input, 12 );
+    X3	^= RK[3];
 
 #define	AES_FROUND(X0,X1,X2,X3,Y0,Y1,Y2,Y3)		\
 {												\
@@ -1169,70 +1189,74 @@ void aes_encrypt(aes_context *ctx, uint8 input[16],	uint8 output[16] )
 				 FT3[ (uint8) (	Y2		 ) ];	\
 }
 
-	AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 1 */
-	AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 2 */
-	AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 3 */
-	AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 4 */
-	AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 5 */
-	AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 6 */
-	AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 7 */
-	AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 8 */
-	AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 9 */
+    AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 1 */
+    AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 2 */
+    AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 3 */
+    AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 4 */
+    AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 5 */
+    AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 6 */
+    AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 7 */
+    AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 8 */
+    AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 9 */
 
-	if(	ctx->nr	> 10 )
-	{
-		AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 10	*/
-		AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 11	*/
-	}
+    if(	ctx->nr	> 10 )
+    {
+        AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 10	*/
+        AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 11	*/
+    }
 
-	if(	ctx->nr	> 12 )
-	{
-		AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 12	*/
-		AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 13	*/
-	}
+    if(	ctx->nr	> 12 )
+    {
+        AES_FROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 12	*/
+        AES_FROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 13	*/
+    }
 
-	/* last	round */
+    /* last	round */
 
-	RK += 4;
+    RK += 4;
 
-	X0 = RK[0] ^ ( FSb[	(uint8)	( Y0 >>	24 ) ] << 24 ) ^
-				 ( FSb[	(uint8)	( Y1 >>	16 ) ] << 16 ) ^
-				 ( FSb[	(uint8)	( Y2 >>	 8 ) ] <<  8 ) ^
-				 ( FSb[	(uint8)	( Y3	   ) ]		 );
+    X0 = RK[0] ^ ( FSb[	(uint8)	( Y0 >>	24 ) ] << 24 ) ^
+         ( FSb[	(uint8)	( Y1 >>	16 ) ] << 16 ) ^
+         ( FSb[	(uint8)	( Y2 >>	 8 ) ] <<  8 ) ^
+         ( FSb[	(uint8)	( Y3	   ) ]		 );
 
-	X1 = RK[1] ^ ( FSb[	(uint8)	( Y1 >>	24 ) ] << 24 ) ^
-				 ( FSb[	(uint8)	( Y2 >>	16 ) ] << 16 ) ^
-				 ( FSb[	(uint8)	( Y3 >>	 8 ) ] <<  8 ) ^
-				 ( FSb[	(uint8)	( Y0	   ) ]		 );
+    X1 = RK[1] ^ ( FSb[	(uint8)	( Y1 >>	24 ) ] << 24 ) ^
+         ( FSb[	(uint8)	( Y2 >>	16 ) ] << 16 ) ^
+         ( FSb[	(uint8)	( Y3 >>	 8 ) ] <<  8 ) ^
+         ( FSb[	(uint8)	( Y0	   ) ]		 );
 
-	X2 = RK[2] ^ ( FSb[	(uint8)	( Y2 >>	24 ) ] << 24 ) ^
-				 ( FSb[	(uint8)	( Y3 >>	16 ) ] << 16 ) ^
-				 ( FSb[	(uint8)	( Y0 >>	 8 ) ] <<  8 ) ^
-				 ( FSb[	(uint8)	( Y1	   ) ]		 );
+    X2 = RK[2] ^ ( FSb[	(uint8)	( Y2 >>	24 ) ] << 24 ) ^
+         ( FSb[	(uint8)	( Y3 >>	16 ) ] << 16 ) ^
+         ( FSb[	(uint8)	( Y0 >>	 8 ) ] <<  8 ) ^
+         ( FSb[	(uint8)	( Y1	   ) ]		 );
 
-	X3 = RK[3] ^ ( FSb[	(uint8)	( Y3 >>	24 ) ] << 24 ) ^
-				 ( FSb[	(uint8)	( Y0 >>	16 ) ] << 16 ) ^
-				 ( FSb[	(uint8)	( Y1 >>	 8 ) ] <<  8 ) ^
-				 ( FSb[	(uint8)	( Y2	   ) ]		 );
+    X3 = RK[3] ^ ( FSb[	(uint8)	( Y3 >>	24 ) ] << 24 ) ^
+         ( FSb[	(uint8)	( Y0 >>	16 ) ] << 16 ) ^
+         ( FSb[	(uint8)	( Y1 >>	 8 ) ] <<  8 ) ^
+         ( FSb[	(uint8)	( Y2	   ) ]		 );
 
-	PUT_UINT32(	X0,	output,	 0 );
-	PUT_UINT32(	X1,	output,	 4 );
-	PUT_UINT32(	X2,	output,	 8 );
-	PUT_UINT32(	X3,	output,	12 );
+    PUT_UINT32(	X0,	output,	 0 );
+    PUT_UINT32(	X1,	output,	 4 );
+    PUT_UINT32(	X2,	output,	 8 );
+    PUT_UINT32(	X3,	output,	12 );
 }
 
 /* AES 128-bit block decryption	routine	*/
 
 void aes_decrypt( aes_context *ctx,	uint8 input[16], uint8 output[16] )
 {
-	uint32 *RK,	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3;
+    uint32 *RK,	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3;
 
-	RK = ctx->drk;
+    RK = ctx->drk;
 
-	GET_UINT32(	X0,	input,	0 ); X0	^= RK[0];
-	GET_UINT32(	X1,	input,	4 ); X1	^= RK[1];
-	GET_UINT32(	X2,	input,	8 ); X2	^= RK[2];
-	GET_UINT32(	X3,	input, 12 ); X3	^= RK[3];
+    GET_UINT32(	X0,	input,	0 );
+    X0	^= RK[0];
+    GET_UINT32(	X1,	input,	4 );
+    X1	^= RK[1];
+    GET_UINT32(	X2,	input,	8 );
+    X2	^= RK[2];
+    GET_UINT32(	X3,	input, 12 );
+    X3	^= RK[3];
 
 #define	AES_RROUND(X0,X1,X2,X3,Y0,Y1,Y2,Y3)		\
 {												\
@@ -1259,108 +1283,108 @@ void aes_decrypt( aes_context *ctx,	uint8 input[16], uint8 output[16] )
 				 RT3[ (uint8) (	Y0		 ) ];	\
 }
 
-	AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 1 */
-	AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 2 */
-	AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 3 */
-	AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 4 */
-	AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 5 */
-	AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 6 */
-	AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 7 */
-	AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 8 */
-	AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 9 */
+    AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 1 */
+    AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 2 */
+    AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 3 */
+    AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 4 */
+    AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 5 */
+    AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 6 */
+    AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 7 */
+    AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );		/* round 8 */
+    AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );		/* round 9 */
 
-	if(	ctx->nr	> 10 )
-	{
-		AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 10	*/
-		AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 11	*/
-	}
+    if(	ctx->nr	> 10 )
+    {
+        AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 10	*/
+        AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 11	*/
+    }
 
-	if(	ctx->nr	> 12 )
-	{
-		AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 12	*/
-		AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 13	*/
-	}
+    if(	ctx->nr	> 12 )
+    {
+        AES_RROUND(	X0,	X1,	X2,	X3,	Y0,	Y1,	Y2,	Y3 );	/* round 12	*/
+        AES_RROUND(	Y0,	Y1,	Y2,	Y3,	X0,	X1,	X2,	X3 );	/* round 13	*/
+    }
 
-	/* last	round */
+    /* last	round */
 
-	RK += 4;
+    RK += 4;
 
-	X0 = RK[0] ^ ( RSb[	(uint8)	( Y0 >>	24 ) ] << 24 ) ^
-				 ( RSb[	(uint8)	( Y3 >>	16 ) ] << 16 ) ^
-				 ( RSb[	(uint8)	( Y2 >>	 8 ) ] <<  8 ) ^
-				 ( RSb[	(uint8)	( Y1	   ) ]		 );
+    X0 = RK[0] ^ ( RSb[	(uint8)	( Y0 >>	24 ) ] << 24 ) ^
+         ( RSb[	(uint8)	( Y3 >>	16 ) ] << 16 ) ^
+         ( RSb[	(uint8)	( Y2 >>	 8 ) ] <<  8 ) ^
+         ( RSb[	(uint8)	( Y1	   ) ]		 );
 
-	X1 = RK[1] ^ ( RSb[	(uint8)	( Y1 >>	24 ) ] << 24 ) ^
-				 ( RSb[	(uint8)	( Y0 >>	16 ) ] << 16 ) ^
-				 ( RSb[	(uint8)	( Y3 >>	 8 ) ] <<  8 ) ^
-				 ( RSb[	(uint8)	( Y2	   ) ]		 );
+    X1 = RK[1] ^ ( RSb[	(uint8)	( Y1 >>	24 ) ] << 24 ) ^
+         ( RSb[	(uint8)	( Y0 >>	16 ) ] << 16 ) ^
+         ( RSb[	(uint8)	( Y3 >>	 8 ) ] <<  8 ) ^
+         ( RSb[	(uint8)	( Y2	   ) ]		 );
 
-	X2 = RK[2] ^ ( RSb[	(uint8)	( Y2 >>	24 ) ] << 24 ) ^
-				 ( RSb[	(uint8)	( Y1 >>	16 ) ] << 16 ) ^
-				 ( RSb[	(uint8)	( Y0 >>	 8 ) ] <<  8 ) ^
-				 ( RSb[	(uint8)	( Y3	   ) ]		 );
+    X2 = RK[2] ^ ( RSb[	(uint8)	( Y2 >>	24 ) ] << 24 ) ^
+         ( RSb[	(uint8)	( Y1 >>	16 ) ] << 16 ) ^
+         ( RSb[	(uint8)	( Y0 >>	 8 ) ] <<  8 ) ^
+         ( RSb[	(uint8)	( Y3	   ) ]		 );
 
-	X3 = RK[3] ^ ( RSb[	(uint8)	( Y3 >>	24 ) ] << 24 ) ^
-				 ( RSb[	(uint8)	( Y2 >>	16 ) ] << 16 ) ^
-				 ( RSb[	(uint8)	( Y1 >>	 8 ) ] <<  8 ) ^
-				 ( RSb[	(uint8)	( Y0	   ) ]		 );
+    X3 = RK[3] ^ ( RSb[	(uint8)	( Y3 >>	24 ) ] << 24 ) ^
+         ( RSb[	(uint8)	( Y2 >>	16 ) ] << 16 ) ^
+         ( RSb[	(uint8)	( Y1 >>	 8 ) ] <<  8 ) ^
+         ( RSb[	(uint8)	( Y0	   ) ]		 );
 
-	PUT_UINT32(	X0,	output,	 0 );
-	PUT_UINT32(	X1,	output,	 4 );
-	PUT_UINT32(	X2,	output,	 8 );
-	PUT_UINT32(	X3,	output,	12 );
+    PUT_UINT32(	X0,	output,	 0 );
+    PUT_UINT32(	X1,	output,	 4 );
+    PUT_UINT32(	X2,	output,	 8 );
+    PUT_UINT32(	X3,	output,	12 );
 }
 
 /*
-* F(P, S, c, i) = U1 xor U2 xor ... Uc 
-* U1 = PRF(P, S || Int(i)) 
-* U2 = PRF(P, U1) 
-* Uc = PRF(P, Uc-1) 
-*/ 
+* F(P, S, c, i) = U1 xor U2 xor ... Uc
+* U1 = PRF(P, S || Int(i))
+* U2 = PRF(P, U1)
+* Uc = PRF(P, Uc-1)
+*/
 
-void F(char *password, unsigned char *ssid, int ssidlength, int iterations, int count, unsigned char *output) 
-{ 
-    unsigned char digest[36], digest1[SHA_DIGEST_LEN]; 
-    int i, j; 
+void F(char *password, unsigned char *ssid, int ssidlength, int iterations, int count, unsigned char *output)
+{
+    unsigned char digest[36], digest1[SHA_DIGEST_LEN];
+    int i, j;
 
-    /* U1 = PRF(P, S || int(i)) */ 
-    memcpy(digest, ssid, ssidlength); 
-    digest[ssidlength] = (unsigned char)((count>>24) & 0xff); 
-    digest[ssidlength+1] = (unsigned char)((count>>16) & 0xff); 
-    digest[ssidlength+2] = (unsigned char)((count>>8) & 0xff); 
-    digest[ssidlength+3] = (unsigned char)(count & 0xff); 
+    /* U1 = PRF(P, S || int(i)) */
+    memcpy(digest, ssid, ssidlength);
+    digest[ssidlength] = (unsigned char)((count>>24) & 0xff);
+    digest[ssidlength+1] = (unsigned char)((count>>16) & 0xff);
+    digest[ssidlength+2] = (unsigned char)((count>>8) & 0xff);
+    digest[ssidlength+3] = (unsigned char)(count & 0xff);
     HMAC_SHA1(digest, ssidlength+4, (unsigned char*) password, (int) strlen(password), digest1); // for WPA update
 
-    /* output = U1 */ 
-    memcpy(output, digest1, SHA_DIGEST_LEN); 
+    /* output = U1 */
+    memcpy(output, digest1, SHA_DIGEST_LEN);
 
-    for (i = 1; i < iterations; i++) 
-    { 
-        /* Un = PRF(P, Un-1) */ 
+    for (i = 1; i < iterations; i++)
+    {
+        /* Un = PRF(P, Un-1) */
         HMAC_SHA1(digest1, SHA_DIGEST_LEN, (unsigned char*) password, (int) strlen(password), digest); // for WPA update
-        memcpy(digest1, digest, SHA_DIGEST_LEN); 
+        memcpy(digest1, digest, SHA_DIGEST_LEN);
 
-        /* output = output xor Un */ 
-        for (j = 0; j < SHA_DIGEST_LEN; j++) 
-        { 
-            output[j] ^= digest[j]; 
-        } 
-    } 
+        /* output = output xor Un */
+        for (j = 0; j < SHA_DIGEST_LEN; j++)
+        {
+            output[j] ^= digest[j];
+        }
+    }
 }
-/* 
-* password - ascii string up to 63 characters in length 
-* ssid - octet string up to 32 octets 
-* ssidlength - length of ssid in octets 
-* output must be 40 octets in length and outputs 256 bits of key 
-*/ 
-int PasswordHash(char *password, unsigned char *ssid, int ssidlength, unsigned char *output) 
-{ 
-    if ((strlen(password) > 63) || (ssidlength > 32)) 
-        return 0; 
+/*
+* password - ascii string up to 63 characters in length
+* ssid - octet string up to 32 octets
+* ssidlength - length of ssid in octets
+* output must be 40 octets in length and outputs 256 bits of key
+*/
+int PasswordHash(char *password, unsigned char *ssid, int ssidlength, unsigned char *output)
+{
+    if ((strlen(password) > 63) || (ssidlength > 32))
+        return 0;
 
-    F(password, ssid, ssidlength, 4096, 1, output); 
-    F(password, ssid, ssidlength, 4096, 2, &output[SHA_DIGEST_LEN]); 
-    return 1; 
+    F(password, ssid, ssidlength, 4096, 1, output);
+    F(password, ssid, ssidlength, 4096, 2, &output[SHA_DIGEST_LEN]);
+    return 1;
 }
 
 

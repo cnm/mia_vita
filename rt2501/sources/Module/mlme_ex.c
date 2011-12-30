@@ -7,21 +7,21 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
 
 	Module Name:
@@ -46,50 +46,50 @@
 // ===========================================================================================
 
 /*! \brief Initialize the state machine.
- *  \param *S           pointer to the state machine 
+ *  \param *S           pointer to the state machine
  *  \param  Trans       State machine transition function
- *  \param  StNr        number of states 
- *  \param  MsgNr       number of messages 
- *  \param  DefFunc     default function, when there is invalid state/message combination 
- *  \param  InitState   initial state of the state machine 
+ *  \param  StNr        number of states
+ *  \param  MsgNr       number of messages
+ *  \param  DefFunc     default function, when there is invalid state/message combination
+ *  \param  InitState   initial state of the state machine
  *  \param  Base        StateMachine base, internal use only
  *  \pre p_sm should be a legal pointer
  *  \post
  */
 VOID StateMachineInitEx(
-	IN STATE_MACHINE_EX *S, 
-	IN STATE_MACHINE_FUNC_EX Trans[], 
-	IN ULONG StNr,
-	IN ULONG MsgNr,
-	IN STATE_MACHINE_FUNC_EX DefFunc, 
-	IN ULONG InitState, 
-	IN ULONG Base) 
+    IN STATE_MACHINE_EX *S,
+    IN STATE_MACHINE_FUNC_EX Trans[],
+    IN ULONG StNr,
+    IN ULONG MsgNr,
+    IN STATE_MACHINE_FUNC_EX DefFunc,
+    IN ULONG InitState,
+    IN ULONG Base)
 {
-	ULONG i, j;
+    ULONG i, j;
 
-	// set number of states and messages
-	S->NrState = StNr;
-	S->NrMsg   = MsgNr;
-	S->Base    = Base;
+    // set number of states and messages
+    S->NrState = StNr;
+    S->NrMsg   = MsgNr;
+    S->Base    = Base;
 
-	S->TransFunc  = Trans;
-    
-	// init all state transition to default function
-	for (i = 0; i < StNr; i++) 
-	{
-		for (j = 0; j < MsgNr; j++) 
-		{
-			S->TransFunc[i * MsgNr + j] = DefFunc;
-		}
-	}
-    
-	// set the starting state
-	S->CurrState = InitState;
+    S->TransFunc  = Trans;
 
-	return;
+    // init all state transition to default function
+    for (i = 0; i < StNr; i++)
+    {
+        for (j = 0; j < MsgNr; j++)
+        {
+            S->TransFunc[i * MsgNr + j] = DefFunc;
+        }
+    }
+
+    // set the starting state
+    S->CurrState = InitState;
+
+    return;
 }
 
-/*! \brief This function fills in the function pointer into the cell in the state machine 
+/*! \brief This function fills in the function pointer into the cell in the state machine
  *  \param *S   pointer to the state machine
  *  \param St   state
  *  \param Msg  incoming message
@@ -98,22 +98,22 @@ VOID StateMachineInitEx(
  *  \post
  */
 VOID StateMachineSetActionEx(
-	IN STATE_MACHINE_EX *S, 
-	IN ULONG St, 
-	IN ULONG Msg, 
-	IN STATE_MACHINE_FUNC_EX Func) 
+    IN STATE_MACHINE_EX *S,
+    IN ULONG St,
+    IN ULONG Msg,
+    IN STATE_MACHINE_FUNC_EX Func)
 {
-	ULONG MsgIdx;
-    
-	MsgIdx = Msg - S->Base;
+    ULONG MsgIdx;
 
-	if (St < S->NrState && MsgIdx < S->NrMsg) 
-	{
-		// boundary checking before setting the action
-		S->TransFunc[St * S->NrMsg + MsgIdx] = Func;
-	}
+    MsgIdx = Msg - S->Base;
 
-	return;
+    if (St < S->NrState && MsgIdx < S->NrMsg)
+    {
+        // boundary checking before setting the action
+        S->TransFunc[St * S->NrMsg + MsgIdx] = Func;
+    }
+
+    return;
 }
 
 /*! \brief   This function does the state transition
@@ -123,16 +123,16 @@ VOID StateMachineSetActionEx(
  *  \return   None
  */
 VOID StateMachinePerformActionEx(
-	IN PRTMP_ADAPTER	pAd, 
-	IN STATE_MACHINE_EX *S, 
-	IN MLME_QUEUE_ELEM *Elem,
-	USHORT Idx,
-	PULONG pCurrState)
+    IN PRTMP_ADAPTER	pAd,
+    IN STATE_MACHINE_EX *S,
+    IN MLME_QUEUE_ELEM *Elem,
+    USHORT Idx,
+    PULONG pCurrState)
 {
-	if (S->TransFunc[(*pCurrState) * S->NrMsg + Elem->MsgType - S->Base])
-		(*(S->TransFunc[(*pCurrState) * S->NrMsg + Elem->MsgType - S->Base]))(pAd, Elem, pCurrState, Idx);
+    if (S->TransFunc[(*pCurrState) * S->NrMsg + Elem->MsgType - S->Base])
+        (*(S->TransFunc[(*pCurrState) * S->NrMsg + Elem->MsgType - S->Base]))(pAd, Elem, pCurrState, Idx);
 
-	return;
+    return;
 }
 
 /*! \brief   Enqueue a message for other threads, if they want to send messages to MLME thread
@@ -147,15 +147,15 @@ VOID StateMachinePerformActionEx(
  *  \note    The message has to be initialized
  */
 BOOLEAN MlmeEnqueueEx(
-	IN	PRTMP_ADAPTER	pAd,
-	IN ULONG Machine, 
-	IN ULONG MsgType, 
-	IN ULONG MsgLen, 
-	IN VOID *Msg,
-	IN USHORT Idx)
+    IN	PRTMP_ADAPTER	pAd,
+    IN ULONG Machine,
+    IN ULONG MsgType,
+    IN ULONG MsgLen,
+    IN VOID *Msg,
+    IN USHORT Idx)
 {
     INT Tail;
-	MLME_QUEUE *Queue = (MLME_QUEUE *)&pAd->Mlme.Queue;
+    MLME_QUEUE *Queue = (MLME_QUEUE *)&pAd->Mlme.Queue;
 
     // Do nothing if the driver is starting halt state.
     // This might happen when timer already been fired before cancel timer with mlmehalt
@@ -163,17 +163,17 @@ BOOLEAN MlmeEnqueueEx(
         return FALSE;
 
 
-	// First check the size, it MUST not exceed the mlme queue size
-	if (MsgLen > MAX_LEN_OF_MLME_BUFFER)
-	{
+    // First check the size, it MUST not exceed the mlme queue size
+    if (MsgLen > MAX_LEN_OF_MLME_BUFFER)
+    {
         DBGPRINT_ERR(("MlmeEnqueueEx: msg too large, size = %d \n", MsgLen));
-		return FALSE;
-	}
-	
-    if (MlmeQueueFull(Queue)) 
+        return FALSE;
+    }
+
+    if (MlmeQueueFull(Queue))
     {
         DBGPRINT_ERR(("MlmeEnqueueEx: full, msg dropped and may corrupt MLME\n"));
-		RTUSBMlmeUp(pAd);
+        RTUSBMlmeUp(pAd);
         return FALSE;
     }
 
@@ -181,12 +181,12 @@ BOOLEAN MlmeEnqueueEx(
     Tail = Queue->Tail;
     Queue->Tail++;
     Queue->Num++;
-    if (Queue->Tail == MAX_LEN_OF_MLME_QUEUE) 
+    if (Queue->Tail == MAX_LEN_OF_MLME_QUEUE)
     {
         Queue->Tail = 0;
     }
     DBGPRINT(RT_DEBUG_INFO, ("MlmeEnqueueEx, num=%d\n",Queue->Num));
- 
+
     Queue->Entry[Tail].Occupied = TRUE;
     Queue->Entry[Tail].Machine = Machine;
     Queue->Entry[Tail].MsgType = MsgType;
@@ -203,17 +203,17 @@ BOOLEAN MlmeEnqueueEx(
 /*
     ==========================================================================
     Description:
-        The drop function, when machine executes this, the message is simply 
-        ignored. This function does nothing, the message is freed in 
+        The drop function, when machine executes this, the message is simply
+        ignored. This function does nothing, the message is freed in
         StateMachinePerformAction()
     ==========================================================================
  */
 VOID DropEx(
     IN PRTMP_ADAPTER pAd,
     IN MLME_QUEUE_ELEM *Elem,
-	PULONG pCurrState,
-	USHORT Idx)
+    PULONG pCurrState,
+    USHORT Idx)
 {
-	return;
+    return;
 }
 

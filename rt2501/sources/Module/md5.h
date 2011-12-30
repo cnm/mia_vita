@@ -7,21 +7,21 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
 	Module Name:
 	md5.h
@@ -50,10 +50,11 @@
 
 #define MD5_MAC_LEN 16
 
-typedef struct _MD5_CTX {
+typedef struct _MD5_CTX
+{
     ULONG   Buf[4];             // buffers of four states
-	UCHAR   Input[64];          // input message
-	ULONG   LenInBitCount[2];   // length counter for input message, 0 up to 64 bits	                            
+    UCHAR   Input[64];          // input message
+    ULONG   LenInBitCount[2];   // length counter for input message, 0 up to 64 bits
 }   MD5_CTX;
 
 VOID MD5Init(MD5_CTX *pCtx);
@@ -69,10 +70,10 @@ void hmac_md5(u8 *key, size_t key_len, u8 *data, size_t data_len, u8 *mac);
 //
 typedef	struct _SHA_CTX
 {
-	ULONG   Buf[5];             // buffers of five states
-	UCHAR   Input[80];          // input message
-	ULONG   LenInBitCount[2];   // length counter for input message, 0 up to 64 bits
-	
+    ULONG   Buf[5];             // buffers of five states
+    UCHAR   Input[80];          // input message
+    ULONG   LenInBitCount[2];   // length counter for input message, 0 up to 64 bits
+
 }	SHA_CTX;
 
 VOID SHAInit(SHA_CTX *pCtx);
@@ -89,9 +90,9 @@ VOID SHATransform(ULONG Buf[5], ULONG Mes[20]);
 
 typedef	struct
 {
-	uint32 erk[64];		/* encryption round	keys */
-	uint32 drk[64];		/* decryption round	keys */
-	int	nr;				/* number of rounds	*/
+    uint32 erk[64];		/* encryption round	keys */
+    uint32 drk[64];		/* decryption round	keys */
+    int	nr;				/* number of rounds	*/
 }
 aes_context;
 

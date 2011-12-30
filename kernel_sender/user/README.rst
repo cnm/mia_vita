@@ -19,3 +19,21 @@ Initialize the GPS counters in kernel
 =====================================
 
 This code also contains a program (init_counter) which will initialize the GPS variable in the modified kernel. (make init_counter).
+
+File Structure
+==============
+Note: There are two mains here: One to set the time in the kernel through the GPS and one to read packets
+
+.
+├── gps_time.c          - Contacts the GPS and ask him the time
+├── gps_time.h          - "" 
+├── gps_uartctl.c       - UART init, read and write primitives for the GPS
+├── gps_uartctl.h       - ""
+├── init_counter.c      - Main for reading the GPS and then setting the seconds
+├── list.c              - List operation and functions to write to json and raw the packets
+├── list.h              - ""
+├── macros.h            - Macros for printing debug info
+├── main.c              - Opens a socket, reads packets and stores them in a list
+├── miavita_packet.h -> ../../kernel_sender/miavita_packet.h
+├── syscall_wrapper.c   - Syscalls to set the two time variables in the kernel
+└── syscall_wrapper.h   - ""

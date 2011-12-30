@@ -7,21 +7,21 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
 
 	Module Name:
@@ -49,9 +49,9 @@
 #endif
 
 #define RT_PRIV_IOCTL								(SIOCIWFIRSTPRIV + 0x0E)
-#define RTPRIV_IOCTL_SET							(SIOCIWFIRSTPRIV + 0x02) 
+#define RTPRIV_IOCTL_SET							(SIOCIWFIRSTPRIV + 0x02)
 #define RTPRIV_IOCTL_SHOW							(SIOCIWFIRSTPRIV + 0x13)
-				
+
 #ifdef DBG
 #define RTPRIV_IOCTL_BBP                            (SIOCIWFIRSTPRIV + 0x03)
 #define RTPRIV_IOCTL_MAC                            (SIOCIWFIRSTPRIV + 0x05)
@@ -309,10 +309,10 @@
 
 typedef enum _NDIS_802_11_STATUS_TYPE
 {
-	Ndis802_11StatusType_Authentication,
-	Ndis802_11StatusType_MediaStreamMode,
-	Ndis802_11StatusType_PMKID_CandidateList,		
-	Ndis802_11StatusTypeMax    // not a real type, defined as an upper bound
+    Ndis802_11StatusType_Authentication,
+    Ndis802_11StatusType_MediaStreamMode,
+    Ndis802_11StatusType_PMKID_CandidateList,
+    Ndis802_11StatusTypeMax    // not a real type, defined as an upper bound
 } NDIS_802_11_STATUS_TYPE, *PNDIS_802_11_STATUS_TYPE;
 
 
@@ -341,8 +341,8 @@ typedef struct _NDIS_802_11_AUTHENTICATION_REQUEST
 // Added new types for OFDM 5G and 2.4G
 typedef enum _NDIS_802_11_NETWORK_TYPE
 {
-    Ndis802_11FH, 
-    Ndis802_11DS, 
+    Ndis802_11FH,
+    Ndis802_11DS,
     Ndis802_11OFDM5,
     Ndis802_11OFDM24,
     Ndis802_11Automode,
@@ -373,18 +373,18 @@ typedef LONG    NDIS_802_11_RSSI;           // in dBm
 typedef struct _NDIS_802_11_CONFIGURATION_FH
 {
     ULONG           Length;            // Length of structure
-    ULONG           HopPattern;        // As defined by 802.11, MSB set 
+    ULONG           HopPattern;        // As defined by 802.11, MSB set
     ULONG           HopSet;            // to one if non-802.11
     ULONG           DwellTime;         // units are Kusec
 } NDIS_802_11_CONFIGURATION_FH, *PNDIS_802_11_CONFIGURATION_FH;
 
 typedef struct _NDIS_802_11_CONFIGURATION
 {
-   ULONG                           Length;             // Length of structure
-   ULONG                           BeaconPeriod;       // units are Kusec
-   ULONG                           ATIMWindow;         // units are Kusec
-   ULONG                           DSConfig;           // Frequency, units are kHz
-   NDIS_802_11_CONFIGURATION_FH    FHConfig;
+    ULONG                           Length;             // Length of structure
+    ULONG                           BeaconPeriod;       // units are Kusec
+    ULONG                           ATIMWindow;         // units are Kusec
+    ULONG                           DSConfig;           // Frequency, units are kHz
+    NDIS_802_11_CONFIGURATION_FH    FHConfig;
 } NDIS_802_11_CONFIGURATION, *PNDIS_802_11_CONFIGURATION;
 
 typedef struct _NDIS_802_11_STATISTICS
@@ -411,7 +411,7 @@ typedef ULONGLONG   NDIS_802_11_KEY_RSC;
 typedef struct PACKED _NDIS_802_11_KEY
 {
     ULONG           Length;             // Length of this structure
-    ULONG           KeyIndex;           
+    ULONG           KeyIndex;
     ULONG           KeyLength;          // length of key in bytes
     NDIS_802_11_MAC_ADDRESS BSSID;
     NDIS_802_11_KEY_RSC KeyRSC;
@@ -421,8 +421,8 @@ typedef struct PACKED _NDIS_802_11_KEY
 typedef struct _NDIS_802_11_REMOVE_KEY
 {
     ULONG                   Length;        // Length of this structure
-    ULONG                   KeyIndex;           
-    NDIS_802_11_MAC_ADDRESS BSSID;      
+    ULONG                   KeyIndex;
+    NDIS_802_11_MAC_ADDRESS BSSID;
 } NDIS_802_11_REMOVE_KEY, *PNDIS_802_11_REMOVE_KEY;
 
 typedef struct PACKED _NDIS_802_11_WEP
@@ -447,28 +447,29 @@ typedef UCHAR   NDIS_802_11_PMKID_VALUE[16];
 
 typedef struct _BSSID_INFO
 {
-	NDIS_802_11_MAC_ADDRESS BSSID;
-	NDIS_802_11_PMKID_VALUE PMKID;
+    NDIS_802_11_MAC_ADDRESS BSSID;
+    NDIS_802_11_PMKID_VALUE PMKID;
 } BSSID_INFO, *PBSSID_INFO;
 
 typedef struct _NDIS_802_11_PMKID
 {
-	ULONG Length;
-	ULONG BSSIDInfoCount;
-	BSSID_INFO BSSIDInfo[1];
+    ULONG Length;
+    ULONG BSSIDInfoCount;
+    BSSID_INFO BSSIDInfo[1];
 } NDIS_802_11_PMKID, *PNDIS_802_11_PMKID;
 
 //Added new types for PMKID Candidate lists.
-typedef struct _PMKID_CANDIDATE {
-	NDIS_802_11_MAC_ADDRESS BSSID;
-	ULONG Flags;
+typedef struct _PMKID_CANDIDATE
+{
+    NDIS_802_11_MAC_ADDRESS BSSID;
+    ULONG Flags;
 } PMKID_CANDIDATE, *PPMKID_CANDIDATE;
 
 typedef struct _NDIS_802_11_PMKID_CANDIDATE_LIST
 {
-	ULONG Version;       // Version of the structure
-	ULONG NumCandidates; // No. of pmkid candidates
-	PMKID_CANDIDATE CandidateList[1];
+    ULONG Version;       // Version of the structure
+    ULONG NumCandidates; // No. of pmkid candidates
+    PMKID_CANDIDATE CandidateList[1];
 } NDIS_802_11_PMKID_CANDIDATE_LIST, *PNDIS_802_11_PMKID_CANDIDATE_LIST;
 
 //Flags for PMKID Candidate list structure
@@ -485,7 +486,7 @@ typedef enum _NDIS_802_11_AUTHENTICATION_MODE
     Ndis802_11AuthModeWPAPSK,
     Ndis802_11AuthModeWPANone,
     Ndis802_11AuthModeWPA2,
-    Ndis802_11AuthModeWPA2PSK,    
+    Ndis802_11AuthModeWPA2PSK,
     Ndis802_11AuthModeMax           // Not a real mode, defined as upper bound
 } NDIS_802_11_AUTHENTICATION_MODE, *PNDIS_802_11_AUTHENTICATION_MODE;
 
@@ -500,7 +501,7 @@ typedef enum _NDIS_802_11_AUTHENTICATION_MODE
 typedef UCHAR NDIS_802_11_RATES[NDIS_802_11_LENGTH_RATES];        // Set of 8 data rates
 typedef UCHAR NDIS_802_11_RATES_EX[NDIS_802_11_LENGTH_RATES_EX];  // Set of 16 data rates
 
-typedef struct PACKED _NDIS_802_11_SSID 
+typedef struct PACKED _NDIS_802_11_SSID
 {
     ULONG   SsidLength;         // length of SSID field below, in bytes; this can be zero.
     UCHAR   Ssid[NDIS_802_11_LENGTH_SSID];           // SSID information field
@@ -514,7 +515,7 @@ typedef struct PACKED _NDIS_WLAN_BSSID
     UCHAR                               Reserved[2];
     NDIS_802_11_SSID                    Ssid;       // SSID
     ULONG                               Privacy;    // WEP encryption requirement
-    NDIS_802_11_RSSI                    Rssi;       // receive signal, strength in dBm                                                    
+    NDIS_802_11_RSSI                    Rssi;       // receive signal, strength in dBm
     NDIS_802_11_NETWORK_TYPE            NetworkTypeInUse;
     NDIS_802_11_CONFIGURATION           Configuration;
     NDIS_802_11_NETWORK_INFRASTRUCTURE  InfrastructureMode;
@@ -536,7 +537,7 @@ typedef struct PACKED _NDIS_WLAN_BSSID_EX
     NDIS_802_11_SSID                    Ssid;               // SSID
     ULONG                               Privacy;            // WEP encryption requirement
     NDIS_802_11_RSSI                    Rssi;               // receive signal
-                                                            // strength in dBm
+    // strength in dBm
     NDIS_802_11_NETWORK_TYPE            NetworkTypeInUse;
     NDIS_802_11_CONFIGURATION           Configuration;
     NDIS_802_11_NETWORK_INFRASTRUCTURE  InfrastructureMode;
@@ -551,14 +552,14 @@ typedef struct _NDIS_802_11_BSSID_LIST_EX
     NDIS_WLAN_BSSID_EX      Bssid[1];
 } NDIS_802_11_BSSID_LIST_EX, *PNDIS_802_11_BSSID_LIST_EX;
 
-typedef struct _NDIS_802_11_FIXED_IEs 
+typedef struct _NDIS_802_11_FIXED_IEs
 {
     UCHAR Timestamp[8];
     USHORT BeaconInterval;
     USHORT Capabilities;
 } NDIS_802_11_FIXED_IEs, *PNDIS_802_11_FIXED_IEs;
 
-typedef struct _NDIS_802_11_VARIABLE_IEs 
+typedef struct _NDIS_802_11_VARIABLE_IEs
 {
     UCHAR ElementID;
     UCHAR Length;    // Number of bytes in data field
@@ -594,11 +595,11 @@ typedef enum _NDIS_802_11_WEP_STATUS
     Ndis802_11Encryption3Enabled,	// AES
     Ndis802_11Encryption3KeyAbsent
 } NDIS_802_11_WEP_STATUS, *PNDIS_802_11_WEP_STATUS,
-  NDIS_802_11_ENCRYPTION_STATUS, *PNDIS_802_11_ENCRYPTION_STATUS;
+NDIS_802_11_ENCRYPTION_STATUS, *PNDIS_802_11_ENCRYPTION_STATUS;
 
 typedef enum _NDIS_802_11_RELOAD_DEFAULTS
 {
-   Ndis802_11ReloadWEPKeys
+    Ndis802_11ReloadWEPKeys
 } NDIS_802_11_RELOAD_DEFAULTS, *PNDIS_802_11_RELOAD_DEFAULTS;
 
 #define NDIS_802_11_AI_REQFI_CAPABILITIES      1
@@ -641,7 +642,7 @@ typedef struct _NDIS_802_11_AUTHENTICATION_EVENT
     NDIS_802_11_STATUS_INDICATION       Status;
     NDIS_802_11_AUTHENTICATION_REQUEST  Request[1];
 } NDIS_802_11_AUTHENTICATION_EVENT, *PNDIS_802_11_AUTHENTICATION_EVENT;
-        
+
 typedef struct _NDIS_802_11_TEST
 {
     ULONG Length;
@@ -650,17 +651,19 @@ typedef struct _NDIS_802_11_TEST
     {
         NDIS_802_11_AUTHENTICATION_EVENT AuthenticationEvent;
         NDIS_802_11_RSSI RssiTrigger;
-    }tt;
+    } tt;
 } NDIS_802_11_TEST, *PNDIS_802_11_TEST;
 
-typedef enum _RT_802_11_PREAMBLE {
+typedef enum _RT_802_11_PREAMBLE
+{
     Rt802_11PreambleLong,
     Rt802_11PreambleShort,
     Rt802_11PreambleAuto
 } RT_802_11_PREAMBLE, *PRT_802_11_PREAMBLE;
 
-// 2005-03-08 match current RaConfig. 
-typedef enum _RT_802_11_PHY_MODE {
+// 2005-03-08 match current RaConfig.
+typedef enum _RT_802_11_PHY_MODE
+{
     PHY_11BG_MIXED,
     PHY_11B,
     PHY_11A,
@@ -668,16 +671,18 @@ typedef enum _RT_802_11_PHY_MODE {
     PHY_11G
 } RT_802_11_PHY_MODE;
 
-typedef enum _RT_802_11_ADHOC_MODE {
-	ADHOC_11B,
-	ADHOC_11BG_MIXED,
-	ADHOC_11G,
-	ADHOC_11A,
-	ADHOC_11ABG_MIXED
+typedef enum _RT_802_11_ADHOC_MODE
+{
+    ADHOC_11B,
+    ADHOC_11BG_MIXED,
+    ADHOC_11G,
+    ADHOC_11A,
+    ADHOC_11ABG_MIXED
 } RT_802_11_ADHOC_MODE;
 
 // put all proprietery for-query objects here to reduce # of Query_OID
-typedef struct _RT_802_11_LINK_STATUS {
+typedef struct _RT_802_11_LINK_STATUS
+{
     ULONG   CurrTxRate;         // in units of 0.5Mbps
     ULONG   ChannelQuality;     // 0..100 %
     ULONG   TxByteCount;        // both ok and fail
@@ -685,7 +690,8 @@ typedef struct _RT_802_11_LINK_STATUS {
 } RT_802_11_LINK_STATUS, *PRT_802_11_LINK_STATUS;
 
 // structure for query/set hardware register - MAC, BBP, RF register
-typedef struct _RT_802_11_HARDWARE_REGISTER {
+typedef struct _RT_802_11_HARDWARE_REGISTER
+{
     ULONG   HardwareType;       // 0:MAC, 1:BBP, 2:RF register
     ULONG   Offset;             // Q/S register offset addr
     ULONG   Data;               // R/W data buffer
@@ -701,7 +707,8 @@ typedef struct _RT_802_11_HARDWARE_REGISTER {
 //} RT_802_11_RX_AGC_VGC_TUNING, *PRT_802_11_RX_AGC_VGC_TUNING;
 
 // structure to query/set STA_CONFIG
-typedef struct _RT_802_11_STA_CONFIG {
+typedef struct _RT_802_11_STA_CONFIG
+{
     ULONG   EnableTxBurst;      // 0-disable, 1-enable
     ULONG   EnableTurboRate;    // 0-disable, 1-enable 72/100mbps turbo rate
     ULONG   UseBGProtection;    // 0-AUTO, 1-always ON, 2-always OFF
@@ -712,7 +719,8 @@ typedef struct _RT_802_11_STA_CONFIG {
     ULONG   SystemErrorBitmap;  // ignore upon SET, return system error upon QUERY
 } RT_802_11_STA_CONFIG, *PRT_802_11_STA_CONFIG;
 
-typedef struct PACKED _RT_VERSION_INFO{
+typedef struct PACKED _RT_VERSION_INFO
+{
     UCHAR       DriverVersionW;
     UCHAR       DriverVersionX;
     UCHAR       DriverVersionY;

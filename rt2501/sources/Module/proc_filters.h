@@ -1,11 +1,11 @@
 /*
  *@author: Frederico Gonçalves
  *
- *This is the header file for the proc entry which registers and 
+ *This is the header file for the proc entry which registers and
  *prints filters.
  *
  *Reading the file will print the registered filters.
- *Writting to the file will (un)register new filters. (See 
+ *Writting to the file will (un)register new filters. (See
  *specification in .c file)
  */
 

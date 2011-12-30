@@ -7,23 +7,23 @@
  *
  * (c) Copyright 2002-2008, Ralink Technology, Inc.
  *
- * This program is free software; you can redistribute it and/or modify  * 
- * it under the terms of the GNU General Public License as published by  * 
- * the Free Software Foundation; either version 2 of the License, or     * 
- * (at your option) any later version.                                   * 
- *                                                                       * 
- * This program is distributed in the hope that it will be useful,       * 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of        * 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         * 
- * GNU General Public License for more details.                          * 
- *                                                                       * 
- * You should have received a copy of the GNU General Public License     * 
- * along with this program; if not, write to the                         * 
- * Free Software Foundation, Inc.,                                       * 
- * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             * 
- *                                                                       * 
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the                         *
+ * Free Software Foundation, Inc.,                                       *
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *                                                                       *
  *************************************************************************
- 
+
     Module Name:
     rt_config.h
 
@@ -47,8 +47,8 @@
 // Query from UI
 #define DRV_MAJORVERSION        1
 #define DRV_MINORVERSION        1
-#define DRV_SUBVERSION          0	
-#define DRV_TESTVERSION         0	
+#define DRV_SUBVERSION          0
+#define DRV_TESTVERSION         0
 #define DRV_YEAR                2008
 #define DRV_MONTH               1
 #define DRV_DAY                 9
@@ -98,10 +98,10 @@ MODULE_PARM_DESC(port_array, "An array of udp ports. Packets with destination po
 #if LINUX_VERSION_CODE >= 0x20407
 #include <linux/mii.h>
 #endif
-#include <asm/processor.h>      /* Processor type for cache alignment. */  
+#include <asm/processor.h>      /* Processor type for cache alignment. */
 #include <asm/bitops.h>
-#include <asm/io.h>      
-#include <asm/irq.h>       
+#include <asm/io.h>
+#include <asm/irq.h>
 #include <asm/uaccess.h>
 #include <asm/atomic.h>
 
@@ -138,27 +138,32 @@ typedef USHORT          *PUSHORT;
 typedef LONG            *PLONG;
 typedef ULONG           *PULONG;
 
-typedef union _LARGE_INTEGER {
+typedef union _LARGE_INTEGER
+{
 #ifdef BIG_ENDIAN
-    struct {
+    struct
+    {
         LONG HighPart;
-		ULONG LowPart;
-    }vv;
-    struct {
+        ULONG LowPart;
+    } vv;
+    struct
+    {
         LONG HighPart;
-		ULONG LowPart;
+        ULONG LowPart;
     } u;
 #else
-    struct {
+    struct
+    {
         ULONG LowPart;
         LONG HighPart;
-    }vv;
-    struct {
+    } vv;
+    struct
+    {
         ULONG LowPart;
         LONG HighPart;
     } u;
 #endif
-    
+
     s64 QuadPart;
 } LARGE_INTEGER;
 
@@ -243,7 +248,7 @@ typedef union _LARGE_INTEGER {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 #define rtusb_submit_urb(purb) usb_submit_urb(purb, GFP_KERNEL)
 #else
-#define rtusb_submit_urb(purb) usb_submit_urb(purb) 
+#define rtusb_submit_urb(purb) usb_submit_urb(purb)
 #endif
 
 

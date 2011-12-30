@@ -20,6 +20,8 @@ uint32_t capacity = 100;
 
 int sockfd = -1;
 
+list *l;
+
 void print_usage(char* cmd){
   printf("Usage: %s [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>] [-o <moved_file_prefix>]\n", cmd);
   printf("-i\tInterface name on which the program will listen. Default is %s\n", iface);
@@ -105,8 +107,8 @@ uint8_t bind_socket() {
   return 1;
 }
 
-list *l;
 
+/* Binds sockets, receives packets and inserts them in list l*/
 void serve(){
 
   l = mklist(capacity, move_file_to);
