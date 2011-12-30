@@ -115,9 +115,6 @@ static void flush_buffer_ip(struct sk_buff* skb, aggregate_buffer* b,
   iph = ip_hdr(skb);
   len = ntohs(iph->tot_len);
 
-  //Remove iphdr
-  skb_pull(skb, (iph->ihl << 2));
-
   //put into skb buffered data
   if (skb_tailroom(skb) < buffer_data_len(b))
     if (pskb_expand_head(skb, 0, buffer_data_len(b) - skb_tailroom(skb), GFP_ATOMIC)) {
@@ -153,7 +150,7 @@ static void flush_buffer_ip(struct sk_buff* skb, aggregate_buffer* b,
   iph->check = 0;
   iph->saddr = ipa->ifa_list->ifa_address;
   iph->daddr = b->ip;
-  iph->check = csum((uint16_t*) iph, (iph->ihl << 2) >> 1);
+  iph->check = csum((uint16_t*) iph, iph->ihl << 1);
   skb_set_network_header(skb, 0);
   skb_set_transport_header(skb, sizeof(struct iphdr));
 

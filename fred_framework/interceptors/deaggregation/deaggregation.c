@@ -29,6 +29,7 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   uint64_t ts, first_ts, ts_acc = 0;
   packet_t *pdu;
   uint8_t scatter_index, first_time = 1;
+  struct udphdr *udp_helper;
 
   iph = ip_hdr(skb);
 
@@ -56,11 +57,14 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   ts = first_ts;
 
   for (acc_len = 0, first = iph; acc_len < agg_len; scatter_index--) {
+    debug("Deaggregating network aggregated packet.\n");
     acc_len += ntohs(first->tot_len);
     scatters[scatter_index] = first;
     switch(first->protocol){
     case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
     case IPPROTO_UDP:
+      udp_helper = (struct udphdr*) (((char*) first) + (first->ihl << 2));
+      udp_helper->check = 0;
       pdu = (packet_t*) (((char*) first) + (first->ihl << 2) + sizeof(struct udphdr));
       break;
     default:
@@ -86,13 +90,6 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   return NF_STOLEN;
 }
 
-void dump_udp(struct udphdr* udp){
-  uint32_t i;
-  for(i = 0; i < ntohs(udp->len); i++)
-    printk("%hhx ", ((char*) udp)[i]);
-  printk("\n");
-}
-
 static unsigned int app_deagregate(struct sk_buff* skb) {
   struct iphdr* iph, *new;
   struct udphdr* udph;
@@ -106,8 +103,6 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
   switch(iph->protocol){
   case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
     //First UDP
-    debug("Received an aggregated packet which encapsulates several UDP packets. Below is the first UDP header.\n");
-
     udph = (struct udphdr*) (((char*) iph) + (iph->ihl << 2));
     
     first = (packet_t*) (((char*) udph) + sizeof(struct udphdr));
@@ -115,7 +110,7 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
     memset(scatters, 0, sizeof(scatters));
 
     //Number of aggregated packets (always multiple of sizeof(udp) + sizeof(packet_t))
-    debug("(%d - %d) / (%d + %d)\n", ntohs(iph->tot_len), iph->ihl << 2, sizeof(struct udphdr), sizeof(packet_t));
+    debug("Computation of number of packets -> (%d - %d) / (%d + %d)\n", ntohs(iph->tot_len), iph->ihl << 2, sizeof(struct udphdr), sizeof(packet_t));
     number_of_packets = (ntohs(iph->tot_len) - (iph->ihl << 2)) / (sizeof(struct udphdr) + sizeof(packet_t));
     debug("Received an application aggregated packet, which should contain %d packets.\n", number_of_packets);
 
@@ -126,7 +121,7 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
   
     //Iterate the aggregated packet and keep track of time stamp
     for (; number_of_packets; scatter_index--, number_of_packets--) {
-      debug("%s:%d: Deaggregating UDP packet. Scatter index at %d.\n", __FUNCTION__, __LINE__, scatter_index);
+      debug("Deaggregating UDP packet. Scatter index at %d.\n", scatter_index);
 
       //We need to invalidate udp checksum to avoid errors
       udph->check = 0;
@@ -173,20 +168,17 @@ unsigned int deaggregation_local_in_hook(filter_specs* sp, unsigned int hooknum,
   struct iphdr* iph = ip_hdr(skb);
 
   if (!skb){
-    printk("Be sure once\n");
     debug("SKB is null.\n");
     return NF_ACCEPT;
   }
 
   if (!skb_network_header(skb)){
-    printk("Be sure twice\n");
     debug("SKB does not have a network header.\n");
     return NF_ACCEPT;
   }
 
   switch(iph->protocol){
   case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
-    printk("E o debug n funciona\n");
     debug("Deaggregating udp encapsulated in ip.\n");
     return app_deagregate(skb);
   case AGREGATED_IP_ENCAP_IP_PROTO:

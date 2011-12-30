@@ -11,8 +11,11 @@
   }while(0)
 
 #ifdef DBG
-#define debug(format, ...)			\
-    printk(format, ## __VA_ARGS__)
+#define debug(format, ...)						\
+  do{									\
+    printk("%s - %s:%d: ", __FUNCTION__, __FILE__, __LINE__); \
+    printk(format, ## __VA_ARGS__);					\
+  }while(0)
 #else 
 #define debug(format, ...)
 #endif
