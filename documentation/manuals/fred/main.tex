@@ -82,7 +82,8 @@ Uma vez feito o \emph{clone} do repositório é possível observar as seguintes 
     kernel\_sender/\\
     interruption/\\
     rt2501/\\
-    rt3070/
+    rt3070/\\
+    fred\_framework/
   }
 \end{flushleft}
 
@@ -316,4 +317,6 @@ O ficheiro {\tt miavita\_syscall.c} implementa não só as \emph{system calls} c
         \end{center}
 	
         A seguir é preciso correr o programa antes de inserir qualquer módulo. É preciso ter em conta que o programa inicializa o programa {\tt xuartctl}, que tem de ser terminado após o programa {\tt init\_counter} terminar. É ainda preciso ter atenção que o programa tenta abrir o \emph{device} do GPS mais comum que as placas criam ({\tt /dev/pts/1}). É possível especificar outro \emph{device} com a \emph{flag} {\tt -d}. Contudo, o nome do \emph{device} só é conhecido após o programa {\tt xuartctl} ter inicializado. Por esta razão, se o \emph{device} for outro é preciso matar o {\tt xuartctl} antes de correr outra vez o programa {\tt init\_counter}.
+
+\chapter{Framework de Interceptores}
 \end{document}
