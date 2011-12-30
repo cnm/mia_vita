@@ -4,11 +4,11 @@ README
 File structure:
 
 .
-├── chains.c
+├── chains.c                        - Chains are an equivalent to the chain in iptables
 ├── chains.h
-├── compile.sh
+├── compile.sh                      - Script to compile things
 ├── error_msg.c
-├── filter.c
+├── filter.c                        - Filters are the lowest class. THey are the one which see if a packet matches
 ├── filter.h
 ├── hooks.c
 ├── hooks.h
@@ -16,41 +16,18 @@ File structure:
 ├── interceptor_manager.c
 ├── interceptor_manager.h
 ├── interceptors
-│   ├── aggregation
-│   │   ├── aggregation.c
-│   │   ├── byte_buffer.c
-│   │   ├── byte_buffer.h
-│   │   └── Makefile
-│   ├── deaggregation
-│   │   ├── deaggregation.c
-│   │   ├── injection_thread.c
-│   │   ├── injection_thread.h
-│   │   ├── Makefile
-│   │   ├── spin_lock_queue.c
-│   │   └── spin_lock_queue.h
-│   ├── miavita_packet.h -> ../../kernel_sender/miavita_packet.h
-│   └── utils.h
+│   ├── aggregation                 - Chain responsible to do the aggregation
+│   └── deaggregation
 ├── interceptor_shell
-│   ├── cmd_line_parser.c
-│   ├── cmd_line_parser.h
-│   ├── macros.h
-│   ├── Makefile
-│   ├── mkrule.c
-│   ├── operations.c
-│   ├── operations.h
-│   └── rmrule.c
 ├── klist.c
 ├── klist.h
-├── main.c
-├── Makefile
-├── proc_entry.c
+├── main.c                          - Main for the interceptor framework kernel module
+├── proc_entry.c                    - Creates a proc device for communication
 ├── proc_entry.h
-├── proc_registry.c
+├── proc_registry.c                 - 
 ├── proc_registry.h
-├── rule.c
+├── rule.c                          - Rules contain chains
 ├── rule.h
 ├── rule_manager.c
 ├── rule_manager.h
 └── uncompress_kernel_image.bash
-
-
