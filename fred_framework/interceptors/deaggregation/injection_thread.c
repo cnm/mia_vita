@@ -13,23 +13,23 @@
 
 static sl_queue_t* queue = NULL;
 static struct task_struct * injector = NULL;
-static struct socket * udp_socket = NULL;
+static struct socket * raw_socket = NULL;
 
 static void send_it(struct iphdr* ip) {
   struct msghdr msg;
   mm_segment_t oldfs;
   struct iovec iov;
   struct sockaddr_in addr;
-  struct udphdr *udp;
+  //struct udphdr *udp;
   int status;
 
-  udp = (struct udphdr*) (((char*) ip) + (ip->ihl << 2));
+  //udp = (struct udphdr*) (((char*) ip) + (ip->ihl << 2));
 
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = ip->daddr;
-  addr.sin_port = udp->dest;
+  //  addr.sin_port = udp->dest;
 
-  udp->check = 0;
+  //udp->check = 0;
 
   msg.msg_name = &addr;
   msg.msg_namelen = sizeof(struct sockaddr_in);
@@ -44,7 +44,8 @@ static void send_it(struct iphdr* ip) {
 
   oldfs = get_fs();
   set_fs(KERNEL_DS);
-  if((status = sock_sendmsg(udp_socket, &msg, (size_t) ntohs(ip->tot_len))) < 0){
+  printk("Sending %d bytes.\n", ntohs(ip->tot_len));
+  if((status = sock_sendmsg(raw_socket, &msg, (size_t) ntohs(ip->tot_len))) < 0){
     print_error(KERN_EMERG "FAILED TO SEND MESSAGE THROUGH SOCKET. ERROR %d\n", -status);
   }
   set_fs(oldfs);
@@ -55,12 +56,12 @@ static int main_loop(void* data) {
   char __user one = 1;
   char __user *val = &one;
 
-  if (sock_create(AF_INET, SOCK_RAW, IPPROTO_UDP, &udp_socket) < 0) {
+  if (sock_create(AF_INET, SOCK_RAW, IPPROTO_UDP, &raw_socket) < 0) {
     print_error(KERN_EMERG "Unable to create socket.\n");
     return 0;
   }
 
-  if (udp_socket->ops->setsockopt(udp_socket, IPPROTO_IP, IP_HDRINCL, val,
+  if (raw_socket->ops->setsockopt(raw_socket, IPPROTO_IP, IP_HDRINCL, val,
 				  sizeof(val)) < 0) {
     print_error(KERN_EMERG "Unable to set socket option.\n");
     return 0;

@@ -86,35 +86,50 @@ static unsigned int l3_deaggregate(struct sk_buff* skb) {
   return NF_STOLEN;
 }
 
+void dump_udp(struct udphdr* udp){
+  uint32_t i;
+  for(i = 0; i < ntohs(udp->len); i++)
+    printk("%hhx ", ((char*) udp)[i]);
+  printk("\n");
+}
+
 static unsigned int app_deagregate(struct sk_buff* skb) {
   struct iphdr* iph, *new;
   struct udphdr* udph;
   packet_t* first, *pdu;
-  uint32_t agg_len, acc_len = 0;
   uint64_t ts, first_ts, ts_acc = 0;
   uint8_t scatter_index, first_time = 1;
+  uint32_t number_of_packets = 0;
 
   iph = ip_hdr(skb);
 
   switch(iph->protocol){
   case AGREGATED_APPLICATION_ENCAP_UDP_PROTO:
     //First UDP
+    debug("Received an aggregated packet which encapsulates several UDP packets. Below is the first UDP header.\n");
+
     udph = (struct udphdr*) (((char*) iph) + (iph->ihl << 2));
+    
     first = (packet_t*) (((char*) udph) + sizeof(struct udphdr));
 
     memset(scatters, 0, sizeof(scatters));
 
-    //Size of aggregated data
-    agg_len = ntohs(iph->tot_len) - (iph->ihl << 2);
+    //Number of aggregated packets (always multiple of sizeof(udp) + sizeof(packet_t))
+    debug("(%d - %d) / (%d + %d)\n", ntohs(iph->tot_len), iph->ihl << 2, sizeof(struct udphdr), sizeof(packet_t));
+    number_of_packets = (ntohs(iph->tot_len) - (iph->ihl << 2)) / (sizeof(struct udphdr) + sizeof(packet_t));
+    debug("Received an application aggregated packet, which should contain %d packets.\n", number_of_packets);
+
     //Get first ts
     first_ts = ts = be64_to_cpu(first->timestamp);
 
     scatter_index = MAX_SCATTERS - 1;
   
     //Iterate the aggregated packet and keep track of time stamp
-    for (acc_len = 0; acc_len < agg_len; scatter_index--) {
-      debug("%s:%d: Deaggregating UDP packet.\n", __FUNCTION__, __LINE__);
-      acc_len += ntohs(udph->len) - sizeof(struct udphdr);
+    for (; number_of_packets; scatter_index--, number_of_packets--) {
+      debug("%s:%d: Deaggregating UDP packet. Scatter index at %d.\n", __FUNCTION__, __LINE__, scatter_index);
+
+      //We need to invalidate udp checksum to avoid errors
+      udph->check = 0;
 
       first->timestamp = ts - ts_acc;
       if(!first_time)
@@ -124,11 +139,11 @@ static unsigned int app_deagregate(struct sk_buff* skb) {
       first->timestamp = cpu_to_be64(first->timestamp);
     
       //prepend iphdr to new
-      new = kmalloc(sizeof(struct iphdr)  + ntohs(udph->len), GFP_ATOMIC);
+      new = kmalloc((iph->ihl << 2)  + ntohs(udph->len), GFP_ATOMIC);
       memcpy(new, iph, iph->ihl << 2);
       memcpy((((char*) new) + (new->ihl << 2)), udph, ntohs(udph->len));
 
-      new->tot_len = htons(sizeof(struct iphdr) + ntohs(udph->len));
+      new->tot_len = htons((new->ihl << 2) + ntohs(udph->len));
       new->protocol = IPPROTO_UDP;
       new->check = 0;
       new->check = csum((uint16_t*) new, new->ihl << 1);
