@@ -54,7 +54,7 @@ static void send_it(struct iphdr* ip) {
 
   oldfs = get_fs();
   set_fs(KERNEL_DS);
-  printk("Sending %d bytes.\n", ntohs(ip->tot_len));
+  debug("Consuela is sending %d bytes.\n", ntohs(ip->tot_len));
   if((status = sock_sendmsg(raw_socket, &msg, (size_t) ntohs(ip->tot_len))) < 0){
     print_error(KERN_EMERG "FAILED TO SEND MESSAGE THROUGH SOCKET. ERROR %d\n", -status);
   }
@@ -72,9 +72,10 @@ void build_and_send_packets(klist* buffs, uint8_t proto){
   while (klist_iterator_has_next(it)) {
     b = (aggregate_buffer*) (klist_iterator_next(it))->data;
 
-    len = cpy_data(buffered, b);
+    len = mv_data(&buffered, b);
 
     if(buffered){
+      debug("Copied data from buffer\n");
       iph.ihl = 5;
       iph.version = 4;
       iph.tos = 0;
@@ -101,6 +102,7 @@ void build_and_send_packets(klist* buffs, uint8_t proto){
       send_it((struct iphdr*) packet);
 	      
       kfree(buffered);
+      buffered = NULL;
     }
   }
   free_klist_iterator(it);
@@ -144,10 +146,12 @@ void start_consuela(klist* application_buffers, klist* ip_buffers){
   app_buffers = application_buffers;
   net_buffers = ip_buffers;
   source_ip = in_aton(bind_ip);
+  debug("Consuela is ready to clean!\n");
 }
 
 void stop_consuela(void){
   if(consuela_kthread){
     kthread_stop(consuela_kthread);
+    kfree(consuela_kthread);
   }
 }

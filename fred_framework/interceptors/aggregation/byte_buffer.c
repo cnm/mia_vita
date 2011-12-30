@@ -1,6 +1,7 @@
 #include <linux/slab.h>
 
 #include "byte_buffer.h"
+#include "utils.h"
 
 aggregate_buffer* create_aggregate_buffer(uint32_t len, __be32 ip) {
   aggregate_buffer* b = (aggregate_buffer*) kmalloc(sizeof(aggregate_buffer),
@@ -77,23 +78,27 @@ int buffer_data_len(aggregate_buffer* b){
   return i;
 }
 
-int cpy_data(char* dst, aggregate_buffer* b){
+int mv_data(char** dst, aggregate_buffer* b){
   int len;
+  char* buff;
 
   lock_buffer(b);
   len = b->end - b->head;
   if(len > 0){
-    dst = kmalloc(len, GFP_ATOMIC);
-    if(!dst){
+    buff = kmalloc(len, GFP_ATOMIC);
+    if(!buff){
       printk(KERN_EMERG "Unable to copy buffer to destination.\n");
-      dst = NULL;
+      buff = NULL;
       unlock_buffer(b);
       return 0;
     }
     
-    memcpy(dst, b->head, len);
+    memcpy(buff, b->head, len);
+    b->head = b->end;
     unlock_buffer(b);
   
+    *dst = buff;
+
     return len;
   }
   unlock_buffer(b);

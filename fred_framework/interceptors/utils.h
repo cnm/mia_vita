@@ -30,12 +30,4 @@ static inline uint16_t csum(uint16_t* buff, int nwords) {
   return ((uint16_t) ~sum);
 }
 
-static inline void dump_ip_skb(struct sk_buff *skb) {
-  struct iphdr* iph = ip_hdr(skb);
-  int32_t i;
-  for (i = 0; i < ntohs(iph->tot_len); i++)
-    printk("%02X ", ((uint8_t*) iph)[i]);
-  printk("\n");
-}
-
 #endif
