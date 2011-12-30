@@ -1,5 +1,5 @@
 obj-m += aggregate.o
-aggregate-objs := aggregation.o byte_buffer.o
+aggregate-objs := aggregation.o byte_buffer.o consuela.o
 
 EXTRA_CFLAGS += -I$(PWD)/../../ -I$(PWD)/../ -DDBG
 

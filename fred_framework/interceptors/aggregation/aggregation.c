@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "byte_buffer.h"
 #include "new_ip_protocols.h"
+#include "consuela.h"
 
 static unsigned short aggregate_app_packets = 0;
 module_param(aggregate_app_packets, ushort, 0000);
@@ -35,11 +36,15 @@ MODULE_PARM_DESC(
     aggregate_ip_buffer_size,
     "Size in bytes of the buffer used to store ip packets. In other words, how many bytes should be buffered before sending the aggregate packet. Default is 512 Bytes.");
 
-static int flush_timeout = 1000; //ms
+int flush_timeout = 1000; //ms
 module_param(flush_timeout, int, 0000);
 MODULE_PARM_DESC(
     flush_timeout,
     "Time out in milliseconds to flush aggregated buffers. Default is 1 second.");
+
+char* bind_ip = "127.0.0.1";
+module_param(bind_ip, charp, 0000);
+MODULE_PARM_DESC(bind_ip, "This is the ip number which consuela will use to specify source address in IP headers. Default is localhost.");
 
 #define INTERCEPTOR_NAME "aggregation"
 
@@ -415,12 +420,15 @@ int __init init_module() {
 
   register_interceptor(&agg_desc);
 
+  start_consuela(app_buffers, ip_buffers);
+
   printk(KERN_INFO "Aggregation module loaded.\n");
 
   return 0;
 }
 
 void __exit cleanup_module() {
+  stop_consuela();
   free_buffers();
   if (!unregister_interceptor(INTERCEPTOR_NAME))
     printk(

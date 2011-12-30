@@ -20,16 +20,10 @@ static void send_it(struct iphdr* ip) {
   mm_segment_t oldfs;
   struct iovec iov;
   struct sockaddr_in addr;
-  //struct udphdr *udp;
   int status;
-
-  //udp = (struct udphdr*) (((char*) ip) + (ip->ihl << 2));
 
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = ip->daddr;
-  //  addr.sin_port = udp->dest;
-
-  //udp->check = 0;
 
   msg.msg_name = &addr;
   msg.msg_namelen = sizeof(struct sockaddr_in);
