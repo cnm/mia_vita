@@ -319,4 +319,15 @@ O ficheiro {\tt miavita\_syscall.c} implementa não só as \emph{system calls} c
         A seguir é preciso correr o programa antes de inserir qualquer módulo. É preciso ter em conta que o programa inicializa o programa {\tt xuartctl}, que tem de ser terminado após o programa {\tt init\_counter} terminar. É ainda preciso ter atenção que o programa tenta abrir o \emph{device} do GPS mais comum que as placas criam ({\tt /dev/pts/1}). É possível especificar outro \emph{device} com a \emph{flag} {\tt -d}. Contudo, o nome do \emph{device} só é conhecido após o programa {\tt xuartctl} ter inicializado. Por esta razão, se o \emph{device} for outro é preciso matar o {\tt xuartctl} antes de correr outra vez o programa {\tt init\_counter}.
 
 \chapter{Framework de Interceptores}
+
+  Dentro da directoria {\tt fred\_framework/} encontra-se o código correspondenete à framework de interceptores. A ideia de tal framework é criar uma estrutura base onde outros módulos do kernel (Interceptores) se possam registar e interceptar o tráfego em cada nó. Por exemple, a agregação de pacotes realizado no projecto miavita é feita através de dois interceptores. Um é responsável por interceptar o tráfego e agregá-lo, enquanto que outro é responsável por desagregá-lo.
+
+  A framework trabalha por cima da API de Netfilters do kernel. Assim que o módulo da framework é inserido no kernel, são registados 5 hooks (Um para cada ponto de intercepção fornecidos pelo Netfilters - Post routing, local in, etc.). Cada interceptor regista-se na framework para poder interceptar o tráfego desejado. Para que cada interceptor só esteja ciente do tráfego que realmente precisa de interceptar, a framework fornece um mecanismo que permite filtrar tráfego não desejado. Isto é atingido através de umas estruturas denominadas \textbf{regras}. As regras são simplesmente um conjunto de \textbf{filtros}. Os filtros são estruturas que possuem um conjunto de especificações e um ponto de interacção. Por exemplo, uma regra para agregar tráfego ao nível da rede e aplicação, com destino à porta 57843 e ip 192.168.0.1 iria criar uma regra com dois filtros. Um filtro iria actuar no ponto de intercepção \emph{local out} e o outro no ponto de intercepção \emph{post routing}. Ambos os filtros iriam conter uma especificação que iria informar a framework que todo o tráfego com aquele destino deve ser interceptado pelo interceptor de agregação.
+  
+  Em suma, a framework de interceptores permite o registo de um ou mais interceptores que definem regras para que possam interceptar um subconjunto dos pacotes que passam no nó.
+
+%TODO: mkrule e rmrule
+  
+  \section{Interceptor de agregação} 
+  \section{Interceptor de desagregação} 
 \end{document}
