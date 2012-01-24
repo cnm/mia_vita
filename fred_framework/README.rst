@@ -77,7 +77,7 @@ Imagine a network with 3 nodes, such that node A sends data to node C, which is 
 
     A----------->B----------->C
 
-Now suppose that the IP numbers of each node is as follows::
+Now suppose that the IP numbers of each node is as follows:
 
 +------------+-------------+
 |    Node    |      IP     |
