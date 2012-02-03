@@ -320,14 +320,61 @@ O ficheiro {\tt miavita\_syscall.c} implementa não só as \emph{system calls} c
 
 \chapter{Framework de Interceptores}
 
-  Dentro da directoria {\tt fred\_framework/} encontra-se o código correspondenete à framework de interceptores. A ideia de tal framework é criar uma estrutura base onde outros módulos do kernel (Interceptores) se possam registar e interceptar o tráfego em cada nó. Por exemple, a agregação de pacotes realizado no projecto miavita é feita através de dois interceptores. Um é responsável por interceptar o tráfego e agregá-lo, enquanto que outro é responsável por desagregá-lo.
+  Dentro da directoria {\tt fred\_framework/} encontra-se o código correspondenete à framework de interceptores. A ideia de tal framework é criar uma estrutura base onde outros módulos do kernel (Interceptores) se possam registar e interceptar o tráfego em cada nó. Por exemplo, a agregação de pacotes realizado no projecto miavita é feita através de dois interceptores. Um é responsável por interceptar o tráfego e agregá-lo, enquanto que outro é responsável por desagregá-lo.
 
   A framework trabalha por cima da API de Netfilters do kernel. Assim que o módulo da framework é inserido no kernel, são registados 5 hooks (Um para cada ponto de intercepção fornecidos pelo Netfilters - Post routing, local in, etc.). Cada interceptor regista-se na framework para poder interceptar o tráfego desejado. Para que cada interceptor só esteja ciente do tráfego que realmente precisa de interceptar, a framework fornece um mecanismo que permite filtrar tráfego não desejado. Isto é atingido através de umas estruturas denominadas \textbf{regras}. As regras são simplesmente um conjunto de \textbf{filtros}. Os filtros são estruturas que possuem um conjunto de especificações e um ponto de interacção. Por exemplo, uma regra para agregar tráfego ao nível da rede e aplicação, com destino à porta 57843 e ip 192.168.0.1 iria criar uma regra com dois filtros. Um filtro iria actuar no ponto de intercepção \emph{local out} e o outro no ponto de intercepção \emph{post routing}. Ambos os filtros iriam conter uma especificação que iria informar a framework que todo o tráfego com aquele destino deve ser interceptado pelo interceptor de agregação.
   
   Em suma, a framework de interceptores permite o registo de um ou mais interceptores que definem regras para que possam interceptar um subconjunto dos pacotes que passam no nó.
 
-%TODO: mkrule e rmrule
+  Ao nível da implementação, as regras são criadas através de um comando user level que escreve para um ficheiro proc. Este comando denomina-se \emph{mkrule}. De forma semelhante existe um comando para eleminar regras - \emph{rmrule}. No ficheiro {\tt README.rst} na pasta {\tt fred\_framework} está descrito como usar estes comandos. Existe ainda a explicação de como usar o comando {\tt emsg} para determinar a mensagem de erro associada a um código de erro.
   
   \section{Interceptor de agregação} 
+
+   Como o nome indica, este interceptor é responsável por agregar o tráfego que sai de um dado nó. No ficheiro {\tt README.rst} na pasta {\tt fred\_framework} descreve como usar este interceptor. Este documento explica como o protocolo funciona.
+
+   \subsection{Nível Aplicação}
+   
+    Na realidade, este tipo de agregação deveria chamar-se agregação ao nível transporte, pois os pacotes são agregados de acordo com informação no header UDP. Contudo, por razões ``históricas'' continou-se a chamar agregação ao nível da aplicação.
+
+    Quando um pacote a ser agregado é interceptado pelo protocolo de agregação este procederá da seguinte forma: 
+
+    \begin{enumerate}
+      \item Se não existir um buffer associado ao destino desse, o protocolo cria um.
+      \item O pacote é inserido no buffer.
+      \item Se o buffer ficar cheio, um pacote agregado é construído e enviado para o destino.
+    \end{enumerate}
+
+    Neste tipo de agregação os pacotes são agregados da seguinte forma:
+
+    {\tt
+      |IP header | UDP N | UDP N - 1| ... | UDP 0 |
+    }
+
+    Isto significa que os pacotes são enviados por ordem inversa. O header IP é criado pelo protocolo de agregação na altura do seu envio. Este header leva informação no seu campo de protocolo a informar que este é um pacote agregado ao nível da aplicação.
+    
+    É preciso ter em atenção que o protocolo cria uma thread que de X em X tempos irá fazer \emph{flush} a todos os buffers de agregação com pacotes pendentes.
+
+   \subsection{Nível Rede}
+   
+    Este tipo de agregação segue o mesmo processo do que aquele descrito na agregação ao nível da aplicação. Contudo, o pacote agregado passa a ter este aspecto:
+
+    {\tt
+      |IP header | IP N | IP N - 1| ... | IP 0 |
+    }
+
+    Isto significa que os pacotes agregados são agora pacotes IP completos e podem portanto vir de origens diferentes. A mesma thread que faz \emph{flush} aos pacotes agregados ao nível aplicacional, também o faz aos pacotes agregados ao nível da rede. O primeiro header IP é criado pelo protocolo de agregação, mas deste vez o campo do protocolo indica que este pacote é agregado ao nível da rede. 
+
   \section{Interceptor de desagregação} 
+
+   O interceptor de desagregação limita-se a desagregar os pacotes, simplesmente olhando para o tipo de protocolo que vem no header IP e procedendo à desagregação ao nível rede ou aplicacional.
+
+   Contudo, devido ao facto de os pacotes virem por ordem inversa é necessário um pequeno passo, para que estes sejam entregues pela ordem certa. Para isto, existe um buffer global com tamanho suficiente para conter o máximo de pacotes possível dentro de uma MTU, onde os pacotes são temporariamente postos. Este buffer denomina-se \emph{scatter\_buffer}.
+
+   A ideia é a seguinte.
+   
+   \begin{enumerate}
+    \item O pacote agregado é percorrido apenas uma vez.
+    \item Apontadores para cada pacote são guardados dentro deste buffer, do fim para o princípio.
+    \item No final, o buffer é percorrido e os pacotes são entregues pela ordem correcta.
+   \end{enumerate}
 \end{document}
