@@ -1,6 +1,6 @@
 obj-m := int_mod.o
 int_mod-objs := int.o fpga.o proc_entry.o
-KDIR := /lib/modules/2.6.24.4/build/ 
+KDIR := ../ts7500_kernel/
 PWD := $(shell pwd)
 
 # EXTRA_CFLAGS += -D__GPS__
