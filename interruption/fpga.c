@@ -255,6 +255,8 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
+    /*printk(KERN_INFO "DADOS: %x - %x\n", a, b);*/
+
     return;
 }
 #endif

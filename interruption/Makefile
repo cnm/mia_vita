@@ -3,10 +3,16 @@ int_mod-objs := int.o fpga.o proc_entry.o
 KDIR := ../ts7500_kernel/
 PWD := $(shell pwd)
 
+CROSS-TOOL := ../crosstool/arm-unknown-linux-gnu/bin/
+CC1 := $(CROSS-TOOL)/arm-unknown-linux-gnu-gcc
+
 # EXTRA_CFLAGS += -D__GPS__
 
 all:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+
+userland_reader: userland_reader.c
+	$(CC1) -g $? -o $@
 
 print:
 	echo $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
