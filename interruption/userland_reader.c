@@ -40,7 +40,7 @@ int main(void)
  
   FILE *ifp;
 
-  int i, read_samples;
+  int i, j, read_samples;
   unsigned int ** channel_data = (unsigned int **) malloc(sizeof(unsigned int *) * BUFFER_SIZE);
 
   sample** samples = (sample**) malloc(sizeof(sample*) * BUFFER_SIZE);
@@ -72,7 +72,10 @@ int main(void)
   }
 
   for(i=0; i<read_samples; i++){
-    printf("%d\n", channel_data[i][0]);
+    for(j=0; j < NUM_OF_CHANNELS; j++){
+      printf("%d ", channel_data[i][j]);
+    }
+    printf("\n");
   }
 
   //  printf("OuT\n");
