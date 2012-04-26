@@ -129,7 +129,9 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     unsigned int data_size_in_chars = DATA_SIZE * sizeof(int);
     unsigned int how_many_we_copy = 0;
 
-    if (offset <= data_size_in_chars){
+
+    //Calculates how many octets to copy
+    if (offset <= data_size_in_chars){ //If offset asked is inferior to the size array
         how_many_we_copy = data_size_in_chars - offset;
 
         printk(KERN_EMERG "1 Last read %u \tLast write %u READING: %d \n", (int) offset, data_size_in_chars, how_many_we_copy);
