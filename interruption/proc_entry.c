@@ -33,19 +33,6 @@ struct proc_dir_entry *proc_file_entry;
 
 unsigned int last_write = 0;
 
-/*
- *The idea is to timestamp samples right after the first channel is read.
- */
-typedef struct{
-
-#ifdef __GPS__
-    int64_t gps_us;
-#endif
-
-    int64_t timestamp;
-    unsigned int data[3];//each sample will hold 4 channels
-}sample;
-
 sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
 
 /*
@@ -126,7 +113,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
                          int dest_buffer_length, int *eof, void *data) {
 
     /* We only use char sizes from here */
-    unsigned int data_size_in_chars = DATA_SIZE * sizeof(int);
+    unsigned int data_size_in_chars = DATA_SIZE * sizeof(sample);
     unsigned int how_many_we_copy = 0;
 
 

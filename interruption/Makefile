@@ -1,12 +1,18 @@
 obj-m := int_mod.o
 int_mod-objs := int.o fpga.o proc_entry.o
-KDIR := /lib/modules/2.6.24.4/build/ 
+KDIR := ../ts7500_kernel/
 PWD := $(shell pwd)
+
+CROSS-TOOL := ../crosstool/arm-unknown-linux-gnu/bin/
+CC1 := $(CROSS-TOOL)/arm-unknown-linux-gnu-gcc
 
 # EXTRA_CFLAGS += -D__GPS__
 
 all:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+
+userland_reader: userland_reader.c
+	$(CC1) -g $? -o $@
 
 print:
 	echo $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
@@ -14,6 +20,6 @@ print:
 clean:
 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) clean
 	rm -f modules.order
-	rm -f reader
+	rm -f userland_reader
 
 rebuild: clean all

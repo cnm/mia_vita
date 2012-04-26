@@ -1,0 +1,35 @@
+Important notes about the layout:
+
+The ADC's position is to reduce the distance between the input plugs and the input pads. Also it's orientation is to minimize the track from the oscilator to the ADC.
+
+The TS-7500 orientation is to minimize the spacial ocupation of the whole system, meaning that the TS is suposed to be over the board itself.
+
+The GPS position and surrounding devices is to allow the GPS to sit on the board itself.
+
+Important layout notes and improvements:
+
+The cooling plane under the ADC can (and sould) be used to provide a ground plane under the ADC, with the increased benefit of allowing a hole to be made to provide a ground connection on the bottom layer of the board, freeing space on the top layer.
+
+Some capacitors sould exist to stabilize on the power supplies of the ADC.
+
+The input channel tracks of the ADC sould be smaller, to reduce noise, and more far apart to reduce inter-channel noise.
+
+All of the ADC pads sould be increased to ease the soldering of the chip itself.
+
+All of the TS pads need to be increased in size to 0.5mm holes.
+
+The board sould increase in size to ease the placement and used of the connectors that exist near the border.
+
+The ADC sould be rotated to reduce the length of the input channel tracks.
+
+The connections of the TS sould be on the same layer to ease the soldering of the connector, preferably the bottom layer.
+
+The tracks, vias, pads sould intersec each other in the middle.
+
+The capacitors could be SMD to reduce their footprint on the board.
+
+The mounting holes of the GPS and the TS need to be visible on the board.
+
+The board need's to have mounting holes.
+
+The pdf's exports sould be done in a way so they face each other.
