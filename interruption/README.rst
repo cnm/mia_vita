@@ -21,6 +21,13 @@ This is the file structure::
        ├── xuartcore.c
        └── xuartctl.c
 
+Userland Reader
+===============
+Compile with:
+   make userland_reader
+
+Userland reader listens to /proc/geophone and converts output with two's complement which is then print to stdout
+
 Instructions to upload and use the module
 =========================================
 

@@ -78,8 +78,6 @@ int main(void)
     printf("\n");
   }
 
-  //  printf("OuT\n");
-
   return 0;
 }
 

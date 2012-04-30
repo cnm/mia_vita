@@ -18,10 +18,18 @@ Install OS
 
 4. (Optional do a md5sum to the sdcard)
 
+5. Put JP1=ON JP2=OFF
+
+6. Copy the kernel to the flash drive
+   TODO INSTRUCTIONS
 
 Install Modules
 ---------------
+1. Go get the code for MIA-VITA at:
 
+    https://github.com/cnm/mia_vita
+
+2. In the interruption module:
 
 Hardware connections
 --------------------
