@@ -462,3 +462,10 @@ Test Results (made by Simao)
 Check the following url:
 
 http://tagus.inesc-id.pt/~spedro/MIA-VITA/
+
+Arms Embedded suggested this Wireless card with external antenna
+================================================================
+
+HAWNU1 Hi-Gain Wireless-150N USB Network Adapter w/Range Amplifi
+http://www.gohawking.com/store/product_info.php?products_id=438&osCsid=valhhlsf19rnueqs8shgdgduk1
+
