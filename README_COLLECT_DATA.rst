@@ -21,7 +21,7 @@ Install OS
 5. Put JP1=ON JP2=OFF
 
 6. Copy the kernel to the flash drive
-   TODO INSTRUCTIONS
+  Follow the "Copy the kernel and initrd to the flash in the arm" in https://github.com/cnm/mia_vita
 
 Install Modules
 ---------------
@@ -29,11 +29,18 @@ Install Modules
 
     https://github.com/cnm/mia_vita
 
-2. In the interruption module:
+2. Compile the kernel. Follow instructions here: https://github.com/cnm/ts7500_kernel
+
+3. In the interruption module:
+    make
+
+4. Copy the interruption module to the arm device. Follow instructions "Instructions to upload and use the module" in https://github.com/cnm/mia_vita/tree/master/interruption
 
 Hardware connections
 --------------------
-
+TODO
 
 Collect the data
 ----------------
+
+TODO
