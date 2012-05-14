@@ -11,12 +11,13 @@ This is the file structure::
    ├── proc_entry.h           - Just has the function headers for proc_entry
    ├── userland_reader.c      - Userland app to read the data from the created proc entry
    ├── Makefile
-   ├── sdctl                  - Changed binary to make sdctl not ruin the SPI bus for the interruption
-   │   ├── Makefile
-   │   ├── sdcore2.c
-   │   ├── sdctl.c
-   │   └── README
-   └── xuartctl              - Changed binary to make xuartctl not ruin the SPI bus for the interruption
+   └── modified_binaries
+       ├─ sdctl                  - Changed binary to make sdctl not ruin the SPI bus for the interruption
+       ├── Makefile
+       ├── sdcore2.c
+       ├── sdctl.c
+       └── README
+       ├─ xuartctl               - Changed binary to make xuartctl not ruin the SPI bus for the interruption
        ├── Makefile
        ├── xuartcore.c
        └── xuartctl.c
