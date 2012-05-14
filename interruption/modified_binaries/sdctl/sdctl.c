@@ -308,7 +308,7 @@ static void sbusunlock(void) {
     r = semop(semid, &sop, 1);
     assert (r == 0);
 
-    // Mark the FPGA bus as free
+    // Mark the FPGA bus as free - MIAVITA
     cvgpioregs[0x34/4] &=  0xFFFFFFFE;
 
     sbuslocked = 0;
