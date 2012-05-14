@@ -8,7 +8,8 @@ caviumprefix=/home/workspace/mia_vita/crosstool/arm-unknown-linux-gnu/bin/arm-un
 AR_cavium=$(caviumprefix)ar
 CC=$(caviumprefix)gcc
 STRIP=$(caviumprefix)strip
-LDFLAGS=-Wl,--rpath,/slib -Wl,-dynamic-linker,/slib/ld-uClibc.so.0
+#THE LAST PART OF THE NEXT LINE WAS REMOVED AND NOW YOU CAN COMPILE WITH THE CROSS COMPILE AND RUN IN THE ARMS
+LDFLAGS=-Wl,--rpath,/slib #-Wl,-dynamic-linker,/slib/ld-uClibc.so.0 
 CFLAGS=-march=armv4 -Os -g
 
 all: sdctl

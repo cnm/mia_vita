@@ -21,7 +21,7 @@
 #include <linux/ioport.h>
 #include <linux/interrupt.h>
 #include <asm/io.h>             /* ioremap */
-#include <linux/miavita_xtime.h>
+/*#include <linux/miavita_xtime.h>*/
 
 #include "mem_addr.h"
 #include "proc_entry.h"
@@ -298,6 +298,10 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_scl++;
 
         if((counter_scl % DIVISOR) == 0){
+            if((counter_scl % 2) == 0){
+              printk(KERN_EMERG "Received adc int ADC\n");
+            }
+
             handle_adc_int();
         }
     }
@@ -307,6 +311,7 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_sda++;
 
         if((counter_sda % DIVISOR) == 0){
+            printk(KERN_INFO "Received PPS\n");
             handle_gps_int();
         }
     }
@@ -338,7 +343,7 @@ void handle_gps_int(void){
      mux_state = 0;
      write_watchdog();
   }
-  pulse_miavita_xtime();
+/*  pulse_miavita_xtime();*/
   return;
 }
 
