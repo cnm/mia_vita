@@ -1021,7 +1021,8 @@ void usage(char **argv) {
             "devices and partitions for the NBD servers starting at port 7500.\n"
             "e.g. \"lun0:part1,lun1:disc\" corresponds to 2 NBD servers, one at port\n"
             "7500 serving the first partition of SD lun 0, and the other at TCP\n"
-            "port 7501 serving the whole disc device of SD lun #1.\n",
+            "port 7501 serving the whole disc device of SD lun #1.\n"
+            "MIA-VITA Version 1.0\n",
       argv[0]
         );
 }
@@ -1879,7 +1880,7 @@ int main(int argc, char **argv) {
     sd.os_dmaprep = NULL;
     sd.sd_writeparking = !opt_noparking;
     sd.sd_pwd = (unsigned char *)opt_password;
-/*    if (opt_nomultiwrite) sd.sd_nomultiwrite = 1;*/
+    if (opt_nomultiwrite) sd.sd_nomultiwrite = 1;
     if (opt_password) fprintf(stderr, "password=\"%s\"\n", opt_password);
     if (opt_scanluns) for (i = 0; i < 8; i++) {
         struct sdcore *sdtmp;
