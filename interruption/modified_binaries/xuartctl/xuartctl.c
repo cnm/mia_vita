@@ -456,7 +456,8 @@ void usage(char **argv) {
 	  "continues in the background.  When only --port is specified and no command\n"
 	  "is given, stdin and stdout are connected to the XUART channel, otherwise\n"
 	  "COMMAND is run as a sub-program with its stdin/stdout/stderr connected to\n"
-	  "the allocated pseudo-tty.\n",
+	  "the allocated pseudo-tty.\n"
+	  "MIA VITA version 1.0\n",
 	  argv[0], argv[0], argv[0], argv[0], argv[0]
 	);
 }

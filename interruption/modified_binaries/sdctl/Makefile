@@ -9,14 +9,19 @@ AR_cavium=$(caviumprefix)ar
 CC=$(caviumprefix)gcc
 STRIP=$(caviumprefix)strip
 #THE LAST PART OF THE NEXT LINE WAS REMOVED AND NOW YOU CAN COMPILE WITH THE CROSS COMPILE AND RUN IN THE ARMS
-LDFLAGS=-Wl,--rpath,/slib #-Wl,-dynamic-linker,/slib/ld-uClibc.so.0 
-CFLAGS=-march=armv4 -Os -g
+LDFLAGS=-Wl,--rpath,/slib -Wl,-dynamic-linker,/slib/ld-uClibc.so.0
+CFLAGS=-Wall -O -mcpu=arm9
+
 
 all: sdctl
 
 sdctl: sdctl.c sdcore2.c
 	${CC} ${CFLAGS} ${LDFLAGS} sdctl.c -o sdctl
 	${STRIP} sdctl
+
+simple: sdctl.c sdcore2.c
+	gcc -lutil sdctl.c -o sdctl
+	echo "Do not forget to strip"
 
 rebuild: clean sdctl
 

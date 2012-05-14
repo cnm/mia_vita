@@ -9,14 +9,18 @@ AR_cavium=$(caviumprefix)ar
 CC=$(caviumprefix)gcc
 STRIP=$(caviumprefix)strip
 #THE LAST PART OF THE NEXT LINE WAS REMOVED AND NOW YOU CAN COMPILE WITH THE CROSS COMPILE AND RUN IN THE ARMS
-LDFLAGS=-Wl,--rpath,/slib #-Wl,-dynamic-linker,/slib/ld-uClibc.so.0
-CFLAGS=-march=armv4 -Os -g -lutil
+LDFLAGS=-Wl,--rpath,/slib -Wl,-dynamic-linker,/slib/ld-uClibc.so.0
+CFLAGS=-march=armv4 -Os -lutil
 
 all: xuartctl
 
 xuartctl: xuartctl.c xuartcore.c
 	${CC} ${CFLAGS} ${LDFLAGS} xuartctl.c -o xuartctl
 	${STRIP} xuartctl
+
+
+simple: xuartctl.c xuartcore.c
+	gcc -lutil xuartctl.c -o xuartctl
 
 rebuild: clean xuartctl
 
