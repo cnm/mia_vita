@@ -4,12 +4,12 @@ Binaries to replace in the fastboot card
 Checking version
 ================
 
-If you run sdctl with the --help parameter you should see the last line:
+If you run xuartctl with the --help parameter you should see the last line:
 
   MIA-VITA Version 1.0
 
-Compiling SDCTL
----------------
+Compiling XUARTCTL
+------------------
 
 You have to use the crosscompiler in your computer. Very important:
 
