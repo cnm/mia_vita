@@ -469,3 +469,7 @@ Arms Embedded suggested this Wireless card with external antenna
 HAWNU1 Hi-Gain Wireless-150N USB Network Adapter w/Range Amplifi
 http://www.gohawking.com/store/product_info.php?products_id=438&osCsid=valhhlsf19rnueqs8shgdgduk1
 
+Compile for uCLIBC
+------------------
+
+Use the crosstool/arm-uclibc-3.4.6/ not the crosstool/arm-unknown-linux-gnu/ crosstool
