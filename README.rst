@@ -131,8 +131,9 @@ https://docs.google.com/viewer?url=http://www.linuxowl.com/ffs/DocsSoftware/SWMU
 
 Automatically boot into Debian linux
 ====================================
-In linux busy-box in the root directory issue:
-ln -sf linuxrc-sdroot linuxrc; save
+In linux initrd (busybox) in the root directory issue:
+
+rm linuxrc; ln -sf linuxrc-sdroot linuxrc; save
 
 Changes done in the Operating System
 ====================================
