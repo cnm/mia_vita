@@ -85,12 +85,14 @@ extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp, int64
 extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
 #endif
 extern void write_dio26(bool b);
+extern unsigned short read_dio26(void);
+        
 
 bool is_fpga_used(void);
 
 unsigned int counter;
 extern void write_watchdog(void);
-unsigned short mux_state;
+volatile unsigned short mux_state = 0;
 int udelay_in_second;
 
 #define DIVISOR 1
@@ -306,9 +308,9 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_scl++;
 
         if((counter_scl % DIVISOR) == 0){
-            if((counter_scl % 2) == 0){
-              printk(KERN_EMERG "Received adc int ADC\n");
-            }
+/*            if((counter_scl % 2) == 0){*/
+              printk(KERN_INFO "Received adc int ADC\n");
+/*            }*/
 
             handle_adc_int();
         }
