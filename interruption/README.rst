@@ -52,3 +52,12 @@ Notes on ADC
 ============
 
 Data should be **read** on the SPI **rising edge** and changes occur on the SPI failing edge
+
+Information on peek and poke
+============================
+
+Check the code of:
+
+ftp://ftp.embeddedarm.com/ts-arm-sbc/ts-7500-linux/sources/dioctl-latest.tar.gz
+
+Namely file: ts75xx.c (line 65) and dioserv.c (line 135)
