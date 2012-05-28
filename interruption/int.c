@@ -237,6 +237,10 @@ void register_handle_interruption(){
 /************************ End Configuration Functions *************************/
 
 /**************************** Auxiliary Functions *****************************/
+/* Function to be used when requesting physical memory (not virtual).
+ *
+ * Returns the mem_address (virtual) of the physical memory
+ * */
 int request_mem(volatile unsigned int mem_addr, unsigned int size){
     unsigned int new_mem;
     if (! request_mem_region(mem_addr, size, "MV_INT")) {
@@ -249,6 +253,10 @@ int request_mem(volatile unsigned int mem_addr, unsigned int size){
     return new_mem;
 }
 
+/* Function to be used when requesting ports.
+ *
+ * Returns the mem_address (virtual) of the port)
+ * */
 int request_port(unsigned int port_addr, unsigned int size){
     unsigned int new_mem = 0;
 
@@ -277,7 +285,7 @@ bool is_fpga_used(void){
     volatile unsigned int *p; // The volatile is extremely important here
 
     p = (unsigned int *) intr_trigger_new_address;
-    return (*p &= 0x1);
+    return (*p &= 0x1); //Check if the the "MUTEX" bit is set
 }
 /******************************** End of auxiliary functions **************************/
 

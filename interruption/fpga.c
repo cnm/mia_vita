@@ -28,6 +28,7 @@
 extern int request_mem(volatile unsigned int mem_addr, unsigned int size);
 extern void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
 void write_dio26(bool b);
+unsigned short read_dio26(void);
 void release_mem_spi(void);
 
 void set_lun_speed_edge(void);
@@ -234,6 +235,8 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* 
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
+    printk(KERN_INFO "DADOS: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);
+
     return;
 }
 #else
@@ -255,7 +258,7 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
-    /*printk(KERN_INFO "DADOS: %x - %x\n", a, b);*/
+    printk(KERN_INFO "DADOS: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);
 
     return;
 }
@@ -279,6 +282,22 @@ void write_dio26(bool b){
     // Make the specified pin into an output in direction register
     poke16(0x6c, peek16(0x6c) | (1 << pinOffSet)); ///
 }
+
+unsigned short read_dio26(void){
+    int pinOffSet = 5;
+    int value_read = 0;
+
+    // Make the specified pin into an input direction register
+    poke16(0x6c, peek16(0x6c) & ~(1 << pinOffSet)); ///
+
+    value_read = peek16(0x6a) & (1 << pinOffSet);
+
+    // Make the specified pin into an output in direction register
+    poke16(0x6c, peek16(0x6c) | (1 << pinOffSet)); ///
+
+  return value_read;
+}
+
 
 void write_watchdog(void){
     poke16(WATCHDOG_FPGA_ADDRESS, WATCHDOG_TIME_10SEG);
