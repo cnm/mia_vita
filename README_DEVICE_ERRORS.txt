@@ -1,0 +1,2 @@
+SN74157N - 2 to 74AC590N - 11
+ARM - 12 to ADC - 20
