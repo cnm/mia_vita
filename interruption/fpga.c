@@ -235,7 +235,7 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* 
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
-    printk(KERN_INFO "DADOS: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);
+/*    printk(KERN_INFO "DADOS: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);*/
 
     return;
 }
@@ -283,6 +283,11 @@ void write_dio26(bool b){
     poke16(0x6c, peek16(0x6c) | (1 << pinOffSet)); ///
 }
 
+/* Function to read what's in DIO 26 (DIO MULTIPLEXER)
+ *
+ *  Only used for debug purposes.
+ *
+ * */
 unsigned short read_dio26(void){
     int pinOffSet = 5;
     int value_read = 0;
