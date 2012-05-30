@@ -48,13 +48,16 @@ int main(void)
   for(i=0; i<BUFFER_SIZE; i++){
     channel_data[i] = (unsigned int *) malloc(sizeof(unsigned int) * NUM_OF_CHANNELS);
     samples[i] = (sample*) malloc(sizeof(sample));
-
   }
 
   ifp = fopen("/proc/geophone", "r");
-      
+
+  if(ifp == NULL){
+    fprintf(stderr, "No /proc/geophone to read from. Are you sure you installed the module.\n");
+    exit(1);
+  }
+
   for(i=0, read_samples=0; (i<BUFFER_SIZE) && (!feof(ifp)); ++i, ++read_samples){
-    
     read_sample(samples[i], ifp);
 
     /*
@@ -87,9 +90,9 @@ void read_sample(sample* samp, FILE* ifp)
   unsigned char* temp;
 
   int i;
-  int len_uc = sizeof(unsigned char);
-  int length_sample = sizeof(sample);
-  int read_oct; // Number of read octets
+  unsigned int len_uc = sizeof(unsigned char);
+  unsigned int length_sample = sizeof(sample);
+  unsigned int read_oct = 0; // Number of read octets
 
   temp = (unsigned char*) samp;
   while (read_oct < length_sample){ // Read enough octets to fill a sample
