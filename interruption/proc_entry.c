@@ -61,7 +61,7 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
   uint8_t* int1;
   uint8_t* int2;
   uint8_t* int3;
-  
+
   if(*offset == last_write_tmp)
     return 0; //Screw this... cannot read samples 
 
@@ -121,7 +121,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     if (offset <= data_size_in_chars){ //If offset asked is inferior to the size array
         how_many_we_copy = data_size_in_chars - offset;
 
-        printk(KERN_EMERG "1 Last read %u \tLast write %u READING: %d \n", (int) offset, data_size_in_chars, how_many_we_copy);
+/*        printk(KERN_EMERG "Last read %u \tLast write %u READING: %d \n", (int) offset, data_size_in_chars, how_many_we_copy);*/
     }
     else{
         how_many_we_copy = 0;

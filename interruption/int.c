@@ -86,7 +86,7 @@ extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
 #endif
 extern void write_dio26(bool b);
 extern unsigned short read_dio26(void);
-        
+
 
 bool is_fpga_used(void);
 
@@ -296,7 +296,7 @@ bool is_fpga_used(void){
 irqreturn_t interrupt(int irq, void *dev_id){
     volatile unsigned int *p; // The volatile is extremely important here
 
-    /* Disable interruptiVyons */
+    /* Disable interruptions */
     p = (unsigned int *) intr_en_new_address;
     *p &= ~GPIOA_EN_MASK;
 
@@ -308,13 +308,19 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_scl++;
 
         if((counter_scl % DIVISOR) == 0){
-/*            if((counter_scl % 2) == 0){*/
-              printk(KERN_INFO "Received adc int ADC\n");
-/*            }*/
+            /*            if((counter_scl % 2) == 0){*/
+            /*            printk(KERN_INFO "Received adc int ADC\n");*/
+            /*            }*/
 
+            /*            if((counter_scl % 10000) != 0){*/
+            /*            }*/
+            /*            else{*/
+            /*                printk(KERN_EMERG "Kern Emerg %u HANDLING\n", counter_scl);*/
             handle_adc_int();
+            /*            }*/
         }
     }
+
 
     /* If sda interruption */
     else if(SDA_MASK & *p){
@@ -342,19 +348,19 @@ irqreturn_t interrupt(int irq, void *dev_id){
 }
 
 void handle_gps_int(void){
-  counter = 0;
-  counter_seconds++;
-  udelay_in_second = 0;
-  if(is_fpga_used()){
-     return;
-  }
-  else{
-     write_dio26(0);
-     mux_state = 0;
-     write_watchdog();
-  }
-/*  pulse_miavita_xtime();*/
-  return;
+    counter = 0;
+    counter_seconds++;
+    udelay_in_second = 0;
+    if(is_fpga_used()){
+        return;
+    }
+    else{
+        write_dio26(0);
+        mux_state = 0;
+        write_watchdog();
+    }
+    /*  pulse_miavita_xtime();*/
+    return;
 }
 
 #define SAMPLE_RATE_TIME_INTERVAL_U    2000        /* 50Hz -> 2 Miliseconds -> 2 000 Micro*/
@@ -370,7 +376,7 @@ void handle_adc_int(){
 
     counter++;
     if(fpga_busy){
-/*        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);*/
+        /*        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);*/
         return;
     }
 
@@ -389,15 +395,21 @@ void handle_adc_int(){
     write_to_buffer(value_buffer, timestamp, gps_us);
 #else
     /* Read the adc  */
+
+    /*    if((counter_scl % 100) != 0){*/
+    /*    }*/
+    /*    else{*/
+    /*      printk(KERN_EMERG "Kern Emerg %u HANDLING\n", counter_scl);*/
     read_four_channels(value_buffer, &timestamp);
 
     /* Save to a buffer the value */
     write_to_buffer(value_buffer, timestamp);
+    /*    }*/
 #endif
 
-/*    if(counter >= 50){*/
-/*        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);*/
-/*    }*/
+    /*    if(counter >= 50){*/
+    /*        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);*/
+    /*    }*/
 }
 /******************************** End of Interruption handlers ************************/
 

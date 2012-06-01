@@ -241,7 +241,7 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* 
 }
 #else
 void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
-    unsigned int a,b,c,d,e,f;
+    unsigned int a,b,c,d,e,f, z;
     a = b = c = d = e = f = 0;
 
     *timestamp = get_kernel_current_time();
@@ -254,11 +254,15 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
 
     f = peek16(0x4C);//2/3 da quarta
 
+
+/*    z = peek16(0x4A);//2/3 da quarta*/
+/*    z = peek16(0x4C);//2/3 da quarta*/
+
     read_buffer[0] = (a<<16|b);
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
-    printk(KERN_INFO "DADOS: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);
+/*    printk(KERN_EMERG "DADOS: %04X - %04X - %04X - %04X - %04X - %04X \n", a, b, c, d, e, f);*/
 
     return;
 }
@@ -305,5 +309,6 @@ unsigned short read_dio26(void){
 
 
 void write_watchdog(void){
+    return;
     poke16(WATCHDOG_FPGA_ADDRESS, WATCHDOG_TIME_10SEG);
 }

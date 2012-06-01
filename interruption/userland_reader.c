@@ -37,48 +37,49 @@ void two_complement(unsigned int*);
  */
 int main(void)
 {
- 
+
   FILE *ifp;
 
   int i, j, read_samples;
-  unsigned int ** channel_data = (unsigned int **) malloc(sizeof(unsigned int *) * BUFFER_SIZE);
+  int ** channel_data = (int **) malloc(sizeof(int *) * BUFFER_SIZE);
 
   sample** samples = (sample**) malloc(sizeof(sample*) * BUFFER_SIZE);
 
   for(i=0; i<BUFFER_SIZE; i++){
-    channel_data[i] = (unsigned int *) malloc(sizeof(unsigned int) * NUM_OF_CHANNELS);
-    samples[i] = (sample*) malloc(sizeof(sample));
+      channel_data[i] = (unsigned int *) malloc(sizeof(unsigned int) * NUM_OF_CHANNELS);
+      samples[i] = (sample*) malloc(sizeof(sample));
   }
 
   ifp = fopen("/proc/geophone", "r");
 
   if(ifp == NULL){
-    fprintf(stderr, "No /proc/geophone to read from. Are you sure you installed the module.\n");
-    exit(1);
+      fprintf(stderr, "No /proc/geophone to read from. Are you sure you installed the module.\n");
+      exit(1);
   }
 
   for(i=0, read_samples=0; (i<BUFFER_SIZE) && (!feof(ifp)); ++i, ++read_samples){
-    read_sample(samples[i], ifp);
+      read_sample(samples[i], ifp);
 
-    /*
-      printf("timestamp: %x\n", samp->timestamp);
-      printf("data[0]: %x\n", samp->data[0]);
-      printf("data[1]: %x\n", samp->data[1]);
-      printf("data[2]: %x\n", samp->data[2]);
-    */  
+      /*
+         printf("timestamp: %x\n", samp->timestamp);
+         printf("data[0]: %x\n", samp->data[0]);
+         printf("data[1]: %x\n", samp->data[1]);
+         printf("data[2]: %x\n", samp->data[2]);
+       */
 
-    correct_sample(samples[i]);
-    
-    separate_channels(samples[i], channel_data[i]);
+      correct_sample(samples[i]);
 
-    two_complement(channel_data[i]);
+      separate_channels(samples[i], channel_data[i]);
+
+      two_complement(channel_data[i]);
   }
 
   for(i=0; i<read_samples; i++){
-    for(j=0; j < NUM_OF_CHANNELS; j++){
-      printf("%d ", channel_data[i][j]);
-    }
-    printf("\n");
+      printf("Sample %04d: ", i);
+      for(j=0; j < NUM_OF_CHANNELS; j++){
+              printf("%05d ", channel_data[i][j]);
+      }
+      printf("\n");
   }
 
   return 0;
@@ -96,13 +97,13 @@ void read_sample(sample* samp, FILE* ifp)
 
   temp = (unsigned char*) samp;
   while (read_oct < length_sample){ // Read enough octets to fill a sample
-    i = getc(ifp);
-    *temp = (unsigned char) i;
+      i = getc(ifp);
+      *temp = (unsigned char) i;
 
-    //    printf("%2X \n", i);
+      //    printf("%2X \n", i);
 
-    read_oct += len_uc; 
-    temp += len_uc;
+      read_oct += len_uc; 
+      temp += len_uc;
   }
 }
 
@@ -141,7 +142,7 @@ void correct_sample(sample* samp)
   samp->data[0] = corr_data[0];
   samp->data[1] = corr_data[1];
   samp->data[2] = corr_data[2];
-  
+
 }
 
 void separate_channels(sample* samp, unsigned int* channels)
@@ -150,10 +151,10 @@ void separate_channels(sample* samp, unsigned int* channels)
   uint8_t* sample_data;
 
   sample_data = (uint8_t*) samp->data;
-  
+
   for(i=0; i < NUM_OF_CHANNELS*3; i +=3 ){ // Extract the 24 bits from each channel
-    // The bits come from the kernel in the following order: MSB -> LSB
-    channels[i/3] = (unsigned int) ((sample_data[i]<<16) + (sample_data[i+1]<<8) + sample_data[i+2]);
+      // The bits come from the kernel in the following order: MSB -> LSB
+      channels[i/3] = (unsigned int) ((sample_data[i]<<16) + (sample_data[i+1]<<8) + sample_data[i+2]);
   }
 
 }
@@ -163,8 +164,8 @@ void two_complement(unsigned int* channels)
 
   int i;
   for(i=0; i < NUM_OF_CHANNELS; i++){
-    if(channels[i] > 0x800000){
-      channels[i] = (~(channels[i])+1 & 0x00FFFFFF)*(-1);
-    }
+      if(channels[i] > 0x800000){
+          channels[i] = (~(channels[i])+1 & 0x00FFFFFF)*(-1);
+      }
   }
 }
