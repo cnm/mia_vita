@@ -6,7 +6,7 @@ uart_gps_test: uart_gps_test.c gps_time.o gps_uartctl.o
 	$(CC) -o $@ $^ ${FLAGS} ${LIBS}
 
 %.o: %.c %.h
-	strace $(CC) -c $< ${FLAGS}
+	$(CC) -c $< ${FLAGS}
 
 clean:
 	rm -f *.o uart_gps_test
