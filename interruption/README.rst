@@ -11,7 +11,6 @@ This is the file structure::
    ├── proc_entry.h           - Just has the function headers for proc_entry
    ├── userland_reader.c      - Userland app to read the data from the created proc entry
    ├── Makefile
-   |── Button                 - Directory with the script to support the power on button
    └── modified_binaries
        ├─ sdctl                  - Changed binary to make sdctl not ruin the SPI bus for the interruption
        ├── Makefile
