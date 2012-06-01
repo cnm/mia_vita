@@ -45,19 +45,22 @@ int main(void)
 
   sample** samples = (sample**) malloc(sizeof(sample*) * BUFFER_SIZE);
 
-  for(i=0; i<BUFFER_SIZE; i++){
+  for(i=0; i<BUFFER_SIZE; i++)
+    {
       channel_data[i] = (unsigned int *) malloc(sizeof(unsigned int) * NUM_OF_CHANNELS);
       samples[i] = (sample*) malloc(sizeof(sample));
-  }
+    }
 
   ifp = fopen("/proc/geophone", "r");
 
-  if(ifp == NULL){
+  if(ifp == NULL)
+    {
       fprintf(stderr, "No /proc/geophone to read from. Are you sure you installed the module.\n");
       exit(1);
-  }
+    }
 
-  for(i=0, read_samples=0; (i<BUFFER_SIZE) && (!feof(ifp)); ++i, ++read_samples){
+  for(i=0, read_samples=0; (i<BUFFER_SIZE) && (!feof(ifp)); ++i, ++read_samples)
+    {
       read_sample(samples[i], ifp);
 
       /*
@@ -72,15 +75,17 @@ int main(void)
       separate_channels(samples[i], channel_data[i]);
 
       two_complement(channel_data[i]);
-  }
+    }
 
-  for(i=0; i<read_samples; i++){
+  for(i=0; i<read_samples; i++)
+    {
       printf("Sample %04d: ", i);
-      for(j=0; j < NUM_OF_CHANNELS; j++){
-              printf("%05d ", channel_data[i][j]);
-      }
+      for(j=0; j < NUM_OF_CHANNELS; j++)
+        {
+          printf("%05d ", channel_data[i][j]);
+        }
       printf("\n");
-  }
+    }
 
   return 0;
 }
@@ -96,7 +101,8 @@ void read_sample(sample* samp, FILE* ifp)
   unsigned int read_oct = 0; // Number of read octets
 
   temp = (unsigned char*) samp;
-  while (read_oct < length_sample){ // Read enough octets to fill a sample
+  while (read_oct < length_sample)
+    { // Read enough octets to fill a sample
       i = getc(ifp);
       *temp = (unsigned char) i;
 
@@ -104,7 +110,7 @@ void read_sample(sample* samp, FILE* ifp)
 
       read_oct += len_uc; 
       temp += len_uc;
-  }
+    }
 }
 
 /*DATA memory layout:
@@ -152,10 +158,11 @@ void separate_channels(sample* samp, unsigned int* channels)
 
   sample_data = (uint8_t*) samp->data;
 
-  for(i=0; i < NUM_OF_CHANNELS*3; i +=3 ){ // Extract the 24 bits from each channel
+  for(i=0; i < NUM_OF_CHANNELS*3; i +=3 )
+    { // Extract the 24 bits from each channel
       // The bits come from the kernel in the following order: MSB -> LSB
       channels[i/3] = (unsigned int) ((sample_data[i]<<16) + (sample_data[i+1]<<8) + sample_data[i+2]);
-  }
+    }
 
 }
 
@@ -163,9 +170,11 @@ void two_complement(unsigned int* channels)
 {
 
   int i;
-  for(i=0; i < NUM_OF_CHANNELS; i++){
-      if(channels[i] > 0x800000){
+  for(i=0; i < NUM_OF_CHANNELS; i++)
+    {
+      if(channels[i] > 0x800000)
+        {
           channels[i] = (~(channels[i])+1 & 0x00FFFFFF)*(-1);
-      }
-  }
+        }
+    }
 }
