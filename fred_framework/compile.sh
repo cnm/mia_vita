@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cores="-j2"
+cores="-j1"
 kernel_path="/lib/modules/`uname -r`/build"
 out_dir=`pwd`"/modules/"
 on_error_resume=0
