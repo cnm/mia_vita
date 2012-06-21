@@ -63,11 +63,15 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
   uint8_t* int3;
 
   if(*offset == last_write_tmp)
+#ifdef __DEBUG__
+    printk(KERN_INFO "NOTHING TO READ\n");
+#endif
     return 0; //Screw this... cannot read samples 
 
   to_copy = (*offset > last_write_tmp)? last_write_tmp + DATA_SIZE - *offset : last_write_tmp - *offset;
 
   *be_samples = kmalloc(to_copy * sizeof(unsigned int) * 3, GFP_ATOMIC);
+
   if(!(*be_samples)){
     printk("%s:%d: Cannot read samples. Kmalloc failed.", __FILE__, __LINE__);
     return 0;
@@ -121,7 +125,9 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     if (offset <= data_size_in_chars){ //If offset asked is inferior to the size array
         how_many_we_copy = data_size_in_chars - offset;
 
-/*        printk(KERN_EMERG "Last read %u \tLast write %u READING: %d \n", (int) offset, data_size_in_chars, how_many_we_copy);*/
+#ifdef __DEBUG__
+        printk(KERN_EMERG "Last read %u \tLast write %u READING: %d \n", (int) offset, data_size_in_chars, how_many_we_copy);
+#endif
     }
     else{
         how_many_we_copy = 0;
@@ -139,13 +145,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 
 #ifdef __GPS__
 void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us){
-    /*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
-
-
-    /* FRED CHANGE THIS */  
-    /**value = 0x11223344;
-     *(value + 1) = 0x55667788;
-     *(value + 2) = 0x99AABBCC;*/
+    /*    printk(KERN_INFO "Writing to buffer %d value %u\n", last_write, (*value));*/
 
     DATA[last_write].gps_us = gps_us;
     DATA[last_write].timestamp = timestamp;
@@ -159,12 +159,6 @@ void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us){
 /* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value, int64_t timestamp){
     /*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
-
-
-    /* FRED CHANGE THIS */  
-    /*    *value = 0x11223344;
-     *(value + 1) = 0x55667788;
-     *(value + 2) = 0x99AABBCC;*/
 
     DATA[last_write].timestamp = timestamp;
     DATA[last_write].data[0] = *value;
