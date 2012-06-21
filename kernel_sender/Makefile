@@ -1,6 +1,7 @@
 obj-m += sender_kthread.o
 
-KERNEL_PATH=/lib/modules/$(shell uname -r)/build
+# KERNEL_PATH=/lib/modules/$(shell uname -r)/build
+KERNEL_PATH= ../ts7500_kernel/
 
 EXTRA_CFLAGS += -I$(PWD)/../interruption/ 
 #EXTRA_CFLAGS += -DDBG 
