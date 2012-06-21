@@ -75,7 +75,7 @@ static void send_it(packet_t* pkt) {
   struct iovec iov;
   struct sockaddr_in addr;
   int status;
-  
+
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = in_aton(sink_ip);
   addr.sin_port = htons(sink_port);
@@ -133,15 +133,15 @@ static int main_loop(void* data) {
   }
 
   /*
-   * If you need debug, just compile the code with -DDBG
+   * If you need debug, just compile the code with -D__DEBUG__
    */
-#ifdef DBG
+#ifdef __DEBUG__
   printk("Bound to %s:%u\n", bind_ip, sport);
 #endif
 
   while (1) {
     if (kthread_should_stop()){
-#ifdef DBG
+#ifdef __DEBUG__
       printk("Stopping sender thread...\n");
 #endif
       break;
@@ -153,7 +153,7 @@ static int main_loop(void* data) {
     if(read_nsamples(&samples, &len, &timestamp, &offset)){
 #endif
 
-#ifdef DBG
+#ifdef __DEBUG__
       printk("Read %d samples:\n", len / 12);
 #endif
 
@@ -172,7 +172,7 @@ static int main_loop(void* data) {
 #endif
      
 	pkt->seq = cpu_to_be32(seq++);
-#ifdef DBG
+#ifdef __DEBUG__
 	printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
 #endif
 	pkt->id = node_id;
@@ -197,6 +197,9 @@ int __init init_module(void) {
     sender = NULL;
     return -ENOMEM;
   }
+
+
+  printk(KERN_INFO "Kernel sender module (sender kthread) initialized\n");
   return 0;
 }
 
