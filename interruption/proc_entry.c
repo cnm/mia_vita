@@ -113,6 +113,8 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
     *len = to_copy * sizeof(unsigned int) * 3;
     return 1; //Read was successful 
 }
+EXPORT_SYMBOL(read_nsamples);
+
 
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
