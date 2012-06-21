@@ -43,9 +43,11 @@ sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
  *len is a pointer to the size of be_samples (IN BYTES!).
  */
 #ifdef __GPS__
-int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, int64_t* gps_us, uint32_t* offset){
+int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, int64_t* gps_us, uint32_t* offset)
+{
 #else
-int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint32_t* offset){
+int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint32_t* offset)
+{
 #endif
     /*DATA memory layout:
      *
@@ -56,65 +58,67 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
      *Sample:     2-|---1-----|--3---|--2---|----4----|-3
      *be_samples:
      */
-  uint32_t to_copy, i;
-  unsigned int last_write_tmp = last_write;
-  uint8_t* int1;
-  uint8_t* int2;
-  uint8_t* int3;
+    uint32_t to_copy, i;
+    unsigned int last_write_tmp = last_write;
+    uint8_t* int1;
+    uint8_t* int2;
+    uint8_t* int3;
 
-  if(*offset == last_write_tmp)
+    if(*offset == last_write_tmp)
 #ifdef __DEBUG__
-    printk(KERN_INFO "NOTHING TO READ\n");
+      printk(KERN_INFO "NOTHING TO READ\n");
 #endif
     return 0; //Screw this... cannot read samples 
 
-  to_copy = (*offset > last_write_tmp)? last_write_tmp + DATA_SIZE - *offset : last_write_tmp - *offset;
+    to_copy = (*offset > last_write_tmp)? last_write_tmp + DATA_SIZE - *offset : last_write_tmp - *offset;
 
-  *be_samples = kmalloc(to_copy * sizeof(unsigned int) * 3, GFP_ATOMIC);
+    *be_samples = kmalloc(to_copy * sizeof(unsigned int) * 3, GFP_ATOMIC);
 
-  if(!(*be_samples)){
-    printk("%s:%d: Cannot read samples. Kmalloc failed.", __FILE__, __LINE__);
-    return 0;
-  }
+    if(!(*be_samples))
+      {
+        printk(KERN_EMERG "%s:%d: Cannot read samples. Kmalloc failed.", __FILE__, __LINE__);
+        return 0;
+      }
 
-  for(i = 0; i < to_copy; i += 3){
-    int1 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data);
-    int2 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 1);
-    int3 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 2);
+    for(i = 0; i < to_copy; i += 3)
+      {
+        int1 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data);
+        int2 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 1);
+        int3 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 2);
 
-    *timestamp = DATA[(*offset + i) % DATA_SIZE].timestamp;
+        *timestamp = DATA[(*offset + i) % DATA_SIZE].timestamp;
 
 #ifdef __GPS__ 
-    *gps_us = DATA[(*offset + i) % DATA_SIZE].gps_us;
+        *gps_us = DATA[(*offset + i) % DATA_SIZE].gps_us;
 #endif
 
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[0] = int1[3];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[1] = int1[2];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[2] = int1[1];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[0] = int1[3];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[1] = int1[2];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[2] = int1[1];
 
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[3] = int1[0];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[4] = int2[3];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[5] = int2[2];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[3] = int1[0];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[4] = int2[3];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[5] = int2[2];
 
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[6] = int2[1];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[7] = int2[0];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[8] = int3[3];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[6] = int2[1];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[7] = int2[0];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[8] = int3[3];
 
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[9] = int3[2];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[10] = int3[1];
-    (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[11] = int3[0];
-  }
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[9] = int3[2];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[10] = int3[1];
+        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[11] = int3[0];
+      }
 
-  *offset = (*offset + to_copy) % DATA_SIZE;
-  *len = to_copy * sizeof(unsigned int) * 3;
-  return 1; //Read was successful 
+    *offset = (*offset + to_copy) % DATA_SIZE;
+    *len = to_copy * sizeof(unsigned int) * 3;
+    return 1; //Read was successful 
 }
-EXPORT_SYMBOL(read_nsamples);
 
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
 static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset,
-                         int dest_buffer_length, int *eof, void *data) {
+                         int dest_buffer_length, int *eof, void *data)
+  {
 
     /* We only use char sizes from here */
     unsigned int data_size_in_chars = DATA_SIZE * sizeof(sample);
@@ -122,16 +126,17 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 
 
     //Calculates how many octets to copy
-    if (offset <= data_size_in_chars){ //If offset asked is inferior to the size array
+    if (offset <= data_size_in_chars)
+      { //If offset asked is inferior to the size array
         how_many_we_copy = data_size_in_chars - offset;
-
 #ifdef __DEBUG__
         printk(KERN_EMERG "Last read %u \tLast write %u READING: %d \n", (int) offset, data_size_in_chars, how_many_we_copy);
 #endif
-    }
-    else{
+      }
+    else
+      {
         how_many_we_copy = 0;
-    }
+      }
 
     how_many_we_copy = (how_many_we_copy < dest_buffer_length) ? how_many_we_copy : dest_buffer_length;
 
@@ -141,10 +146,11 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     *buffer_location = dest_buffer;
 
     return how_many_we_copy;
-}
+  }
 
 #ifdef __GPS__
-void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us){
+void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us)
+{
     /*    printk(KERN_INFO "Writing to buffer %d value %u\n", last_write, (*value));*/
 
     DATA[last_write].gps_us = gps_us;
@@ -157,7 +163,8 @@ void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us){
 }
 #else
 /* This function is called by the interruption and therefore cannot be interrupted */
-void write_to_buffer(unsigned int * value, int64_t timestamp){
+void write_to_buffer(unsigned int * value, int64_t timestamp)
+{
     /*    printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));*/
 
     DATA[last_write].timestamp = timestamp;
@@ -169,15 +176,17 @@ void write_to_buffer(unsigned int * value, int64_t timestamp){
 }
 #endif
 
-void create_proc_file(void) {
+void create_proc_file(void)
+{
     last_write = 0;
     proc_file_entry = create_proc_entry(PROC_FILE_NAME, 0644, NULL);
 
-    if (proc_file_entry == NULL) {
+    if (proc_file_entry == NULL)
+      {
         printk (KERN_ALERT "Error: Could not initialize /proc/%s\n",
                 PROC_FILE_NAME);
         return;
-    }
+      }
 
     proc_file_entry->read_proc = procfile_read;
     proc_file_entry->mode = S_IFREG | S_IRUGO;
