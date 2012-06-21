@@ -241,7 +241,7 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* 
 }
 #else
 void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
-    unsigned int a,b,c,d,e,f, z;
+    unsigned int a,b,c,d,e,f;
     a = b = c = d = e = f = 0;
 
     *timestamp = get_kernel_current_time();
@@ -253,10 +253,6 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     e = peek16(0x4A);//1/3 da terceira 1/3 da quarta
 
     f = peek16(0x4C);//2/3 da quarta
-
-
-/*    z = peek16(0x4A);//2/3 da quarta*/
-/*    z = peek16(0x4C);//2/3 da quarta*/
 
     read_buffer[0] = (a<<16|b);
     read_buffer[1] = (c<<16|d);
