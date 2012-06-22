@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
+
 #include "syscall_wrapper.h"
 
 //for arm
