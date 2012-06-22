@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <time.h>
 #include <endian.h>
+#include <errno.h>
+#include <unistd.h>
 
 #include "macros.h"
 #include "list.h"
@@ -14,11 +16,14 @@ char* output_binary_file = "miavita.bin";
 char* output_json_file = "miavita.json";
 int bin_fd = -1, json_fd = -1;
 
-list* mklist(uint32_t capacity, char* new_filename){
-    list* l = alloc(list, 1);
-    l->buff = alloc(packet_t, capacity);
-    l->rotate_at = capacity;
-    l->new_filename = new_filename;
+list* mklist(uint32_t capacity, char* new_filename)
+{
+  list* l = alloc(list, 1);
+  l->buff = alloc(packet_t, capacity);
+  l->rotate_at = capacity;
+  l->new_filename = new_filename;
+
+  return l;
 }
 
 void rmlist(list* l){
@@ -75,13 +80,14 @@ static void write_json(packet_t pkt)
   static uint8_t first = 1;
   char buff[2048] = {0};
   uint32_t to_write, written = 0, status;
-  uint32_t sample1 = 0, sample2 = 0, sample3 = 0, sample4 = 0;  
+  uint32_t sample1 = 0, sample2 = 0, sample3 = 0, sample4 = 0;
 
   pkt = ntohpkt(pkt);
 
-  if(!first){
+  if(!first)
+    {
       write(json_fd, ",\n", 2);
-  }
+    }
   else
     {
       write(json_fd, "\n", 1);

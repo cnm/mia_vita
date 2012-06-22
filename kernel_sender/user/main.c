@@ -6,10 +6,13 @@
 #include <net/if.h>
 #include <ifaddrs.h>
 #include <signal.h>
+#include <unistd.h>
+
 
 #ifdef __GPS__
 #include "syscall_wrapper.h"
 #endif
+
 #include "miavita_packet.h"
 #include "list.h"
 
@@ -80,7 +83,6 @@ uint8_t parse_args(char** argv, int argc){
 uint8_t bind_socket() {
   struct ifaddrs *addrs, *iap;
   struct sockaddr_in sa;
-  char buf[32];
 
   sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if(sockfd == -1){
@@ -104,6 +106,10 @@ uint8_t bind_socket() {
     }
   }
 
+
+#ifdef __DEBUG__
+  printf("Connected to socket\n");
+#endif
   return 1;
 }
 
