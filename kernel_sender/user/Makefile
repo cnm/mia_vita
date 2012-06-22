@@ -1,6 +1,8 @@
 CC=gcc
-CFLAGS=-g
+CC=../../crosstool/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
+#CFLAGS=-g
 #CFLAGS += -D__GPS__
+#CFLAGS += -D__DEBUG__
 EXE=main
 
 all: syscall_wrapper.o list.o miavita_packet.h main.c
