@@ -37,3 +37,15 @@ Note: There are two mains here: One to set the time in the kernel through the GP
 ├── miavita_packet.h -> ../../kernel_sender/miavita_packet.h
 ├── syscall_wrapper.c   - Syscalls to set the two time variables in the kernel
 └── syscall_wrapper.h   - ""
+
+Help
+====
+
+Usage: ./main [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>] [-o <moved_file_prefix>]
+-i Interface name on which the program will listen. Default is eth0
+-p UDP port on which the program will listen. Default is 57843
+-b Name of the binary file to where the data is going to be written. Default is miavita.bin
+-j Name of the json file to where the data is going to be written. Default is miavita.json
+-t Test the program against GPS time. Make sure to compile this program with -D__GPS__.
+-o Output file prefix when the file is moved by log rotation. Default is miavita_old.
+-c Buffer cacity expressed in terms of number of packets. Default is 100.
