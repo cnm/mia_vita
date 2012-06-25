@@ -40,7 +40,7 @@ sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
  *as it can.
  *
  *be_samples is a pointer which will be allocated inside the function. It will contain the samples in big endian format.
- *len is a pointer to the size of be_samples (IN BYTES!).
+ *len is a pointer to the number of copied samples (one sample has the three channels).
  */
 #ifdef __GPS__
 int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, int64_t* gps_us, uint32_t* offset)
@@ -64,12 +64,13 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
     uint8_t* int2;
     uint8_t* int3;
 
-    if(*offset == last_write_tmp){
+    if(*offset == last_write_tmp)
+      {
 #ifdef __DEBUG__
       printk(KERN_INFO "NOTHING TO READ\n");
 #endif
       return 0; //Screw this... cannot read samples 
-    }
+      }
 
     to_copy = (*offset > last_write_tmp)? last_write_tmp + DATA_SIZE - *offset : last_write_tmp - *offset;
 
@@ -126,7 +127,6 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     /* We only use char sizes from here */
     unsigned int data_size_in_chars = DATA_SIZE * sizeof(sample);
     unsigned int how_many_we_copy = 0;
-
 
     //Calculates how many octets to copy
     if (offset <= data_size_in_chars)
