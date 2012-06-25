@@ -235,7 +235,13 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* 
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
-/*    printk(KERN_INFO "DADOS: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);*/
+
+    /* Usefull to debug stuff */
+/*    read_buffer[0] = 0x11223344;*/
+/*    read_buffer[1] = 0x55667788;*/
+/*    read_buffer[2] = 0x99AABBCC;*/
+
+/*    printk(KERN_INFO "DATA: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);*/
 
     return;
 }
@@ -258,7 +264,12 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
-/*    printk(KERN_EMERG "DADOS: %04X - %04X - %04X - %04X - %04X - %04X \n", a, b, c, d, e, f);*/
+    /* Usefull to debug stuff */
+/*    read_buffer[0] = 0x11223344;*/
+/*    read_buffer[1] = 0x55667788;*/
+/*    read_buffer[2] = 0x99AABBCC;*/
+
+/*    printk(KERN_EMERG "DATA: %04X - %04X - %04X - %04X - %04X - %04X \n", a, b, c, d, e, f);*/
 
     return;
 }
