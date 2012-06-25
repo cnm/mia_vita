@@ -144,7 +144,7 @@ static int main_loop(void* data)
   printk("Bound to %s:%u\n", bind_ip, sport);
 #endif
 
-  while (1) 
+  while (1)
     {
         {
 #ifdef __DEBUG__
@@ -162,7 +162,7 @@ static int main_loop(void* data)
 #endif
 
 #ifdef __DEBUG__
-          printk("Read %d samples:\n", len / 12);
+          printk(KERN_EMERG "Read %d samples:\n", len);
 #endif
 
           for(i = 0; i < len; i += 12)
