@@ -181,17 +181,27 @@ int  __packet_comparator(const void* a, const void* b){
     int64_t at = ((packet_t*) a)->timestamp;
     int64_t bt = ((packet_t*) b)->timestamp;
 
+#ifdef __DEBUG__
     printf("A seq: %u\n", ((packet_t*) a)->seq);
+#endif
 
     if(at < bt){
+#ifdef __DEBUG__
         printf("%lld < %lld\n", at, bt);
+#endif
         return -1;
     }
+
     if(at > bt){
+#ifdef __DEBUG__
         printf("%lld > %lld\n", at, bt);
+#endif
         return 1;
     }
+
+#ifdef __DEBUG__
     printf("%lld == %lld\n", at, bt);
+#endif
     return 0;
 }
 
