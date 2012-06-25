@@ -62,16 +62,7 @@ int main(void)
   for(i=0, read_samples=0; (i<BUFFER_SIZE) && (!feof(ifp)); ++i, ++read_samples)
     {
       read_sample(samples[i], ifp);
-
-      /*
-         printf("timestamp: %x\n", samp->timestamp);
-         printf("data[0]: %x\n", samp->data[0]);
-         printf("data[1]: %x\n", samp->data[1]);
-         printf("data[2]: %x\n", samp->data[2]);
-       */
-
       correct_sample(samples[i]);
-
       separate_channels(samples[i], channel_data[i]);
 
       two_complement(channel_data[i]);
@@ -82,8 +73,14 @@ int main(void)
       printf("Sample %04d: ", i);
       for(j=0; j < NUM_OF_CHANNELS; j++)
         {
-          printf("%05d ", channel_data[i][j]);
+          printf("%07d ", channel_data[i][j]);
         }
+
+      for(j=0; j < NUM_OF_CHANNELS; j++)
+        {
+          printf("\t\t%08X ", channel_data[i][j]);
+        }
+
       printf("\n");
     }
 
@@ -148,7 +145,6 @@ void correct_sample(sample* samp)
   samp->data[0] = corr_data[0];
   samp->data[1] = corr_data[1];
   samp->data[2] = corr_data[2];
-
 }
 
 void separate_channels(sample* samp, unsigned int* channels)
