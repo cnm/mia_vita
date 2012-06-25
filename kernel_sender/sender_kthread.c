@@ -109,112 +109,114 @@ static void send_it(packet_t* pkt)
 /*
  * This is the kthread function. Although I didn't used it you can always pass it values through the data variable.
  */
-static int main_loop(void* data) {
-    uint8_t *samples;
-    uint32_t offset = 0, len, i;
-    packet_t* pkt;
-    static uint32_t seq = 0;
-    int64_t timestamp;
+static int main_loop(void* data)
+{
+  uint8_t *samples;
+  uint32_t offset = 0, len, i;
+  packet_t* pkt;
+  static uint32_t seq = 0;
+  int64_t timestamp;
 #ifdef __GPS__
-    int64_t gps_us;
+  int64_t gps_us;
 #endif
 
-    if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0)
-      {
-        printk(KERN_EMERG "Unable to create socket.\n");
-        return 0;
-      }
+  if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0)
+    {
+      printk(KERN_EMERG "Unable to create socket.\n");
+      return 0;
+    }
 
-    memset(&my_addr, 0, sizeof(my_addr));
-    my_addr.sin_family = AF_INET;
-    my_addr.sin_addr.s_addr = in_aton(bind_ip);
-    my_addr.sin_port = htons(sport);
+  memset(&my_addr, 0, sizeof(my_addr));
+  my_addr.sin_family = AF_INET;
+  my_addr.sin_addr.s_addr = in_aton(bind_ip);
+  my_addr.sin_port = htons(sport);
 
-    if(udp_socket->ops->bind(udp_socket, (struct sockaddr*) &my_addr, sizeof(struct sockaddr)) < 0)
-      {
-        printk(KERN_EMERG "Unable to bind socket to %s:%d.\n", bind_ip, sport);
-        return 0;
-      }
+  if(udp_socket->ops->bind(udp_socket, (struct sockaddr*) &my_addr, sizeof(struct sockaddr)) < 0)
+    {
+      printk(KERN_EMERG "Unable to bind socket to %s:%d.\n", bind_ip, sport);
+      return 0;
+    }
 
-    /*
-     * If you need debug, just compile the code with -D__DEBUG__
-     */
+  /*
+   * If you need debug, just compile the code with -D__DEBUG__
+   */
 #ifdef __DEBUG__
-    printk("Bound to %s:%u\n", bind_ip, sport);
+  printk("Bound to %s:%u\n", bind_ip, sport);
 #endif
 
-    while (1) {
-        if (kthread_should_stop())
-          {
+  while (1) 
+    {
+        {
 #ifdef __DEBUG__
-            printk("Stopping sender thread...\n");
+          printk("Stopping sender thread...\n");
 #endif
-            break;
-          }
+          break;
+        }
 
 #ifdef __GPS__
-        if(read_nsamples(&samples, &len, &timestamp, &gps_us, &offset))
-          {
+      if(read_nsamples(&samples, &len, &timestamp, &gps_us, &offset))
+        {
 #else
-            if(read_nsamples(&samples, &len, &timestamp, &offset))
-              {
+      if(read_nsamples(&samples, &len, &timestamp, &offset))
+        {
 #endif
 
 #ifdef __DEBUG__
-                printk("Read %d samples:\n", len / 12);
+          printk("Read %d samples:\n", len / 12);
 #endif
 
-                for(i = 0; i < len; i += 12){
-                    pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
-                    if(!pkt){
-                        printk(KERN_EMERG "%s:%d Failed to allocate packet.\n", __FILE__, __LINE__);
-                        continue;
-                    }
-
-                    memset(pkt, 0, sizeof(*pkt));
-                    memcpy(pkt->samples, samples + i, sizeof(pkt->samples));
-                    pkt->timestamp = cpu_to_be64(timestamp);
-#ifdef __GPS__
-                    pkt->gps_us = cpu_to_be64(gps_us);
-#endif
-
-                    pkt->seq = cpu_to_be32(seq++);
-#ifdef __DEBUG__
-                    printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
-#endif
-                    pkt->id = node_id;
-                    send_it(pkt);
-                    kfree(pkt);
-                }
-
-                kfree(samples);
+          for(i = 0; i < len; i += 12)
+            {
+              pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
+              if(!pkt){
+                  printk(KERN_EMERG "%s:%d Failed to allocate packet.\n", __FILE__, __LINE__);
+                  continue;
               }
 
-            //    schedule(); //This is similar to kill a fly with a bazooka, but it works.
-            msleep(SLEEP_TIME_MS);
-          }
-        return 0;
+              memset(pkt, 0, sizeof(*pkt));
+              memcpy(pkt->samples, samples + i, sizeof(pkt->samples));
+              pkt->timestamp = cpu_to_be64(timestamp);
+#ifdef __GPS__
+              pkt->gps_us = cpu_to_be64(gps_us);
+#endif
+
+              pkt->seq = cpu_to_be32(seq++);
+#ifdef __DEBUG__
+              printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
+#endif
+              pkt->id = node_id;
+              send_it(pkt);
+              kfree(pkt);
+            }
+
+          kfree(samples);
+        }
+
+      //    schedule(); //This is similar to kill a fly with a bazooka, but it works.
+      msleep(SLEEP_TIME_MS);
+    }
+  return 0;
+}
+
+int __init init_module(void)
+{
+  sender = kthread_run(main_loop, NULL, KTHREAD_NAME);
+  if (IS_ERR(sender))
+    {
+      printk(KERN_EMERG "Unable to create sender thread.\n");
+      kfree(sender);
+      sender = NULL;
+      return -ENOMEM;
     }
 
-    int __init init_module(void) 
+  printk(KERN_INFO "Kernel sender module (sender kthread) initialized\n");
+  return 0;
+}
+
+void __exit cleanup_module(void) {
+    if (sender)
       {
-        sender = kthread_run(main_loop, NULL, KTHREAD_NAME);
-        if (IS_ERR(sender)) 
-          {
-            printk(KERN_EMERG "Unable to create sender thread.\n");
-            kfree(sender);
-            sender = NULL;
-            return -ENOMEM;
-          }
-
-        printk(KERN_INFO "Kernel sender module (sender kthread) initialized\n");
-        return 0;
+        kthread_stop(sender);
+        sock_release(udp_socket);
       }
-
-    void __exit cleanup_module(void) {
-        if (sender) 
-          {
-            kthread_stop(sender);
-            sock_release(udp_socket);
-          }
-    }
+}
