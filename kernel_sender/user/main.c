@@ -86,11 +86,11 @@ uint8_t bind_socket() {
     }
 
     getifaddrs(&addrs);
-    for (iap = addrs; iap != NULL; iap = iap->ifa_next) 
+    for (iap = addrs; iap != NULL; iap = iap->ifa_next)
       {
-        if (iap->ifa_addr && (iap->ifa_flags & IFF_UP) && iap->ifa_addr->sa_family == AF_INET) 
+        if (iap->ifa_addr && (iap->ifa_flags & IFF_UP) && iap->ifa_addr->sa_family == AF_INET)
           {
-            if (!strcmp(iap->ifa_name, iface)) 
+            if (!strcmp(iap->ifa_name, iface))
               {
                 memcpy(&sa, (struct sockaddr_in *)(iap->ifa_addr), sizeof(sa));
                 sa.sin_port = htons(port);
