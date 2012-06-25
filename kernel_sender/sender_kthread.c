@@ -141,14 +141,15 @@ static int main_loop(void* data)
    * If you need debug, just compile the code with -D__DEBUG__
    */
 #ifdef __DEBUG__
-  printk("Bound to %s:%u\n", bind_ip, sport);
+  printk(KERN_INFO "Bound to %s:%u\n", bind_ip, sport);
 #endif
 
   while (1)
     {
+      if (kthread_should_stop())
         {
 #ifdef __DEBUG__
-          printk("Stopping sender thread...\n");
+          printk(KERN_INFO "Stopping sender thread...\n");
 #endif
           break;
         }

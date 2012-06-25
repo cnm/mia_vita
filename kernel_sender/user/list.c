@@ -12,8 +12,8 @@
 #include "macros.h"
 #include "list.h"
 
-char* output_binary_file = "miavita.bin";
-char* output_json_file = "miavita.json";
+char* output_binary_file = "/tmp/manel/miavita.bin";
+char* output_json_file = "/tmp/manel/miavita.json";
 int bin_fd = -1, json_fd = -1;
 
 list* mklist(uint32_t capacity, char* new_filename)
@@ -61,6 +61,7 @@ static void write_bin(packet_t pkt){
 #define sample_to_le(S)
 #endif
 
+#warning "This implementation is not converting to correct endianess. Only works if everything is ARM."
 static packet_t ntohpkt(packet_t pkt){
 #ifdef __GPS__
     pkt.gps_us = be64toh( pkt.gps_us );
@@ -68,10 +69,10 @@ static packet_t ntohpkt(packet_t pkt){
     pkt.timestamp = be64toh( pkt.timestamp );
     pkt.air = be64toh( pkt.air );
     pkt.seq = be32toh( pkt.seq );
-    sample_to_le(pkt.samples);
-    sample_to_le(pkt.samples + 3);
-    sample_to_le(pkt.samples + 6);
-    sample_to_le(pkt.samples + 9);
+/*    sample_to_le(pkt.samples);*/
+/*    sample_to_le(pkt.samples + 3);*/
+/*    sample_to_le(pkt.samples + 6);*/
+/*    sample_to_le(pkt.samples + 9);*/
     return pkt;
 }
 
@@ -81,6 +82,44 @@ static void write_json(packet_t pkt)
   char buff[2048] = {0};
   uint32_t to_write, written = 0, status;
   uint32_t sample1 = 0, sample2 = 0, sample3 = 0, sample4 = 0;
+  uint8_t * sample1_byte;
+  uint8_t * sample2_byte;
+  uint8_t * sample3_byte;
+  uint8_t * sample4_byte;
+
+  sample1_byte = (uint8_t *) &sample1;
+  sample2_byte = (uint8_t *) &sample2;
+  sample3_byte = (uint8_t *) &sample3;
+  sample4_byte = (uint8_t *) &sample4;
+
+ *(sample1_byte + 0) = pkt.samples[0 + 3];
+ *(sample1_byte + 1) = pkt.samples[0 + 2];
+ *(sample1_byte + 2) = pkt.samples[0 + 1];
+
+ *(sample2_byte + 0) = pkt.samples[0 + 0];
+ *(sample2_byte + 1) = pkt.samples[4 + 3];
+ *(sample2_byte + 2) = pkt.samples[4 + 2];
+
+ *(sample3_byte + 0) = pkt.samples[4 + 1];
+ *(sample3_byte + 1) = pkt.samples[4 + 0];
+ *(sample3_byte + 2) = pkt.samples[8 + 3];
+
+ *(sample4_byte + 0) = pkt.samples[8 + 2];
+ *(sample4_byte + 1) = pkt.samples[8 + 1];
+ *(sample4_byte + 2) = pkt.samples[8 + 0];
+
+ if(sample1 > 0x800000){
+     sample1 = (~(sample1+1) & 0x00FFFFFF)*(-1);
+ }
+ if(sample2 > 0x800000){
+     sample2 = (~(sample2+1) & 0x00FFFFFF)*(-1);
+ }
+ if(sample3 > 0x800000){
+     sample3 = (~(sample3+1) & 0x00FFFFFF)*(-1);
+ }
+ if(sample4 > 0x800000){
+     sample4 = (~(sample4+1) & 0x00FFFFFF)*(-1);
+ }
 
   pkt = ntohpkt(pkt);
 
@@ -94,11 +133,6 @@ static void write_json(packet_t pkt)
       first = 0;
     }
 
-  memcpy(&sample1, pkt.samples, 3);
-  memcpy(&sample2, pkt.samples + 3, 3);
-  memcpy(&sample3, pkt.samples + 6, 3);
-  memcpy(&sample4, pkt.samples + 9, 3);
-
 #ifdef __GPS__
   if(test)
     {
@@ -108,9 +142,9 @@ static void write_json(packet_t pkt)
       pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
       pkt.gps_us = get_millis_offset() - pkt.gps_us;
     }
-  sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
-  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %u, \"sample_2\" : %u, \"sample_3\" : %u, \"sample_4\" : %u \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %04X, \"sample_2\" : %04X, \"sample_3\" : %04X, \"sample_4\" : %04X \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #endif
   to_write = strlen(buff);
   while(written < to_write)
