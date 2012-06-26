@@ -43,10 +43,10 @@ sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
  *len is a pointer to the number of copied samples (one sample has the three channels).
  */
 #ifdef __GPS__
-int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, int64_t* gps_us, uint32_t* offset)
+int read_nsamples(sample** be_samples, uint32_t* len_in_samples, int64_t* gps_us, uint32_t* last_read)
 {
 #else
-int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint32_t* offset)
+int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_read)
 {
 #endif
     /*DATA memory layout:
@@ -58,13 +58,9 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
      *Sample:     2-|---1-----|--3---|--2---|----4----|-3
      *be_samples:
      */
-    uint32_t to_copy, i;
-    unsigned int last_write_tmp = last_write;
-    uint8_t* int1;
-    uint8_t* int2;
-    uint8_t* int3;
+    uint32_t samples_to_copy, i;
 
-    if(*offset == last_write_tmp)
+    if(*last_read == last_write)
       {
 #ifdef __DEBUG__
       printk(KERN_INFO "NOTHING TO READ\n");
@@ -72,9 +68,9 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
       return 0; //Screw this... cannot read samples 
       }
 
-    to_copy = (*offset > last_write_tmp)? last_write_tmp + DATA_SIZE - *offset : last_write_tmp - *offset;
+    samples_to_copy = (*last_read > last_write)? last_write + DATA_SIZE - *last_read : last_write - *last_read;
 
-    *be_samples = kmalloc(to_copy * sizeof(unsigned int) * 3, GFP_ATOMIC);
+    *be_samples = kmalloc(samples_to_copy * sizeof(sample), GFP_ATOMIC);
 
     if(!(*be_samples))
       {
@@ -82,37 +78,13 @@ int read_nsamples(uint8_t** be_samples, uint32_t* len, int64_t *timestamp, uint3
         return 0;
       }
 
-    for(i = 0; i < to_copy; i += 3)
+    for(i = 0; i < samples_to_copy; i += 1)
       {
-        int1 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data);
-        int2 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 1);
-        int3 = (uint8_t*) (DATA[(*offset + i) % DATA_SIZE].data + 2);
-
-        *timestamp = DATA[(*offset + i) % DATA_SIZE].timestamp;
-
-#ifdef __GPS__ 
-        *gps_us = DATA[(*offset + i) % DATA_SIZE].gps_us;
-#endif
-
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[0] = int1[3];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[1] = int1[2];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[2] = int1[1];
-
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[3] = int1[0];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[4] = int2[3];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[5] = int2[2];
-
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[6] = int2[1];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[7] = int2[0];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[8] = int3[3];
-
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[9] = int3[2];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[10] = int3[1];
-        (((uint8_t *) *be_samples) + i*sizeof(unsigned int))[11] = int3[0];
+        (*be_samples)[i] = (DATA[(*last_read + i) % DATA_SIZE]);
       }
 
-    *offset = (*offset + to_copy) % DATA_SIZE;
-    *len = to_copy * sizeof(unsigned int) * 3;
+    *last_read = (*last_read + samples_to_copy) % DATA_SIZE;
+    *len_in_samples = samples_to_copy;
     return 1; //Read was successful 
 }
 EXPORT_SYMBOL(read_nsamples);
