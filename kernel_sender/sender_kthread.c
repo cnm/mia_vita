@@ -111,11 +111,10 @@ static void send_it(packet_t* pkt)
  */
 static int main_loop(void* data)
 {
-  uint8_t *samples;
+  sample *samples;
   uint32_t offset = 0, len, i;
   packet_t* pkt;
   static uint32_t seq = 0;
-  int64_t timestamp;
 #ifdef __GPS__
   int64_t gps_us;
 #endif
@@ -155,10 +154,10 @@ static int main_loop(void* data)
         }
 
 #ifdef __GPS__
-      if(read_nsamples(&samples, &len, &timestamp, &gps_us, &offset))
+      if(read_nsamples(&samples, &len, &gps_us, &offset))
         {
 #else
-      if(read_nsamples(&samples, &len, &timestamp, &offset))
+      if(read_nsamples(&samples, &len, &offset))
         {
 #endif
 
@@ -166,7 +165,7 @@ static int main_loop(void* data)
           printk(KERN_EMERG "Read %d samples:\n", len);
 #endif
 
-          for(i = 0; i < len; i += 12)
+          for(i = 0; i < len; i += 1)
             {
               pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
               if(!pkt){
@@ -175,8 +174,8 @@ static int main_loop(void* data)
               }
 
               memset(pkt, 0, sizeof(*pkt));
-              memcpy(pkt->samples, samples + i, sizeof(pkt->samples));
-              pkt->timestamp = cpu_to_be64(timestamp);
+              memcpy(pkt->samples, (samples + i)->data, sizeof(pkt->samples)); //4channel * 3 bytes each
+              pkt->timestamp = cpu_to_be64((samples+i)->timestamp);
 #ifdef __GPS__
               pkt->gps_us = cpu_to_be64(gps_us);
 #endif
