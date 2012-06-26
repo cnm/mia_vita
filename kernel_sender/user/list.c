@@ -22,8 +22,13 @@ list* mklist(uint32_t capacity, char* new_filename)
   l->buff = alloc(packet_t, capacity);
   l->rotate_at = capacity;
   l->new_filename = new_filename;
+  l->lst_size = 0;
 
   return l;
+}
+
+void clear_list(list* l){
+  l->lst_size = 0;
 }
 
 void rmlist(list* l){
@@ -142,7 +147,7 @@ static void write_json(packet_t pkt)
       pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
       pkt.gps_us = get_millis_offset() - pkt.gps_us;
     }
-  sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff"\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
   sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %08X, \"sample_2\" : %08X, \"sample_3\" : %08X, \"sample_4\" : %08X \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #endif
@@ -239,29 +244,13 @@ int  __packet_comparator(const void* a, const void* b){
     return 0;
 }
 
-static void rotate(list* l)
-{
-  /*
-   * Every packet in the buffer is sorted, but only half of the packets are written to file.
-   * This is to avoid (not completed) that packets which arrive to late are also sorted correctly.
-   * If every packet was written to file, then it is likely to happen that a delayed packet gets out
-   * of order.
-   */
-#warning "No longer sorting list"
-/*  qsort(l->buff, l->lst_size, sizeof(l->buff[0]), &__packet_comparator);*/
-  //This will make sure that dump only dumps half of the packets
-  l->lst_size = (l->lst_size & 0x00000001)? l->lst_size / 2 + 1 : l->lst_size / 2 + 1;
-  dump(l);
-  memmove(l->buff, l->buff + l->lst_size + 1, l->rotate_at - l->lst_size);
-}
-
 void insert(list* l, packet_t* p)
 {
   memcpy(l->buff + l->lst_size, p, sizeof(*p));
-
   l->lst_size++;
   if(l->rotate_at == l->lst_size)
     {
-      rotate(l);
+      dump(l);
+      clear_list(l);
     }
 }
