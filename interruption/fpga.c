@@ -237,9 +237,9 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* 
 
 
     /* Usefull to debug stuff */
-/*    read_buffer[0] = 0x11223344;*/
-/*    read_buffer[1] = 0x55667788;*/
-/*    read_buffer[2] = 0x99AABBCC;*/
+/*    read_buffer[0] = 0x44332211;*/
+/*    read_buffer[1] = 0x88776655;*/
+/*    read_buffer[2] = 0xCCBBAA99;*/
 
 /*    printk(KERN_INFO "DATA: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);*/
 
@@ -248,6 +248,10 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* 
 #else
 void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     unsigned int a,b,c,d,e,f;
+    uint32_t temp_buffer1 = 0;
+    uint32_t temp_buffer2 = 0;
+    uint32_t temp_buffer3 = 0;
+
     a = b = c = d = e = f = 0;
 
     *timestamp = get_kernel_current_time();
@@ -260,14 +264,30 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
 
     f = peek16(0x4C);//2/3 da quarta
 
-    read_buffer[0] = (a<<16|b);
-    read_buffer[1] = (c<<16|d);
-    read_buffer[2] = (e<<16|f);
+    temp_buffer1 = (a<<16|b);
+    temp_buffer2 = (c<<16|d);
+    temp_buffer3 = (e<<16|f);
 
-    /* Usefull to debug stuff */
-/*    read_buffer[0] = 0x11223344;*/
-/*    read_buffer[1] = 0x55667788;*/
-/*    read_buffer[2] = 0x99AABBCC;*/
+    /* Usefull to debug stuff - Remeber it is MSB to the left*/
+/*    temp_buffer1 = 0x11223344; */
+/*    temp_buffer2 = 0x55667788;*/
+/*    temp_buffer3 = 0x99AABBCC;*/
+
+    (((uint8_t *) read_buffer))[0]  = *(((uint8_t *) &temp_buffer1) + 3);
+    (((uint8_t *) read_buffer))[1]  = *(((uint8_t *) &temp_buffer1) + 2);
+    (((uint8_t *) read_buffer))[2]  = *(((uint8_t *) &temp_buffer1) + 1);
+
+    (((uint8_t *) read_buffer))[3]  = *(((uint8_t *) &temp_buffer1) + 0);
+    (((uint8_t *) read_buffer))[4]  = *(((uint8_t *) &temp_buffer2) + 3);
+    (((uint8_t *) read_buffer))[5]  = *(((uint8_t *) &temp_buffer2) + 2);
+
+    (((uint8_t *) read_buffer))[6]  = *(((uint8_t *) &temp_buffer2) + 1);
+    (((uint8_t *) read_buffer))[7]  = *(((uint8_t *) &temp_buffer2) + 0);
+    (((uint8_t *) read_buffer))[8]  = *(((uint8_t *) &temp_buffer3) + 3);
+
+    (((uint8_t *) read_buffer))[9]  = *(((uint8_t *) &temp_buffer3) + 2);
+    (((uint8_t *) read_buffer))[10] = *(((uint8_t *) &temp_buffer3) + 1);
+    (((uint8_t *) read_buffer))[11] = *(((uint8_t *) &temp_buffer3) + 0);
 
 /*    printk(KERN_EMERG "DATA: %04X - %04X - %04X - %04X - %04X - %04X \n", a, b, c, d, e, f);*/
 

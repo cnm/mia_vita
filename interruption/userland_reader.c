@@ -7,19 +7,7 @@
 
 #define NUM_OF_CHANNELS 4
 
-/*
- *The idea is to timestamp samples right after the first channel is read.
- */
-typedef struct{
-
-#ifdef __GPS__
-    int64_t gps_us;
-#endif
-
-    int64_t timestamp;
-    unsigned int data[3]; //each sample will hold 4 channels
-}sample;
-
+#include "proc_entry.h"
 
 /*
  * Function Prototypes
@@ -62,7 +50,7 @@ int main(void)
   for(i=0, read_samples=0; (i<BUFFER_SIZE) && (!feof(ifp)); ++i, ++read_samples)
     {
       read_sample(samples[i], ifp);
-      correct_sample(samples[i]);
+/*      correct_sample(samples[i]);*/
       separate_channels(samples[i], channel_data[i]);
 
       two_complement(channel_data[i]);
