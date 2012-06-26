@@ -36,80 +36,82 @@ void print_usage(char* cmd)
   printf("-c\tBuffer capacity expressed in terms of number of packets. Default is %d.\n", capacity);
 }
 
-uint8_t parse_args(char** argv, int argc){
-    uint32_t i;
-    for(i = 1; i < argc;){
-        if(!strcmp(argv[i], "-i")){
-            iface = argv[i + 1];
-            i += 2;
-            continue;
-        }
-        if(!strcmp(argv[i], "-p")){
-            port = atoi(argv[i + 1]);
-            i += 2;
-            continue;
-        }
-        if(!strcmp(argv[i], "-c")){
-            capacity = atoi(argv[i + 1]);
-            i += 2;
-            continue;
-        }
-        if(!strcmp(argv[i], "-b")){
-            output_binary_file = argv[i + 1];
-            i += 2;
-            continue;
-        }
-        if(!strcmp(argv[i], "-j")){
-            output_json_file = argv[i + 1];
-            i += 2;
-            continue;
-        }
-        if(!strcmp(argv[i], "-o")){
-            move_file_to = argv[i + 1];
-            i += 2;
-            continue;
-        }
-        print_usage(argv[0]);
-        return 0;
-    }
-    return 1;
+uint8_t parse_args(char** argv, int argc)
+{
+  uint32_t i;
+  for(i = 1; i < argc;){
+      if(!strcmp(argv[i], "-i")){
+          iface = argv[i + 1];
+          i += 2;
+          continue;
+      }
+      if(!strcmp(argv[i], "-p")){
+          port = atoi(argv[i + 1]);
+          i += 2;
+          continue;
+      }
+      if(!strcmp(argv[i], "-c")){
+          capacity = atoi(argv[i + 1]);
+          i += 2;
+          continue;
+      }
+      if(!strcmp(argv[i], "-b")){
+          output_binary_file = argv[i + 1];
+          i += 2;
+          continue;
+      }
+      if(!strcmp(argv[i], "-j")){
+          output_json_file = argv[i + 1];
+          i += 2;
+          continue;
+      }
+      if(!strcmp(argv[i], "-o")){
+          move_file_to = argv[i + 1];
+          i += 2;
+          continue;
+      }
+      print_usage(argv[0]);
+      return 0;
+  }
+  return 1;
 }
 
-uint8_t bind_socket() {
-    struct ifaddrs *addrs, *iap;
-    struct sockaddr_in sa;
+uint8_t bind_socket()
+{
+  struct ifaddrs *addrs, *iap;
+  struct sockaddr_in sa;
 
-    sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if(sockfd == -1){
-        perror("Unable to create socket");
-        return 0;
+  sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if(sockfd == -1){
+      perror("Unable to create socket");
+      return 0;
+  }
+
+  getifaddrs(&addrs);
+  for (iap = addrs; iap != NULL; iap = iap->ifa_next)
+    {
+      if (iap->ifa_addr && (iap->ifa_flags & IFF_UP) && iap->ifa_addr->sa_family == AF_INET)
+        {
+          if (!strcmp(iap->ifa_name, iface))
+            {
+              memcpy(&sa, (struct sockaddr_in *)(iap->ifa_addr), sizeof(sa));
+              sa.sin_port = htons(port);
+              if(bind(sockfd, (struct sockaddr*) &sa, sizeof(struct sockaddr)) == -1)
+                {
+                  close(sockfd);
+                  perror("Unable to bind socket to addrs:");
+                  return 0;
+                }
+              printf("Binded socket to interface: %s on port %d\n", iface, port);
+              return 1;
+            }
+        }
     }
 
-    getifaddrs(&addrs);
-    for (iap = addrs; iap != NULL; iap = iap->ifa_next)
-      {
-        if (iap->ifa_addr && (iap->ifa_flags & IFF_UP) && iap->ifa_addr->sa_family == AF_INET)
-          {
-            if (!strcmp(iap->ifa_name, iface))
-              {
-                memcpy(&sa, (struct sockaddr_in *)(iap->ifa_addr), sizeof(sa));
-                sa.sin_port = htons(port);
-                if(bind(sockfd, (struct sockaddr*) &sa, sizeof(struct sockaddr)) == -1)
-                  {
-                    close(sockfd);
-                    perror("Unable to bind socket to addrs:");
-                    return 0;
-                  }
-                printf("Binded socket to interface: %s on port %d\n", iface, port);
-                return 1;
-              }
-          }
-      }
-
 #ifdef __DEBUG__
-    printf("Connected to socket\n");
+  printf("Connected to socket\n");
 #endif
-    return 1;
+  return 1;
 }
 
 
@@ -142,10 +144,11 @@ void serve()
     }
 }
 
-void cleanup(){
-    close(sockfd);
-    rmlist(l);
-    exit(0);
+void cleanup()
+{
+  close(sockfd);
+  rmlist(l);
+  exit(0);
 }
 
 int main(int argc, char** argv)

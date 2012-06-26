@@ -66,18 +66,15 @@ static void write_bin(packet_t pkt){
 #define sample_to_le(S)
 #endif
 
-#warning "This implementation is not converting to correct endianess. Only works if everything is ARM."
-static packet_t ntohpkt(packet_t pkt){
+#warning "This implementation is not converting to correct endianess. Only works if everything is ARM. (little endian)"
+static packet_t ntohpkt(packet_t pkt)
+{
 #ifdef __GPS__
     pkt.gps_us = be64toh( pkt.gps_us );
 #endif
     pkt.timestamp = be64toh( pkt.timestamp );
     pkt.air = be64toh( pkt.air );
     pkt.seq = be32toh( pkt.seq );
-/*    sample_to_le(pkt.samples);*/
-/*    sample_to_le(pkt.samples + 3);*/
-/*    sample_to_le(pkt.samples + 6);*/
-/*    sample_to_le(pkt.samples + 9);*/
     return pkt;
 }
 
@@ -113,18 +110,18 @@ static void write_json(packet_t pkt)
  *(sample4_byte + 1) = pkt.samples[8 + 2];
  *(sample4_byte + 2) = pkt.samples[8 + 1];
 
-/* if(sample1 > 0x800000){*/
-/*     sample1 = (((~sample1)+1) & 0x00FFFFFF)*(-1);*/
-/* }*/
-/* if(sample2 > 0x800000){*/
-/*     sample2 = (((~sample2)+1) & 0x00FFFFFF)*(-1);*/
-/* }*/
-/* if(sample3 > 0x800000){*/
-/*     sample3 = (((~sample3)+1) & 0x00FFFFFF)*(-1);*/
-/* }*/
-/* if(sample4 > 0x800000){*/
-/*     sample4 = (((~sample4)+1) & 0x00FFFFFF)*(-1);*/
-/* }*/
+ if(sample1 > 0x800000){
+     sample1 = (((~sample1)+1) & 0x00FFFFFF)*(-1);
+ }
+ if(sample2 > 0x800000){
+     sample2 = (((~sample2)+1) & 0x00FFFFFF)*(-1);
+ }
+ if(sample3 > 0x800000){
+     sample3 = (((~sample3)+1) & 0x00FFFFFF)*(-1);
+ }
+ if(sample4 > 0x800000){
+     sample4 = (((~sample4)+1) & 0x00FFFFFF)*(-1);
+ }
 
   pkt = ntohpkt(pkt);
 
@@ -149,7 +146,7 @@ static void write_json(packet_t pkt)
     }
   sprintf(buff"\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
-  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %08X, \"sample_2\" : %08X, \"sample_3\" : %08X, \"sample_4\" : %08X \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #endif
   to_write = strlen(buff);
   while(written < to_write)

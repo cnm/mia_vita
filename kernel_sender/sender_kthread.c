@@ -90,7 +90,7 @@ static void send_it(packet_t* pkt)
   msg.msg_controllen = 0;
   msg.msg_flags = MSG_NOSIGNAL;
 
-  iov.iov_base = pkt;
+  iov.iov_base = pkt; /* Put the data in the message */
   iov.iov_len = (__kernel_size_t) sizeof(*pkt);
 
   /*Remove this and you'll regret it. I'm serious, removing this can corrupt the files on the sd card.
