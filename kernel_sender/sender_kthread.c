@@ -174,7 +174,7 @@ static int main_loop(void* data)
               }
 
               memset(pkt, 0, sizeof(*pkt));
-              memcpy(pkt->samples, (samples + i)->data, sizeof(pkt->samples)); //4channel * 3 bytes each
+              memcpy(pkt->samples, (samples + i)->data, sizeof(pkt->samples));
               pkt->timestamp = cpu_to_be64((samples+i)->timestamp);
 #ifdef __GPS__
               pkt->gps_us = cpu_to_be64(gps_us);
