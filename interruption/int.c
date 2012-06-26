@@ -1,20 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  int.c
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  07/11/2011 05:47:11 PM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
 #include <linux/module.h>
 #include <linux/kernel.h>       /*  printk() */
 #include <linux/delay.h>        /* udelay */
@@ -395,21 +378,12 @@ void handle_adc_int(){
     write_to_buffer(value_buffer, timestamp, gps_us);
 #else
     /* Read the adc  */
-
-    /*    if((counter_scl % 100) != 0){*/
-    /*    }*/
-    /*    else{*/
-    /*      printk(KERN_EMERG "Kern Emerg %u HANDLING\n", counter_scl);*/
     read_four_channels(value_buffer, &timestamp);
 
     /* Save to a buffer the value */
     write_to_buffer(value_buffer, timestamp);
     /*    }*/
 #endif
-
-    /*    if(counter >= 50){*/
-    /*        printk(KERN_EMERG "Segundo: %u \tValue read: %06X\t Counter: %u\n", counter_seconds, value_buffer[0] >>8, counter);*/
-    /*    }*/
 }
 /******************************** End of Interruption handlers ************************/
 
