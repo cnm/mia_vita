@@ -1,0 +1,342 @@
+diff --git a/interruption/Makefile b/interruption/Makefile
+index 3c42a92..702c94a 100755
+--- a/interruption/Makefile
++++ b/interruption/Makefile
+@@ -6,7 +6,6 @@ PWD := $(shell pwd)
+ CROSS-TOOL := ../crosstool/arm-unknown-linux-gnu/bin/
+ CC1 := $(CROSS-TOOL)arm-unknown-linux-gnu-gcc
+ 
+-# EXTRA_CFLAGS += -D__GPS__
+ # EXTRA_CFLAGS += -D__DEBUG__
+ 
+ all: userland_reader
+diff --git a/interruption/fpga.c b/interruption/fpga.c
+index 33e58af..1a7956a 100644
+--- a/interruption/fpga.c
++++ b/interruption/fpga.c
+@@ -19,10 +19,6 @@
+ #include <linux/module.h>
+ #include <linux/kernel.h>       /* printk() */
+ 
+-#ifdef __GPS__
+-#include <linux/miavita_xtime.h>
+-#endif
+-
+ #include "mem_addr.h"
+ 
+ extern int request_mem(volatile unsigned int mem_addr, unsigned int size);
+@@ -215,37 +211,6 @@ int64_t get_kernel_current_time(void) {
+     * USEC_2_NSEC;
+ }
+ 
+-#ifdef __GPS__
+-void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* gps_us){
+-    unsigned int a,b,c,d,e,f;
+-    a = b = c = d = e = f = 0;
+-
+-    *timestamp = get_kernel_current_time();
+-    *gps_us = __miavita_elapsed_secs * 1000000 + __miavita_elapsed_usecs;
+-
+-    a = peek16(0x4A);//2/3 da primeira
+-    b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
+-    c = peek16(0x4A);//2/3 da segunda
+-    d = peek16(0x4A);//2/3 da terceira
+-    e = peek16(0x4A);//1/3 da terceira 1/3 da quarta
+-
+-    f = peek16(0x4C);//2/3 da quarta
+-
+-    read_buffer[0] = (a<<16|b);
+-    read_buffer[1] = (c<<16|d);
+-    read_buffer[2] = (e<<16|f);
+-
+-
+-    /* Usefull to debug stuff */
+-/*    read_buffer[0] = 0x44332211;*/
+-/*    read_buffer[1] = 0x88776655;*/
+-/*    read_buffer[2] = 0xCCBBAA99;*/
+-
+-/*    printk(KERN_INFO "DATA: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);*/
+-
+-    return;
+-}
+-#else
+ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
+     unsigned int a,b,c,d,e,f;
+     uint32_t temp_buffer1 = 0;
+@@ -293,7 +258,6 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
+ 
+     return;
+ }
+-#endif
+ 
+ void release_mem_spi(void){
+     release_mem(GPIOA_REGISTER, WORD_SIZE);
+diff --git a/interruption/int.c b/interruption/int.c
+index 5f050dc..bed016f 100644
+--- a/interruption/int.c
++++ b/interruption/int.c
+@@ -54,19 +54,11 @@ unsigned int counter_scl = 0;
+ unsigned int counter_seconds = 0;
+ 
+ extern void release_mem_spi(void);
+-#ifdef __GPS__
+-extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp, int64_t* gps_us);
+-#else
+ extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
+-#endif
+ extern void prepare_spi(void);
+ extern void prepare_spi2(void);
+ 
+-#ifdef __GPS__
+-extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp, int64_t gps_us);
+-#else
+ extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
+-#endif
+ extern void write_dio26(bool b);
+ extern unsigned short read_dio26(void);
+ 
+@@ -353,9 +345,6 @@ void handle_adc_int(){
+     unsigned int value_buffer[3];
+     bool fpga_busy = is_fpga_used();
+     int64_t timestamp;
+-#ifdef __GPS__
+-    int64_t gps_us;
+-#endif
+ 
+     counter++;
+     if(fpga_busy){
+@@ -369,21 +358,12 @@ void handle_adc_int(){
+         if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);
+     }
+ 
+-
+-#ifdef __GPS__
+-    /* Read the adc  */
+-    read_four_channels(value_buffer, &timestamp, &gps_us);
+-
+-    /* Save to a buffer the value */
+-    write_to_buffer(value_buffer, timestamp, gps_us);
+-#else
+     /* Read the adc  */
+     read_four_channels(value_buffer, &timestamp);
+ 
+     /* Save to a buffer the value */
+     write_to_buffer(value_buffer, timestamp);
+     /*    }*/
+-#endif
+ }
+ /******************************** End of Interruption handlers ************************/
+ 
+diff --git a/interruption/proc_entry.c b/interruption/proc_entry.c
+index a4ae4d3..94ae6da 100644
+--- a/interruption/proc_entry.c
++++ b/interruption/proc_entry.c
+@@ -42,13 +42,8 @@ sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
+  *be_samples is a pointer which will be allocated inside the function. It will contain the samples in big endian format.
+  *len is a pointer to the number of copied samples (one sample has the three channels).
+  */
+-#ifdef __GPS__
+-int read_nsamples(sample** be_samples, uint32_t* len_in_samples, int64_t* gps_us, uint32_t* last_read)
+-{
+-#else
+ int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_read)
+ {
+-#endif
+     /*DATA memory layout:
+      *
+      *For 3 integers 0xAABBCCDD, DATA is:
+@@ -123,22 +118,6 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
+     return how_many_we_copy;
+   }
+ 
+-#ifdef __GPS__
+-void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us)
+-{
+-#ifdef __DEBUG__
+-/*    printk(KERN_INFO "Writing to buffer %d value %u\n", last_write, (*value));*/
+-#endif
+-
+-    DATA[last_write].gps_us = gps_us;
+-    DATA[last_write].timestamp = timestamp;
+-    DATA[last_write].data[0] = *value;
+-    DATA[last_write].data[1] = *(value + 1);
+-    DATA[last_write].data[2] = *(value + 2);
+-
+-    last_write = ((last_write + 1) % DATA_SIZE);
+-}
+-#else
+ /* This function is called by the interruption and therefore cannot be interrupted */
+ void write_to_buffer(unsigned int * value, int64_t timestamp)
+ {
+@@ -153,7 +132,6 @@ void write_to_buffer(unsigned int * value, int64_t timestamp)
+ 
+     last_write = ((last_write + 1) % DATA_SIZE);
+ }
+-#endif
+ 
+ void create_proc_file(void)
+ {
+diff --git a/interruption/proc_entry.h b/interruption/proc_entry.h
+index 13e2d74..15daf85 100644
+--- a/interruption/proc_entry.h
++++ b/interruption/proc_entry.h
+@@ -7,23 +7,13 @@
+  */
+ typedef struct{
+ 
+-#ifdef __GPS__
+-    int64_t gps_us;
+-#endif
+-
+     int64_t timestamp;
+     uint32_t data[3];//each sample will hold 4 channels
+ }sample;
+ 
+-
+ extern void create_proc_file(void);
+ 
+-#ifdef __GPS__
+-extern void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us);
+-extern int read_nsamples(sample** be_samples, uint32_t* len_in_samples, int64_t* gps_us, uint32_t* last_read);
+-#else
+ extern void write_to_buffer(unsigned int * value, int64_t timestamp);
+ extern int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_read);
+-#endif
+ 
+ #endif
+diff --git a/kernel_sender/Makefile b/kernel_sender/Makefile
+index 6376009..644570e 100644
+--- a/kernel_sender/Makefile
++++ b/kernel_sender/Makefile
+@@ -5,7 +5,6 @@ KERNEL_PATH= ../ts7500_kernel/
+ 
+ EXTRA_CFLAGS += -I$(PWD)/../interruption/ 
+ # EXTRA_CFLAGS += -D__DEBUG__
+-#EXTRA_CFLAGS += -D__GPS__
+ 
+ all:	
+ 	make -C $(KERNEL_PATH) M=$(PWD) modules
+diff --git a/kernel_sender/miavita_packet.h b/kernel_sender/miavita_packet.h
+index 3da44f3..f5cbf16 100644
+--- a/kernel_sender/miavita_packet.h
++++ b/kernel_sender/miavita_packet.h
+@@ -17,10 +17,6 @@
+ 
+ typedef struct __attribute__ ((__packed__)){ // specifies that the minimum required memory be used to represent the type.
+ 
+-#ifdef __GPS__
+-  int64_t gps_us;                            // where to store the GPS time
+-#endif
+-
+   int64_t timestamp;                         // Signed Transmission time the packet was created (1) or the time since packet was created (2)
+   int64_t air;                               // Estimated time the packet was "on the air"
+   uint32_t seq;                              // Sequence number
+diff --git a/kernel_sender/sender_kthread.c b/kernel_sender/sender_kthread.c
+index 21012fd..02067d7 100644
+--- a/kernel_sender/sender_kthread.c
++++ b/kernel_sender/sender_kthread.c
+@@ -115,9 +115,6 @@ static int main_loop(void* data)
+   uint32_t offset = 0, len, i;
+   packet_t* pkt;
+   static uint32_t seq = 0;
+-#ifdef __GPS__
+-  int64_t gps_us;
+-#endif
+ 
+   if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0)
+     {
+@@ -153,14 +150,8 @@ static int main_loop(void* data)
+           break;
+         }
+ 
+-#ifdef __GPS__
+-      if(read_nsamples(&samples, &len, &gps_us, &offset))
+-        {
+-#else
+       if(read_nsamples(&samples, &len, &offset))
+         {
+-#endif
+-
+ #ifdef __DEBUG__
+           printk(KERN_EMERG "Read %d samples:\n", len);
+ #endif
+@@ -176,9 +167,6 @@ static int main_loop(void* data)
+               memset(pkt, 0, sizeof(*pkt));
+               memcpy(pkt->samples, (samples + i)->data, sizeof(pkt->samples));
+               pkt->timestamp = cpu_to_be64((samples+i)->timestamp);
+-#ifdef __GPS__
+-              pkt->gps_us = cpu_to_be64(gps_us);
+-#endif
+ 
+               pkt->seq = cpu_to_be32(seq++);
+ #ifdef __DEBUG__
+diff --git a/kernel_sender/user/Makefile b/kernel_sender/user/Makefile
+index eb48ed8..6623ae5 100644
+--- a/kernel_sender/user/Makefile
++++ b/kernel_sender/user/Makefile
+@@ -1,7 +1,6 @@
+ CC=gcc
+ CC=../../crosstool/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
+ #CFLAGS=-g
+-#CFLAGS += -D__GPS__
+ # CFLAGS += -D__DEBUG__
+ EXE=main
+ 
+diff --git a/kernel_sender/user/list.c b/kernel_sender/user/list.c
+index 01aa009..88ec38a 100644
+--- a/kernel_sender/user/list.c
++++ b/kernel_sender/user/list.c
+@@ -69,9 +69,6 @@ static void write_bin(packet_t pkt){
+ #warning "This implementation is not converting to correct endianess. Only works if everything is ARM. (little endian)"
+ static packet_t ntohpkt(packet_t pkt)
+ {
+-#ifdef __GPS__
+-    pkt.gps_us = be64toh( pkt.gps_us );
+-#endif
+     pkt.timestamp = be64toh( pkt.timestamp );
+     pkt.air = be64toh( pkt.air );
+     pkt.seq = be32toh( pkt.seq );
+@@ -135,19 +132,7 @@ static void write_json(packet_t pkt)
+       first = 0;
+     }
+ 
+-#ifdef __GPS__
+-  if(test)
+-    {
+-      struct timeval t;
+-      gettimeofday(&t, NULL);
+-
+-      pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
+-      pkt.gps_us = get_millis_offset() - pkt.gps_us;
+-    }
+-  sprintf(buff"\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+-#else
+   sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+-#endif
+   to_write = strlen(buff);
+   while(written < to_write)
+     {
+diff --git a/kernel_sender/user/main.c b/kernel_sender/user/main.c
+index caddc93..ba50cab 100644
+--- a/kernel_sender/user/main.c
++++ b/kernel_sender/user/main.c
+@@ -8,11 +8,6 @@
+ #include <signal.h>
+ #include <unistd.h>
+ 
+-
+-#ifdef __GPS__
+-#include "syscall_wrapper.h"
+-#endif
+-
+ #include "miavita_packet.h"
+ #include "list.h"
+ 
+@@ -31,7 +26,6 @@ void print_usage(char* cmd)
+   printf("-p\tUDP port on which the program will listen. Default is %u\n", port);
+   printf("-b\tName of the binary file to where the data is going to be written. Default is %s\n", output_binary_file);
+   printf("-j\tName of the json file to where the data is going to be written. Default is %s\n", output_json_file);
+-  printf("-t\tTest the program against GPS time. Make sure to compile this program with -D__GPS__.\n");
+   printf("-o\tOutput file prefix when the file is moved by log rotation. Default is %s.\n", move_file_to);
+   printf("-c\tBuffer capacity expressed in terms of number of packets. Default is %d.\n", capacity);
+ }
