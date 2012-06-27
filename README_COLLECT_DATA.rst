@@ -54,12 +54,12 @@ Hardware connections
 
 2. Connect the PICO-PSU
 
-3. Press the button (still not working)
+3. Press the button and wait for the red light to appear
 
 4. Connect the Geophone
 
-Collect the data
-----------------
+Collect the data (Simple option)
+--------------------------------
 
 1. Go get the interruption module binary (this is how I do it):
 
@@ -67,7 +67,7 @@ Collect the data
 
     IP=172.20.41.95
 
-    scp jtrindade@$IP:/home/workspace/mia_vita/interruption/int_mod.ko .; 
+    scp jtrindade@$IP:/home/workspace/mia_vita/interruption/int_mod.ko .;
 
 2. Kill a bunch of processes that we don't need (and that use the sdcard, making us lose more samples). Also suspend the watchdog.
 
@@ -83,3 +83,22 @@ Collect the data
     scp jtrindade@$IP:/home/workspace/mia_vita/interruption/reader .;
 
 6. Run the userland reader
+
+Collect the data (Second option)
+--------------------------------
+
+Use Fred's Kernel Sender and respective receives userland application:
+
+1. Int_mod most be compile and running in the arm device
+
+2. Compile the fred_framework and fred_framework/user.
+
+3. Copy the sender_kthread.ko file to the device.
+
+4. Copy the receiver file at the host device (note the ip has to be set as a parameter in the next step).
+
+5. Install the sender_kthread.ko module with insmod. You can set parameters as the IP of the destination. To see them do modinfo sender_kthread.ko
+
+6. Run the receiver at the host device. Files should be created at the place specified.
+
+..
