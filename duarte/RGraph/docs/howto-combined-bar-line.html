@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+    <title>HOWTO: Create combined Bar, Line and Pie charts</title>
+
+    <meta name="keywords" content="rgraph html5 canvas chart docs links" />
+    <meta name="description" content="A HOWTO guide for creating combined Bar, Line and Pie chart" />
+    <meta name="googlebot" content="NOODP">
+
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A charts library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.jpg"/>
+
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.common.dynamic.js" ></script>
+    <script src="../libraries/RGraph.common.tooltips.js" ></script>
+    <script src="../libraries/RGraph.common.effects.js" ></script>
+    <script src="../libraries/RGraph.pie.js" ></script>
+    <script src="../libraries/RGraph.bar.js" ></script>
+    <script src="../libraries/RGraph.line.js" ></script>
+    <script src="../libraries/jquery.min.js" ></script>
+    <!--[if lt IE 9]><script src="../excanvas/excanvas.original.js"></script><![endif]-->
+    
+    <script>
+        window.onload = function (e)
+        {
+            /**
+            * First create the Bar chart but don't call the .Draw() method. Only configure th gutter
+            * settings and add some labels.
+            */
+            var bar = new RGraph.Bar('cvs', [4,3,8,9,5,6]);
+            bar.Set('chart.gutter.left', 50);
+            bar.Set('chart.gutter.right', 5);
+            bar.Set('chart.gutter.top', 5);
+            bar.Set('chart.gutter.bottom', 35);
+            bar.Set('chart.labels', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+            bar.Set('chart.tooltips', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+            bar.Set('chart.colors', ['#00FABC']);
+            bar.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+
+            /**
+            * Create the line chart with no axes or labels
+            */
+            var line = new RGraph.Line('cvs', [8,4,5,6,3,3]);
+            line.Set('chart.tickmarks', 'endcircle');
+            line.Set('chart.noaxes', true);
+            line.Set('chart.linewidth', 3);
+            //line.Set('chart.curvy', true);
+            line.Set('chart.tooltips', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+            line.Set('chart.shadow', true);
+            line.Set('chart.shadow.offsetx', 0);
+            line.Set('chart.shadow.offsety', 0);
+            line.Set('chart.shadow.blur', 15);
+
+
+            /**
+            * Create the Pie chart and position it on the right of the chart. The combo class doesn't do anything with
+            * the Pie - so position it ourselves.
+            */
+            var pie = new RGraph.Pie('cvs', [4,8,5,4,3,6,2]);
+            pie.Set('chart.radius', 30);
+            pie.Set('chart.centerx', pie.canvas.width - pie.Get('chart.radius') - bar.Get('chart.gutter.right') - 10);
+            pie.Set('chart.centery', pie.Get('chart.radius') + bar.Get('chart.gutter.top') + 5);
+            pie.Set('chart.tooltips', ['John','Hoolio Concita','Olga','Pete','Lou','Fred','John']);
+            pie.Set('chart.shadow', true);
+            pie.Set('chart.shadow.offsetx', 0);
+            pie.Set('chart.shadow.offsety', 0);
+            pie.Set('chart.shadow.blur', 15);
+
+
+            /**
+            * Now create the CombinedChart object and .Draw() it. This will draw the
+            * Bar and then the Line chart.
+            */
+            var combo = new RGraph.CombinedChart(bar, line, pie);
+            combo.Draw();
+            
+// If you want you can pass effects into the Draw method
+            // and they'll be used instead of the objects regular .Draw() method
+            //combo.Draw(null, RGraph.Effects.Line.jQuery.Trace, RGraph.Effects.Pie.RoundRobin);
+        }
+    </script>
+
+    <?php PrintAnalyticsCode() ?>
+</head> 
+<body>
+
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+
+<div id="breadcrumb">
+    <a href="../index.html">Home</a>
+    >
+    <a href="./index.html">Documentation</a>
+    >
+    HOWTO: Create a combined Bar, Line and Pie chart
+</div>
+
+    <h1>HOWTO: <span>Create a combined Bar, Line and Pie chart</span></h1>
+
+    <div style="float: right; text-align: center">
+        <b>A combined Bar, Line and Pie chart</b><br />
+        <canvas id="cvs" width="600" height="250">[No canvas support]</canvas>
+    </div>
+
+    <p>
+        To create a combined  chart you can use the secific class which is a part of the <i>RGraph.bar.js</i> file.
+        You first create a Bar chart object, which can be thought of as the master, and then the Line chart object ( and then
+        the Pie chart if required). You <i>don't</i>
+        call the Draw() method of any of them - instead you create a CombinedChart object and call its Draw method. This in turn
+        draws the charts. It sets the gutter settings to be the same as the first charts (which is usually a bar chart) and also sets
+        a few other things (eg the <i>chart.hmargin</i> and <i>chart.ylabels</i> for the Line chart).
+    </p>
+    
+    <h4>1. Define the canvas</h4>
+        <p>
+            First things first, as normal, define the canvas tag. Nothing special here - it's just like normal.
+        </p>
+        
+        <pre class="code">
+&lt;canvas id="cvs" width="600" height="250"&gt;[No canvas support]&lt;canvas&gt;
+</pre>
+
+    <h4>2. Define the Bar chart</h4>
+        <p>
+            Next, define the Bar chart. It's defined first so that the Line chart is subsequently drawn "on top" of the Bar chart.
+            Note that the .Draw() method isn't called - that's done later.
+        </p>
+        
+        <pre class="code">
+&lt;script&gt;
+    var bar = new RGraph.Bar('cvs', [4,3,8,9,5,6]);
+    bar.Set('chart.gutter.left', 50);
+    bar.Set('chart.gutter.right', 5);
+    bar.Set('chart.gutter.right', 5);
+    bar.Set('chart.gutter.top', 5);
+    bar.Set('chart.gutter.bottom', 35);
+    bar.Set('chart.labels', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+    bar.Set('chart.tooltips', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+    bar.Set('chart.colors', ['#ccf']);
+    bar.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+&lt;/script&gt;
+</pre>
+
+    <h4>3. Define the Line chart</h4>
+        <p>
+            Now define the Line chart. The gutters and the hmargin are set by the <i>RGraph.CombinedChart</i> object
+            so no need to be concerned with those. If you want to set them for the whole chart, then you can set them on the Bar chart object.
+        </p>
+        
+        <pre class="code">
+&lt;script&gt;
+    var line = new RGraph.Line('cvs', [8,4,5,6,3,3]);
+    line.Set('chart.tickmarks', 'endcircle');
+    line.Set('chart.noaxes', true);
+    line.Set('chart.tooltips', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+&lt;/script&gt;
+</pre>
+
+    <h4>4. Define the Pie chart</h4>
+        <p>
+            Now add the Pie chart. This is positioned by hand to be in the top right corner of the chart. Even though the Pie chart
+            is positioned by hand it uses the main charts gutter settings (ie the Bar chart). This means that if you hange the Bar
+            chart gutters, the Pie chart will be updated automatically.
+        </p>
+        
+        <pre class="code">
+&lt;script&gt;
+    var pie = new RGraph.Pie('cvs', [4,8,5,4,3,6,2]);
+    pie.Set('chart.radius', 30);
+    pie.Set('chart.centerx', pie.canvas.width - pie.Get('chart.radius') - bar.Get('chart.gutter.right') - 10);
+    pie.Set('chart.centery', pie.Get('chart.radius') + bar.Get('chart.gutter.top') + 5);
+    pie.Set('chart.tooltips', ['John','Hoolio','Olga','Pete','Lou','Fred','John']);
+    pie.Set('chart.shadow', true);
+    pie.Set('chart.shadow.offsetx', 0);
+    pie.Set('chart.shadow.offsety', 0);
+    pie.Set('chart.shadow.blur', 15);
+&lt;/script&gt;
+</pre>
+
+    <h4>5. Create and draw the Combination chart</h4>
+        <p>
+            Now all there is to do is create the combination chart. There's a special object that handles all of the required settings
+            for you.
+        </p>
+        
+        <pre class="code">
+&lt;script&gt;
+    var combo = new RGraph.CombinedChart(bar, line, pie);
+    combo.Draw();
+&lt;/script&gt;
+</pre>
+
+    <h4>6. The whole thing</h4>
+        <p>
+            That's all there is to it. You can add more configuration options to the Bar or Line chart objects if you wish - eg
+            tooltips.
+        </p>
+        
+        <pre class="code">
+&lt;canvas id="cvs" width="600" height="250"&gt;[No canvas support]&lt;/canvas&gt;
+
+&lt;script&gt;
+    window.onload = function (e)
+    {
+        /**
+        * First create the Bar chart but don't call the .Draw() method. Only configure th gutter
+        * settings and add some labels.
+        */
+        var bar = new RGraph.Bar('cvs', [4,3,8,9,5,6]);
+        bar.Set('chart.gutter.left', 50);
+        bar.Set('chart.gutter.right', 5);
+        bar.Set('chart.gutter.right', 5);
+        bar.Set('chart.gutter.top', 5);
+        bar.Set('chart.gutter.bottom', 35);
+        bar.Set('chart.labels', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+        bar.Set('chart.tooltips', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+        bar.Set('chart.colors', ['#ccf']);
+        bar.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+
+        /**
+        * Create the line chart with no axes or labels
+        */
+        var line = new RGraph.Line('cvs', [8,4,5,6,3,3]);
+        line.Set('chart.tickmarks', 'endcircle');
+        line.Set('chart.noaxes', true);
+        line.Set('chart.tooltips', ['Fred','John','Jake','Lou','Hoolio','Jemima']);
+
+
+        /**
+        * Create the Pie chart and position it on the right of the chart. The combo class doesn't do anything with
+        * the Pie - so position it ourselves.
+        */
+        var pie = new RGraph.Pie('cvs', [4,8,5,4,3,6,2]);
+        pie.Set('chart.radius', 30);
+        pie.Set('chart.centerx', pie.canvas.width - pie.Get('chart.radius') - bar.Get('chart.gutter.right') - 10);
+        pie.Set('chart.centery', pie.Get('chart.radius') + bar.Get('chart.gutter.top') + 5);
+        pie.Set('chart.tooltips', ['John','Hoolio','Olga','Pete','Lou','Fred','John']);
+        pie.Set('chart.shadow', true);
+        pie.Set('chart.shadow.offsetx', 0);
+        pie.Set('chart.shadow.offsety', 0);
+        pie.Set('chart.shadow.blur', 15);
+
+
+        /**
+        * Now create the CombinedChart object and .Draw() it. This will draw all
+        * of the charts.
+        */
+        var combo = new RGraph.CombinedChart(bar, line, pie);
+        combo.Draw();
+
+        // If you want you can pass effects into the Draw method
+        // and they'll be used instead of the objects regular .Draw() method
+        //combo.Draw(null, RGraph.Effects.Line.jQuery.Trace, RGraph.Effects.Pie.RoundRobin);
+    }
+&lt;/script&gt;
+</pre>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>

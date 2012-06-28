@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"> 
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    --> 
+    <title>Image to data: URL converter</title>
+    
+    <meta name="keywords" content="rgraph html5 canvas docs bar charts" /> 
+    <meta name="description" content="A tool that will help you convert images into data: URLs for performance gains" />
+    <meta name="googlebot" content="NOODP">
+ 
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" /> 
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+
+    
+<body onload="document.getElementById('url').focus(); document.getElementById('url').value = '/images/logo.png'">
+
+    <div id="breadcrumb"> 
+        <a href="../index.html">Home</a> 
+        >
+        <a href="./index.html">Documentation</a> 
+        >
+        Image to data: URL conversion tool
+    </div> 
+
+    <h1>Image <span>to data: url converter</span></h1>
+    
+    <div style="background-color: #fee; padding: 5px; border: 3px solid red; border-radius: 15px">
+        This only works for online images, which are on the [<script>document.write(location.host)</script>] domain. There's no server-side
+        scripting though, so feel free to put it on your own website and use it there.
+    </div>
+
+    <h2>Why use data: URLs?</h2>
+    
+    <p>
+        By using data: URLs you reduce the number of HTTP requests needed to display your page since the images are part of the
+        page itself. This does mean though that the images can't be cached (unless of course the page itself is cached). But, if you were
+        to reuse the same image on subsequent pages, they wouldn't be cached. You can get around this though by using some
+        Javascript at the bottom of your page to change the URLs to the real image files, or just Javasript to request the
+        files and display them off screen (postioned absolutely).
+    </p>
+    
+    <p />
+    
+    <p style="color: red">
+        You may need to press the Go button twice.
+    </p>
+    
+    URL: <input type="text" value="" id="url" />
+    <button onclick="Go()">Go!</button>
+    
+    <p />
+
+    The data: url:
+    <textarea id="output" readonly style="width: 100%" rows="20" style="color: gray" onclick="this.select()">This is where the output URL goes...</textarea>
+
+    <p />
+    
+    A full image tag with the url as the src:
+    <textarea id="output_tag" readonly style="width: 100%" rows="20" style="color: gray" onclick="this.select()">This is where the image tag  goes...</textarea>
+
+    <p>The image itself using the data: url:</p>
+    <script>
+        function Go()
+        {
+            var url      = document.getElementById("url").value;
+            var text     = document.getElementById("output");
+            var text_tag = document.getElementById("output_tag");
+            var img      = document.createElement('IMG');
+
+            img.src = url;
+            document.body.appendChild(img);
+
+            /*******************************************************
+            * Create the canvas and paint the image onto it
+            *******************************************************/
+            canvas = CreateCanvas(img);
+            
+            /*******************************************************
+            * Now use the .toDataURL() function to get the data: url
+            *******************************************************/
+            var data = canvas.toDataURL();
+            
+            /*******************************************************
+            * Populate the first text box
+            *******************************************************/
+            text.value = data;
+            text.select();
+            
+            /*******************************************************
+            * Populate the second text box
+            *******************************************************/
+            text_tag.value = '<img src="' + data + '" width="' + img.offsetWidth + '" height="' + img.offsetHeight + '" alt="An image" />'
+            
+            /*******************************************************
+            * Add the image tag just created to the DOM
+            *******************************************************/
+            img.src = data;
+            img.width = img.offsetWidth;
+            img.height = img.offsetHeight;
+        }
+        
+        /*******************************************************
+        * This function creates the canvas and appends it to the
+        * DOM
+        * 
+        * @param img The image DOM object
+        *******************************************************/
+        function CreateCanvas(img)
+        {
+            var canvas    = document.createElement('CANVAS');
+            var context   = canvas.getContext('2d');
+
+            canvas.width  = img.offsetWidth;
+            canvas.height = img.offsetHeight;
+            document.body.appendChild(canvas);
+
+            /*******************************************************
+            * Now add the image to the canvas
+            *******************************************************/
+            context.drawImage(img, 0, 0);
+            
+            /*******************************************************
+            * Move the canvas off-screen
+            *******************************************************/
+            
+            canvas.style.position = 'absolute';
+            canvas.style.left = (-1 * img.offsetWidth) + 'px';
+            canvas.style.top  = (-1 * img.offsetHeight) + 'px';
+            
+            return canvas;
+        }
+    </script>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+
+</body>
+</html>

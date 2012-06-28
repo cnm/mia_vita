@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+    <title>HOWTO: Highlight a bar or segment</title>
+
+    <meta name="keywords" content="rgraph html5 canvas chart docs links" />
+    <meta name="description" content="A HOWTO guide for highlighting your chart" />
+    <meta name="googlebot" content="NOODP">
+
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A charts library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.jpg"/>
+
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.common.dynamic.js" ></script>
+    <script src="../libraries/RGraph.common.tooltips.js" ></script>
+    <script src="../libraries/RGraph.bar.js" ></script>
+    <!--[if lt IE 9]><script src="../excanvas/excanvas.original.js"></script><![endif]-->
+    
+    <script>
+        window.onload = function (e)
+        {
+            /**
+            * Method 2: Empty tooltips
+            */
+            var bar = new RGraph.Bar('cvs', [[2,3,4],[4,2,2],[2,6,1],[4,1,2],[3,3,3],[2,6,2],[1,4,2]]);
+            bar.Set('chart.grouping', 'stacked');
+            bar.Set('chart.colors', ['#00FABC', 'red', 'yellow']);
+            bar.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+            bar.Set('chart.tooltips', function () {return '\0';});
+            // An alternative:
+            // bar.Set('chart.tooltips', ['\0','\0','\0','\0','\0','\0']);
+            bar.Set('chart.gutter.top', 5);
+            bar.Draw();
+
+            /**
+            * Method 2: Using chart.events.click
+            */
+            function myFunc (e, shape)
+            {
+                var obj   = e.target.__object__;
+                
+                // Add the highlight
+                obj.context.beginPath();
+                    obj.context.fillStyle = 'rgba(255,255,255,0.7)';
+                    obj.context.fillRect(shape['x'], shape['y'], shape['width'], shape['height']);
+                obj.context.fill();
+            }
+
+            var bar2 = new RGraph.Bar('cvs2', [[2,3,4],[4,2,2],[2,6,1],[4,1,2],[3,3,3],[2,6,2],[1,4,2]]);
+            bar2.Set('chart.colors', ['#00FABC', 'red', 'yellow']);
+            bar2.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+            bar2.Set('chart.events.click', myFunc);
+            bar2.Set('chart.events.mousemove', function (e) {e.target.style.cursor = 'pointer';});
+            bar2.Set('chart.gutter.top', 5);
+            bar2.Draw();
+        }
+    </script>
+
+    <?php PrintAnalyticsCode() ?>
+</head> 
+<body>
+
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+
+<div id="breadcrumb">
+    <a href="../index.html">Home</a>
+    >
+    <a href="./index.html">Documentation</a>
+    >
+    HOWTO: Highlight a bar on your chart
+</div>
+
+    <h1>HOWTO: <span>Highlight a bar on your chart</span></h1>
+
+    <div style="float: right; text-align: center">
+        <b>A Bar chart with custom highlighting</b><br />
+        <canvas id="cvs" width="600" height="250">[No canvas support]</canvas>
+    </div>
+    
+    <h4>1. Empty tooltips</h4>
+
+    <p>
+        When tooltips are used they do two things. First and foremost they show the tooltip, and secondly to give some sort of
+        visual feedback to the user they highlight the shape that was clicked on. By using NULL (ie for all intents and purposes - 
+        empty) values the shape will be highlighted but, because it's empty, no tooltip will be shown. This provides an easy
+        way to get highlighting without showing tooltips. The chart to the right shows this method and the code is:
+    </p>
+    
+    <br clear="all" />
+
+    <pre class="code">
+&lt;script&gt;
+    window.onload = function (e)
+    {
+        /**
+        * Create the chart
+        */
+        var bar = new RGraph.Bar('cvs', [[2,3,4],[4,2,2],[2,6,1],[4,1,2],[3,3,3],[2,6,2],[1,4,2]]);
+        bar.Set('chart.colors', ['#00FABC', 'red', 'yellow']);
+        bar.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+        <span style="color: green">
+        // Use NULL (\0) so that no tooltip is displayed - only the highlighting is applied
+        bar.Set('chart.tooltips', function () {return '\0';});
+        
+        // You could also use this:
+        // bar.Set('chart.tooltips', ['\0','\0','\0','\0','\0','\0']);
+        </span>
+        bar.Set('chart.gutter.top', 5);
+        bar.Draw();
+    }
+&lt;/script&gt;
+</pre>
+
+    
+    <h4>2. Custom events</h4>
+
+    <canvas id="cvs2" width="600" height="250" style="float: right">[No canvas support]</canvas>
+
+    <p>
+        If the amount of code that you have on your page is important you may not want to include the tooltips library. So
+        what you can do is use the custom events that RGraph supports. This is a little more involved, but you don't need
+        to include the tooltips library - thus saving 40-50k on your page size.
+    </p>
+
+    <br clear="all" />
+    
+    <pre class="code">
+&lt;script&gt;
+    window.onload = function (e)
+    {
+        <span style="color: green">/**
+        * Define the function that highlights the bar
+        */
+        function myFunc (e, shape)
+        {
+            // This line assumes that there's only one chart on the canvas. If there's multiple
+            // you may need to use the ObjectRgistry methods to get the appropriate object.
+            var obj = e.target.__object__;
+            
+            // Add the highlight
+            obj.context.beginPath();
+                obj.context.fillStyle = 'rgba(255,255,255,0.7)';
+                obj.context.fillRect(shape['x'], shape['y'], shape['width'], shape['height']);
+            obj.context.fill();
+        }</span>
+
+        /**
+        * Create the chart first
+        */
+        var bar = new RGraph.Bar('cvs', [[2,3,4],[4,2,2],[2,6,1],[4,1,2],[3,3,3],[2,6,2],[1,4,2]]);
+        bar.Set('chart.colors', ['#00FABC', 'red', 'yellow']);
+        bar.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+        <span style="color: green">bar.Set('chart.events.click', myFunc);
+        bar.Set('chart.events.mousemove', function (e) {e.target.style.cursor = 'pointer';});</span>
+        bar.Set('chart.gutter.top', 5);
+        bar.Draw();
+    }
+&lt;/script&gt;
+</pre>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>

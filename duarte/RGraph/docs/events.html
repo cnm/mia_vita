@@ -1,0 +1,426 @@
+<!DOCTYPE html >
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+    <title>Custom events that are available</title>
+    
+    <meta name="keywords" content="rgraph html5 canvas chart docs custom events" />
+    <meta name="description" content="Documentation about the custom RGraph events that are available for you to use" />
+    <meta name="googlebot" content="NOODP">
+    
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A charts library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.png"/>
+
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+
+    <!--
+    <script>
+        window.onload = function (e)
+        {
+            var bar1 = new RGraph.Bar('bar1', [1,2,3,5,9,7,8]);
+            bar1.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar1.Set('chart.tooltips', ['January','February','March','April','May','June','July']);
+            bar1.Set('chart.title', 'An example of the ontooltip event');
+            bar1.Draw();
+            RGraph.AddCustomEventListener(bar1, 'ontooltip', function (obj) {alert('ontooltip event, showing tooltip with index: ' + RGraph.Registry.Get('chart.tooltip').__index__);});
+
+
+            var bar2 = new RGraph.Bar('bar2', [1,2,3,5,9,7,8]);
+            bar2.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar2.Set('chart.contextmenu', [['Cancel', function () {}]]);
+            bar2.Set('chart.title', 'An example of the oncontextmenu event');
+            bar2.Draw();
+            RGraph.AddCustomEventListener(bar2, 'oncontextmenu', function (obj) {alert('oncontextmenu event fired');});
+
+
+            // Intentionally a global
+            bar3 = new RGraph.Bar('bar3', [1,2,3,5,9,7,8]);
+            bar3.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar3.Set('chart.title', 'An example of the onbeforedraw event');
+            // Drawn when the button is clicked            
+            RGraph.AddCustomEventListener(bar3, 'onbeforedraw', function (obj) {alert('onbeforedraw event fired');});
+
+
+            // Intentionally a global
+            bar4 = new RGraph.Bar('bar4', [1,2,3,5,9,7,8]);
+            bar4.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar4.Set('chart.title', 'An example of the ondraw event');
+            // Drawn when the button is clicked
+            RGraph.AddCustomEventListener(bar4, 'ondraw', function (obj) {alert('ondraw event fired');});
+
+
+            var bar5 = new RGraph.Bar('bar5', [1,2,3,5,9,7,8]);
+            bar5.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar5.Set('chart.title', 'An example of the onzoom event');
+            bar5.Set('chart.contextmenu', [['Zoom', RGraph.Zoom]]);
+            bar5.Set('chart.zoom.vdir', 'center');
+            bar5.Draw();
+            RGraph.AddCustomEventListener(bar5, 'onzoom', function (obj) {alert('onzoom event fired');});
+
+
+            var bar6 = new RGraph.Bar('bar6', [1,2,3,5,9,7,8]);
+            bar6.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar6.Set('chart.title', 'An example of the onmodaldialog event');
+            bar6.Set('chart.contextmenu', [['Show dialog', function () {ModalDialog.Show('modaldialog_login', 300);}]]);
+            bar6.Draw();
+            ModalDialog.AddCustomEventListener('onmodaldialog', function (obj) {alert('onmodaldialog event fired');});
+
+
+            var bar7 = new RGraph.Bar('bar7', [1,2,3,5,9,7,8]);
+            bar7.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar7.Set('chart.title', 'The onresizebeforedraw event');
+            bar7.Set('chart.text.angle', 45);
+            bar7.Set('chart.resizable', true);
+            bar7.Set('chart.gutter.bottom', 60);
+            bar7.Draw();
+            RGraph.AddCustomEventListener(bar7, 'onresizebeforedraw', function (obj)
+            {
+                alert('onresizebeforedraw event fired');
+            });
+
+
+            var bar8 = new RGraph.Bar('bar8', [1,2,3,5,9,7,8]);
+            bar8.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar8.Set('chart.title', 'An example of the onresize event');
+            bar8.Set('chart.resizable', true);
+            bar8.Draw();
+            
+            RGraph.AddCustomEventListener(bar8, 'onresizebegin', function (obj){cl('onresizebegin event fired');});
+            RGraph.AddCustomEventListener(bar8, 'onresize', function (obj){cl('onresize event fired');});
+            RGraph.AddCustomEventListener(bar8, 'onresizeend', function (obj){cl('onresizeend event fired');});
+
+
+            var bar9 = new RGraph.Bar('bar9', [1,2,3,5,9,7,8]);
+            bar9.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar9.Set('chart.title', 'An example of the onadjust event');
+            bar9.Set('chart.adjustable', true);
+            bar9.Draw();
+            
+            RGraph.AddCustomEventListener(bar9, 'onadjustbegin', function (obj){cl('The onadjuststart event fired');});
+            RGraph.AddCustomEventListener(bar9, 'onadjust', function (obj){cl('The onadjust event fired');});
+            RGraph.AddCustomEventListener(bar9, 'onadjustend', function (obj){cl('The onadjustend event fired');});
+
+
+            // Global on purpose
+            bar10 = new RGraph.Bar('bar10', [1,2,3,5,9,7,8]);
+            bar10.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar10.Set('chart.title', 'An example of the onannotate event');
+            bar10.Set('chart.annotatable', true);
+            bar10.Set('chart.contextmenu', [['ShowPalette', RGraph.Showpalette], ['Clear', function () {RGraph.Clear(bar10.canvas); bar10.Draw();}]]);
+            bar10.Draw();
+            
+            RGraph.AddCustomEventListener(bar10, 'onannotatebegin', function (obj){cl('onannotatebegin event fired');});
+            RGraph.AddCustomEventListener(bar10, 'onannotate', function (obj){cl('onannotate event fired');});
+            RGraph.AddCustomEventListener(bar10, 'onannotateend', function (obj){cl('onannotateend event fired');});
+            RGraph.AddCustomEventListener(bar10, 'onannotatecolor', function (obj) {cl('Changed annotate color: ' + obj.Get('chart.annotate.color'));});
+            RGraph.AddCustomEventListener(bar10, 'onannotateclear', function (obj) {cl('Fired the annotation clear event');});
+
+
+            // Global on purpose
+            var bar11 = new RGraph.Bar('bar11', [1,2,3,5,9,7,8]);
+            bar11.Set('chart.labels', ['January','February','March','April','May','June','July']);
+            bar11.Set('chart.title', 'The onbeforecontextmenu event');
+            bar11.Set('chart.contextmenu', [['A sample context menu item', null]]);
+            bar11.Draw();
+            
+            RGraph.AddCustomEventListener(bar11, 'onbeforecontextmenu', function (obj) {p('Fired the onbeforecontextmenu event)');});
+            
+            //
+            // The oncrosshairs event
+            data = [[45,32]]
+            var scatter1 = new RGraph.Scatter('scatter1', data);
+            scatter1.Set('chart.xmax', 90);
+            scatter1.Set('chart.labels', ['January','February','March']);
+            scatter1.Set('chart.crosshairs', true);
+            scatter1.Set('chart.crosshairs.coords', true);
+            scatter1.Set('chart.crosshairs.coords.labels.x', 'Day');
+            scatter1.Set('chart.crosshairs.coords.labels.y', 'Amount');
+            scatter1.Draw();
+            
+            function myFunc (obj)
+            {
+                document.getElementById("crosshairs.out").value = obj.canvas.__crosshairs_x__ + ', ' + obj.canvas.__crosshairs_y__;
+            }
+            RGraph.AddCustomEventListener(scatter1, 'oncrosshairs', myFunc);
+        }
+    </script>
+    -->
+
+    <?php PrintAnalyticsCode() ?>
+</head>
+<body>
+    
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+    <div id="breadcrumb">
+        <a href="../index.html">Home</a>
+        >
+        <a href="./index.html">Documentation</a>
+        >
+        Custom RGraph events
+    </div>
+
+    <h1>Custom <span>RGraph events</span></h1>
+
+    <script>
+        if (RGraph.isOld()) {
+            document.write('<div style="background-color: #fee; border: 2px dashed red; padding: 5px"><b>Important</b><br /><br /> Internet Explorer does not natively support the HTML5 canvas tag, so if you want to see the charts, you can either:<ul><li>Install <a href="http://code.google.com/chrome/chromeframe/">Google Chrome Frame</a></li><li>Use ExCanvas. This is provided in the RGraph Archive.</li><li>Use another browser entirely. Your choices are Firefox 3.5+, Chrome 2+, Safari 4+ or Opera 10.5+. </li></ul> <b>Note:</b> Internet Explorer 9 fully supports the canvas tag.</div>');
+        }
+    </script>
+    
+    <ul>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#available.events">Available events</a></li>
+        <li><a href="#removing.events">Removing events</a></li>
+    </ul>
+    
+    <a name="introduction"></a>
+    <h4>Introduction</h4>
+    
+    <p>
+        Custom events allow you to easily interact with and extend RGraph for your own purposes. The list of available events is below,
+        as is an example of how to make use of them with the <i>RGraph.AddCustomEventListener()</i> function. Event handler functions (ie your
+        functions) are passed a single parameter - the chart object. With this you can get references to the canvas and context. There's
+        an example of this below.
+    </p>
+
+<pre class="code">&lt;script&gt;
+    window.onload = function ()
+    {
+        var line = new RGraph.Line('myLine', [45,12,16,18,44,54,23,21,56]);
+        line.Set('chart.tooltips', ['Fred', 'Barney', 'Jay', 'Pete', 'Frank', 'Bob', 'Ted', 'Lou', 'Kev']);
+        line.Set('chart.labels', ['Fred', 'Barney', 'Jay', 'Pete', 'Frank', 'Bob', 'Ted', 'Lou', 'Kev']);
+        line.Set('chart.hmargin', 5);
+        line.Set('chart.tickmarks', 'dot');
+        line.Draw();
+
+        <span style="color: green">/**
+        * This is the call to the RGraph function that registers the event listener
+        * 
+        *      line: The chart object
+        * ontooltip: The name of the event
+        *    myFunc: The function that handles the event
+        */</span>
+        RGraph.AddCustomEventListener(line, 'ontooltip', myFunc);
+    }
+
+    <span style="color: green">/**
+    * The function that is called when the ontooltip event fires. It is  passed a single parameter - the chart object.
+    * With this you can get the ID and references to the canvas and context:
+    *  o obj.id
+    *  o obj.canvas
+    *  o obj.context
+    */</span>
+    function myFunc(obj)
+    {
+        var id      = obj.id;
+        var canvas  = obj.canvas;
+        var context = obj.context;
+
+        alert('This alert was triggered by the custom ontooltip event');
+    }
+&lt;/script&gt;
+</pre>
+
+    <a name="available.events"></a>
+    <p>&nbsp;</p>
+    <h4>Available events</h4>
+
+            <ul>
+                <li>
+                    <b>ontooltip</b><br>
+                    The ontooltip fires just after a tooltip has been created and show. Note that effect timers may make it look like that
+                    the event fires before the tooltip appears.<br><br>
+                </li>
+
+                <li>
+                    <b>onbeforecontextmenu</b><br>
+                    The onbeforecontextmenu fires just before the context menu is shown.<br><br>
+                </li>
+
+                <li>
+                    <b>oncontextmenu</b><br>
+                    The oncontextmenu event fires when the contextmenu is shown.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onbeforedraw</b><br/>
+                    This event fires before the Draw() method runs. It can fire multiple times (eg when a tooltip is hidden).
+                </li>
+
+                <li>
+                    <b>ondraw</b><br/>
+                    This event fire after the Draw() method has run. It can fire multiple times (eg when a tooltip is hidden).<br/><br/>
+                </li>
+
+                <li>
+                    <b>onzoom</b><br/>
+                    The onzoom event fires when the canvas is zoomed.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onmodaldialog</b><br/>
+                    The onmodaldialog event fires when the ModalDialog that comes as a part of RGraph is shown. This event is
+                    added slightly differently to other events:
+                    
+                    <pre class="code">
+ModalDialog.AddCustomEventListener('onmodaldialog', function () {alert('Hello world!');});
+</pre>
+                    
+                    <br/><br/>
+                </li>
+
+                <li>
+                    <b>onresizebeforedraw</b><br/>
+                    This event fires when the canvas has been resized but just before the draw event is called.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onresizebegin</b><br/>
+                    This event fires once resizing begins.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onresize</b><br/>
+                    This event fires during the resize procedure. Much like the onmousemove event.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onresizeend</b><br/>
+                    The onresizeend event fires when resizing ends. Much like the onmouseup event.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onadjustbegin</b><br/>
+                    This event fires when adjusting begins.br/><br/>
+                </li>
+
+                <li>
+                    <b>onadjust</b><br/>
+                    This event fires during adjusting.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onadjustend</b><br/>
+                    This event fires whenadjusting ends. Much like the onmouseup event<br/><br/>
+                </li>
+
+                <li>
+                    <b>onannotatebegin</b><br/>
+                    This event fires when annotating begins.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onannotate</b><br/>
+                    This event fires during annotating - much like the onmousemove event.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onannotateend</b><br/>
+                    This event fires when annotating ends.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onannotatecolor</b><br/>
+                    This event fires when the annotate color is changed via the mini palette.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onannotateclear</b><br/>
+                    This event fires when the annotations are cleared using the API function <i>RGraph.ClearAnnotations()</i>.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onbeforeclear</b><br/>
+                    This event fires just before the canvas is cleared using the API function <i>RGraph.Clear()</i>.<br/><br/>
+                </li>
+
+                <li>
+                    <b>onclear</b><br/>
+                    This event fires when the canvas is cleared using the API function <i>RGraph.Clear()</i>.<br/><br/>
+                </li>
+
+                <li>
+                    <b>oncrosshairs</b><br/>
+                    This event fires when the RGraph crosshairs are moved.<br/><br/>
+                </li>
+            </ul>
+    <br clear="all" />
+    
+    
+    <a name="removing.events"></a>
+    <h4>Removing events</h4>
+        <p>
+            In the case that you need to remove RGraph event listeners, there are a few ways that you can do it. The API function
+            <i>RGraph.RemoveCustomEventListener(obj, id)</i> can be used to remove a single event listener. This function
+            takes the chart object and the numerical ID (returned by <i>RGraph.AddCustomEventListener()</i>) as its arguments.
+            
+            <p />
+
+            There's
+            also the <i>RGraph.RemoveAllCustomEventListeners()</i>, for easily removing all of the pertinent event listeners. This
+            function can either take no arguments at all, in which case ALL event listeners for ALL objects are removed. Or it can
+            also take a canvas ID (the same id that you pass to the constructor), in which case the removal will be limited to
+            that canvas.
+        </p>
+
+    <!-- Login dialog -->
+    <div style="display: none" class="ModalDialog" id="modaldialog_login">
+        
+        <b>Login to admin area</b><br /><br />
+
+        <table border="0">
+            <tr>
+                <td align="right">Email:</td>
+                <td><input type="text" name="email" /></td>
+            </tr>
+            <tr>
+                <td align="right">Password:</td>
+                <td><input type="password" name="password" /></td>
+            </tr>
+            
+            <tr>
+                <td>&nbsp;</td>
+                <td align="right"><input type="submit" value="Login &raquo;" /></td>
+            </tr>
+        </table>
+
+        <div style="font-size: 8pt; float: right"><a href="" onclick="ModalDialog.Hide(); return false">Dismiss</a></div>
+    </div>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>

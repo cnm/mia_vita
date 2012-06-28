@@ -1,0 +1,125 @@
+<!DOCTYPE html >
+<html> 
+<head> 
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"> 
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    --> 
+    <title>March 2012 release notes</title> 
+    
+    <meta name="keywords" content="rgraph html5 canvas docs march release notes" /> 
+    <meta name="description" content="The release notes for the March 2012 release" />
+    <meta name="googlebot" content="NOODP">
+    
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A charts library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.png"/>
+ 
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" /> 
+    <link rel="icon" type="image/png" href="../../images/favicon.png">
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+
+    <?php PrintAnalyticsCode() ?>
+</head> 
+<body>
+
+    
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+    <div id="breadcrumb"> 
+        <a href="../index.html">Home</a> 
+        >
+        <a href="./index.html">Documentation</a>
+        >
+        <a href="release-notes.html">Release notes</a>
+        >
+        March 2012
+    </div> 
+ 
+    <h1>March <span>2012 release notes</span></h1>
+
+    <script>
+        if (RGraph.isOld()) {
+            document.write('<div style="background-color: #fee; border: 2px dashed red; padding: 5px"><b>Important</b><br /><br /> Internet Explorer does not natively support the HTML5 canvas tag, so if you want to see the charts, you can either:<ul><li>Install <a href="http://code.google.com/chrome/chromeframe/">Google Chrome Frame</a></li><li>Use ExCanvas. This is provided in the RGraph Archive.</li><li>Use another browser entirely. Your choices are Firefox 3.5+, Chrome 2+, Safari 4+ or Opera 10.5+. </li></ul> <b>Note:</b> Internet Explorer 9 fully supports the canvas tag.</div>');
+        }
+    </script>
+    <p>
+        The March 2012 release of RGraph is now available. This release is very significant and as such has the RGraph2 moniker.
+        It introduces the <b>ObjectRegistry</b> which allows you to combine different charts on a single canvas. An obvious example is
+        the Line and Bar charts, though any combination is allowed. The combining charts docs page has an example and is
+        <a href="combine.html"><b>here</b></a>. A less obvious example is the Bar chart combined with the VProgress bar and the
+        example is <a href="howto-combined-bar-vprogress.html"><b>here</b></a>. More HOWTO guides are available which take a
+        step-by-step approach to demonstrating some common tasks. Other changes include:
+    </p>
+
+    <ul>
+        <li>There's now a <a href="gutter-tool.html">tool</a> that can help you to determine your gutters.</li>
+        <li>There's now a <a href="image2url.html">tool</a> that can help you when converting images to data: URLs.</li>
+        <li>The Pie chart <i>chart.strokestyle</i> option can now be an array of colors as well as a single color.</li>
+        <li>Added <i>__index2__</i> to the Scatter chart</li>
+        <li>Added the <i>.getValue(e)</i> method to the Bipolar chart.</li>
+        <li>Added the <i>.getValue(e)</i> method to the Gauge chart.</li>
+        <li>
+            Circular charts are now positioned using the gutter settings. The positioning can be overridden
+            though with <i>chart.centerx</i>, <i>chart.centery</i> and chart.radius.
+        </li>
+        <li>Added <i>chart.border.gradient</i> to the Gauge chart. Keep in mind though that Canvas gradients can slow down animations.</li>
+        <li>Added a shrink effect to the Pie chart.</li>
+        <li>Added the Thermometer Grow effect</li>
+        <li>Added the Pie chart Explode effect to complement the Implode effect.</li>
+        <li><b>Important:</b> Tooltips and othe dynamic features have been moved to a new file: <i>RGraph.common.dynamic.js</i></li>
+        <li>The name of the coordinates for the interactive key has changed to: <i>obj.coords.key</i></li>
+        <li>The file <i>RGraph.common.adjusting.js</i> has been removed. Adjusting is now handled in each individual chart file.</li>
+        <li>Thumbnail and area zoom have been removed.</li>
+        <li>Added <i>chart.border.inner</i> to the VProgress and HProgress.</li>
+        <li>Added <i>chart.labels.specific</i> to the VProgress.</li>
+        <li>Added <i>chart.labels.specific</i> to the HProgress.</li>
+        <li>Added <i>chart.background.image.w</i> and <i>chart.background.image.h</i> to the Bar, Line and Scatter charts.</li>
+        <li>Added <i>chart.radius</i> to the LED display.</li>
+        <li>The Gauge chart now has a shadow by default. You can turn this off for animations with <i>chart.shadow</i></li>
+        <li>Added the Bar chart <i>.getShapeByX(e)</i> method</li>
+        <li>Added adjusting to the Gauge, Odometer, Fuel and Meter charts</li>
+        <li>Annotating has been updated - if you use them check your charts.</li>
+        <li>Added 3D highlighting to the Donut chart: <a href="http://dev.rgraph.net/tests/donut/highlight_style.html">http://dev.rgraph.net/tests/donut/highlight_style.html</a></li>
+        <li>Removed the unused <i>RGraph.lineByAngle()</i> function</li>
+        <li>Added more HOWTO guides</li>
+        <li>The VProgress and HProgress <i>chart.strokestyle</i> property is now split into <i>chart.strokestyle.inner</i> and <i>chart.strokestyle.outer</i></li>
+    </ul>
+    
+    <p>
+        Keep in mind that with the addition of the <b>ObjectRegistry</b> this is a very significant update and
+        upgrades should be done with caution. You can read the changelog <a href=".CHANGELOG.txt">here</a> and
+        (importantly) the BC file for details on backwards compatibility breaks <a href=".BC.txt">here</a>.
+    </p>
+    
+    <p>
+        Download RGraph here: <a href="http://www.rgraph.net/downloads/RGraph2_2012-03-28-stable.zip"><b>RGraph2_2012-03-28-stable.zip</b></a>
+    </p>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body> 
+</html>

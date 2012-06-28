@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"> 
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    --> 
+    <title>A tool that will help with gutter sizing</title> 
+    
+    <meta name="keywords" content="rgraph html5 canvas docs bar charts" /> 
+    <meta name="description" content="A tool that will help you determine gutter sizes" />
+    <meta name="googlebot" content="NOODP">
+    
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A charts library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.png"/>
+ 
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" /> 
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+    
+    <script>
+        window.onload = function (e)
+        {
+            var state     = {};
+            var canvas    = document.getElementById("canvas");
+            var grapharea = document.getElementById("grapharea");
+
+
+            /**
+            * The mousedown event listener
+            */
+            grapharea.onmousedown = function (e)
+            {
+                state.mousedown = true;
+                state.pageX     = e.pageX;
+                state.pageY     = e.pageY;
+                state.action    = 'move';
+                state.origX     = parseInt(grapharea.style.left);
+                state.origY     = parseInt(grapharea.style.top);
+            }
+
+
+            /**
+            * The mousemove event listener
+            */
+            window.onmousemove = function (e)
+            {
+                if (state.mousedown) {
+                    var dx = e.pageX - state.pageX;
+                    var dy = e.pageY - state.pageY;
+                    
+                    switch (state.action) {
+                        case 'move':
+                            var left = state.origX + dx;
+                            var top  = state.origY + dy;
+                            
+                            if (left < 0) left = 0;
+                            if (top < 0)  top  = 0;
+                            if ((left + parseInt(grapharea.style.width)) > parseInt(canvas.style.width)) left = parseInt(canvas.style.width) - parseInt(grapharea.style.width); 
+                            if ((top + parseInt(grapharea.style.height)) > parseInt(canvas.style.height)) top = parseInt(canvas.style.height) - parseInt(grapharea.style.height); 
+                            
+                            
+                            if (top < 0) {
+                                top = 0;
+                            }
+                            
+                            // Set the new top/left CSS values
+                            grapharea.style.left = left + 'px';
+                            grapharea.style.top  = top + 'px';
+                            
+                            document.getElementById("gutter.left").value    = left;
+                            document.getElementById("gutter.top").value     = top;
+                            document.getElementById("gutter.right").value   = parseInt(canvas.style.width) - (left + parseInt(grapharea.style.width));
+                            document.getElementById("gutter.bottom").value  = parseInt(canvas.style.height) - (top + parseInt(grapharea.style.height));
+                            break;
+                        
+                        case 'resize_grapharea':
+                            var dx = e.pageX - state.pageX;
+                            var dy = e.pageY - state.pageY;
+                            
+                            var newW = (state.origW + dx);
+                            var newH = (state.origH + dy);
+                            
+                            // Bounds checking for the width
+                            if (newW > (parseInt(canvas.style.width) - document.getElementById("gutter.left").value)) {
+                                newW = (parseInt(canvas.style.width) - document.getElementById("gutter.left").value);
+                            }
+                            
+                            // Bounds checking for the height
+                            if (newH > (parseInt(canvas.style.height) - document.getElementById("gutter.top").value)) {
+                                newH = (parseInt(canvas.style.height) - document.getElementById("gutter.top").value);
+                            }
+                            
+                            grapharea.style.width  = newW + 'px'
+                            grapharea.style.height = newH + 'px';
+
+                            document.getElementById("gutter.right").value   = parseInt(canvas.style.width) - (parseInt(grapharea.style.left) + parseInt(grapharea.style.width));
+                            document.getElementById("gutter.bottom").value  = parseInt(canvas.style.height) - (parseInt(grapharea.style.top) + parseInt(grapharea.style.height));
+                            break;
+                        
+                        default:
+                            break;
+                    }
+                }
+            }
+            
+            
+            /**
+            * The mouseup event listener
+            */
+            window.onmouseup = function (e)
+            {
+                state.mousedown = false;
+            }
+            
+            
+            /**
+            * The grapharea resize square
+            */
+            document.getElementById("resize_grapharea").onmousedown = function (e)
+            {
+                state.mousedown = true;
+                state.pageX     = e.pageX;
+                state.pageY     = e.pageY;
+                state.action    = 'resize_grapharea';
+                state.origW     = parseInt(grapharea.style.width);
+                state.origH     = parseInt(grapharea.style.height);
+                
+                e.stopPropagation();
+            }
+        }
+    </script>
+
+
+    <?php PrintAnalyticsCode() ?>
+</head> 
+<body>
+
+    
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+    <div id="breadcrumb"> 
+        <a href="../index.html">Home</a> 
+        >
+        <a href="./index.html">Documentation</a> 
+        >
+        Gutter size tool
+    </div> 
+ 
+    <h1>Gutter <span>sizing tool</span></h1>
+
+    <script>
+        if (RGraph.isOld()) {
+            document.write('<div style="background-color: #fee; border: 2px dashed red; padding: 5px"><b>Important</b><br /><br /> Internet Explorer does not natively support the HTML5 canvas tag, so if you want to see the charts, you can either:<ul><li>Install <a href="http://code.google.com/chrome/chromeframe/">Google Chrome Frame</a></li><li>Use ExCanvas. This is provided in the RGraph Archive.</li><li>Use another browser entirely. Your choices are Firefox 3.5+, Chrome 2+, Safari 4+ or Opera 10.5+. </li></ul> <b>Note:</b> Internet Explorer 9 fully supports the canvas tag.</div>');
+        }
+    </script>
+    
+    <p>
+        This tool can help you with the size of your gutters on the canvas. Simply drag the gray area (this is the area that
+        the chart is drawn in) around and resize it using the small black square in the bottom right corner.
+    </p>
+    
+    <div>
+        <div>
+            <span style="width: 110px; display: inline-block">Gutter top:</span>
+            <span><input id="gutter.top" value="25" readonly /></span>
+        </div>
+        <div>
+            <span style="width: 110px; display: inline-block">Gutter left:</span>
+            <span><input id="gutter.left" value="25" readonly /></span>
+        </div>
+        <div>
+            <span style="width: 110px; display: inline-block">Gutter bottom:</span>
+            <span><input id="gutter.bottom" value="25" readonly /></span>
+        </div>
+        <div>
+            <span style="width: 110px; display: inline-block">Gutter right:</span>
+            <span><input id="gutter.right" value="25" readonly /></span>
+        </div>
+    </div>
+
+    <p />
+
+    <button onclick="location.href = 'gutter-tool.html';">Reset (reloads the page)</button>
+
+    <div id="canvas" style="overflow: hidden; width: 650px; height: 250px; border: 1px solid gray; background-color: white">
+        <div id="grapharea" style="position: relative; background-color: #ccc; width: 600px; height: 200px; top: 25px; left: 25px; background-color: #ccc; cursor: move;">
+            <div id="resize_grapharea" style="position: absolute; width: 5px; height: 5px; background-color: black; right: 0; bottom: 0; cursor: se-resize"></div>
+        </div>
+    </div>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>

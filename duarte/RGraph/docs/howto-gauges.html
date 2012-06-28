@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+    <title>HOWTO: Make a bank of Gauge charts</title>
+    
+    <meta name="keywords" content="rgraph html5 canvas chart docs links" />
+    <meta name="description" content="A HOWTO guide for making a bank of Gauge charts" />
+    <meta name="googlebot" content="NOODP">
+    
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A chart library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.jpg"/>
+
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+    
+    <script src="../libraries/RGraph.gauge.js" ></script>
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.common.dynamic.js" ></script>
+    <script src="../libraries/RGraph.common.effects.js" ></script>
+
+    <?php PrintAnalyticsCode() ?>
+</head>
+
+    <script>
+        window.onload = function (e)
+        {
+            var myGauge1 = new RGraph.Gauge('cvs1', 0,100,67);
+            myGauge1.Set('chart.centerx', 100);
+            myGauge1.Draw();
+
+            var myGauge2 = new RGraph.Gauge('cvs1', 0,100,45);
+            myGauge2.Set('chart.centerx', 300);
+            myGauge2.Draw();
+
+            var myGauge3 = new RGraph.Gauge('cvs1', 0,100,13);
+            myGauge3.Set('chart.centerx', 500);
+            myGauge3.Draw();
+            
+            
+            /* ------------------------------------------------------------*/
+
+
+            var myGauge4 = new RGraph.Gauge('cvs2', 0,100,67);
+            myGauge4.Set('chart.centerx', 100);
+            myGauge4.Set('chart.adjustable', true);
+            myGauge4.Draw();
+
+            var myGauge5 = new RGraph.Gauge('cvs2', 0,100,45);
+            myGauge5.Set('chart.centerx', 300);
+            myGauge5.Set('chart.adjustable', true);
+            myGauge5.Draw();
+
+            var myGauge6 = new RGraph.Gauge('cvs2', 0,100,13);
+            myGauge6.Set('chart.centerx', 500);
+            myGauge6.Set('chart.adjustable', true);
+            myGauge6.Draw();
+
+            
+            /* ------------------------------------------------------------*/
+
+
+            var myGauge7 = new RGraph.Gauge('cvs3', 0,100,67);
+            myGauge7.Set('chart.centerx', 100);
+            myGauge7.Draw();
+
+            var myGauge8 = new RGraph.Gauge('cvs3', 0,100,45);
+            myGauge8.Set('chart.centerx', 300);
+            myGauge8.Draw();
+
+            var myGauge9 = new RGraph.Gauge('cvs3', 0,100,13);
+            myGauge9.Set('chart.centerx', 500);
+            myGauge9.Draw();
+
+
+            /* ------------------------------------------------------------*/
+            
+            
+            myGauge7.canvas.onmousedown_rgraph = function (e)
+            {
+                var obj = RGraph.ObjectRegistry.getFirstObjectByXY(e);
+                
+                if (obj) {
+                    obj.value = obj.getValue(e);
+                    RGraph.Effects.Gauge.Grow(obj);
+                }
+            }
+        }
+    </script>    
+<body>
+
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+
+<div id="breadcrumb">
+    <a href="../index.html">Home</a>
+    >
+    <a href="./index.html">Documentation</a>
+    >
+    HOWTO: Create a bank of Gauge charts
+</div>
+
+<h1>HOWTO: <span>Create a bank of Gauge charts</span></h1>
+
+    <p>
+        Now that RGraph supports multiple charts on a single canvas creating a bank of Gauge charts or other meters is a simple matter
+        and allows you to create powerful responsive control panels.
+    </p>
+    
+    <p>
+        This example uses the Gauge chart though the principle is the same for all types of RGraph meter.
+    </p>
+    
+    <h4>1.The original Gauge charts</h4>
+        <p>
+            These are the original Gauge charts before they have been made adjustable.
+        </p>
+
+    <canvas id="cvs1" width="600" height="200" style="border: 1px solid gray">[No canvas support]</canvas>
+    
+    <pre class="code">
+&lt;script&gt;
+    var myGauge1 = new RGraph.Gauge('cvs', 0,100,67);
+    myGauge1.Set('chart.centerx', 100);
+    myGauge1.Draw();
+
+    var myGauge2 = new RGraph.Gauge('cvs', 0,100,45);
+    myGauge2.Set('chart.centerx', 300);
+    myGauge2.Draw();
+
+    var myGauge3 = new RGraph.Gauge('cvs', 0,100,13);
+    myGauge3.Set('chart.centerx', 500);
+    myGauge3.Draw();
+&lt;/script&gt;
+</pre>
+
+    <h4>2. The Gauge charts now that they're adjustable</h4>
+        <p>
+            These are the Gauge charts now that they have been made adjustable.
+        </p>
+    <canvas id="cvs2" width="600" height="200" style="border: 1px solid gray">[No canvas support]</canvas>
+
+    <pre class="code">
+&lt;script&gt;
+    var myGauge1 = new RGraph.Gauge('cvs', 0,100,67);
+    myGauge1.Set('chart.centerx', 100);
+    <span style="color: green">myGauge1.Set('chart.adjustable', true);</span>
+    myGauge1.Draw();
+
+    var myGauge2 = new RGraph.Gauge('cvs', 0,100,45);
+    myGauge2.Set('chart.centerx', 300);
+    <span style="color: green">myGauge2.Set('chart.adjustable', true);</span>
+    myGauge2.Draw();
+
+    var myGauge3 = new RGraph.Gauge('cvs', 0,100,13);
+    myGauge3.Set('chart.centerx', 500);
+    <span style="color: green">myGauge3.Set('chart.adjustable', true);</span>
+    myGauge3.Draw();
+&lt;/script&gt;
+</pre>
+
+   <h4>3. Making the Gauge charts animated</h4>
+        <p>
+            By default the gauge charts aren't animated when they're adjustable, however this is a simple addition and involves
+            handling the adjusting yourself.
+        </p>
+        
+        <canvas id="cvs3" width="600" height="200" style="border: 1px solid gray">[No canvas support]</canvas>
+
+    <pre class="code">
+&lt;script&gt;
+    var myGauge1 = new RGraph.Gauge('cvs', 0,100,67);
+    myGauge1.Set('chart.centerx', 100);
+    myGauge1.Draw();
+
+    var myGauge2 = new RGraph.Gauge('cvs', 0,100,45);
+    myGauge2.Set('chart.centerx', 300);
+    myGauge2.Draw();
+
+    var myGauge3 = new RGraph.Gauge('cvs', 0,100,13);
+    myGauge3.Set('chart.centerx', 500);
+    myGauge3.Draw();
+    
+    <span style="color: green">
+    /**
+    * Only need to add the custom event listener once
+    */
+    myGauge1.canvas.onmousedown_rgraph = function (e)
+    {
+        var obj = RGraph.ObjectRegistry.getFirstObjectByXY(e);
+        
+        if (obj) {
+            obj.value = obj.getValue(e);
+            RGraph.Effects.Gauge.Grow(obj);
+        }
+    }</span>
+&lt;/script&gt;
+</pre>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>

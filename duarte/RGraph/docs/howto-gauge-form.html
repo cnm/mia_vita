@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+    <title>HOWTO: Create a Gauge that updates a form</title>
+    
+    <meta name="keywords" content="rgraph html5 canvas chart docs links" />
+    <meta name="description" content="A HOWTO guide for creating a Gauge chart that updates a form" />
+    <meta name="googlebot" content="NOODP">
+    
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A chart library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.jpg"/>
+
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+    
+    <script src="../libraries/RGraph.gauge.js" ></script>
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.common.dynamic.js" ></script>
+    <script src="../libraries/RGraph.common.effects.js" ></script>
+
+    <?php PrintAnalyticsCode() ?>
+</head>
+<body>
+
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+
+<div id="breadcrumb">
+    <a href="../index.html">Home</a>
+    >
+    <a href="./index.html">Documentation</a>
+    >
+    HOWTO: Create a Gauge that updates a form
+</div>
+
+<h1>HOWTO: <span>Create a Gauge that updates a form</span></h1>
+
+    <p>
+        There a few methods of doing this. You could use the in-built RGraph event <i>onadjust</i> to have some code run that
+        updates a form withe new value of the Gauge or you could use the RGraph specific .onmousedown event to animate the
+        chart and then update your form. Both methods are shown below.
+    </p>
+
+    <h2>The <span>onadjust event</span></h2>
+        
+        <canvas id="cvs_onadjust" width="300" height="300" style="float: right">[No canvas support]</canvas>
+        <script>
+            var gauge = new RGraph.Gauge('cvs_onadjust', 0,100,67);
+            gauge.Set('chart.adjustable', true);
+            gauge.Draw();
+            
+            RGraph.AddCustomEventListener(gauge, 'onadjust', function (obj)
+            {
+                // Get the value from the chart
+                var value = obj.value;
+                
+                // Update the text input with the new reading (formatted to have 1 decimal)
+                document.getElementById("gauge1_readout").value = value.toFixed(1);;
+            });
+        </script>
+    
+        <p>
+            By using the custom RGraph event <i>onadjust</i> you can have a function run when the chart is adjusted. This
+            function can then get the new value from the chart and update the form.
+        </p>
+        
+        <p>
+            Value: <input type="text" id="gauge1_readout" value="67" />
+        </p>
+        
+        <br clear="all" />
+        
+        <pre class="code">
+&lt;script&gt;
+    var gauge = new RGraph.Gauge('cvs_onadjust', 0,100,67);
+    gauge.Set('chart.adjustable', true);
+    gauge.Draw();
+    
+    RGraph.AddCustomEventListener(gauge, 'onadjust', function (obj)
+    {
+        // Get the value from the chart
+        var value = obj.value;
+        
+        // Update the text input with the new reading (formatted to have 1 decimal)
+        document.getElementById("gauge_readout").value = value.toFixed(1);;
+    });
+&lt;/script&gt;
+</pre>
+
+    <h2>The <span>RGraph custom events</span></h2>
+    <canvas id="cvs_rgraph_event" width="300" height="300" style="float: right">[No canvas support]</canvas>
+    <script>
+        var gauge2 = new RGraph.Gauge('cvs_rgraph_event', 0,100,67);
+        gauge2.Draw();
+        
+        var state = {}
+        
+        gauge2.canvas.onmousedown_rgraph = function (e)
+        {
+            state.mousedown = true;
+            
+            // Fire the onmousemove function so that a single click updates the chart
+            gauge2.canvas.onmousemove_rgraph(e);
+        }
+        
+        window.onmouseup_rgraph = function (e)
+        {
+            state.mousedown = false;
+        }
+        
+        gauge2.canvas.onmousemove_rgraph = function (e)
+        {
+            if (state.mousedown) {
+                gauge2.value = gauge2.getValue(e);
+                RGraph.Clear(gauge2.canvas);
+                gauge2.Draw();
+                
+                document.getElementById("gauge2_readout").value = gauge2.value.toFixed(1);
+            }
+        };
+    </script>
+
+    <p>
+        Subsequent to the move back to DOM1 event listeners there are now custom RGraph event listeners that you can use
+        that replace the standard ones.
+    </p>
+        
+        <p>
+            Value: <input type="text" id="gauge2_readout" value="67" />
+        </p>
+        
+        <br clear="all" />
+        
+        <pre class="code">
+&lt;script&gt;
+    var gauge2 = new RGraph.Gauge('cvs_rgraph_event', 0,100,67);
+    gauge2.Draw();
+    
+    var state = {}
+    
+        
+    gauge2.canvas.onmousedown_rgraph = function (e)
+    {
+        state.mousedown = true;
+        
+        // Fire the onmousemove function so that a single click updates the chart
+        gauge2.canvas.onmousemove_rgraph(e);
+    }
+    
+    window.onmouseup_rgraph = function (e)
+    {
+        state.mousedown = false;
+    }
+    
+    gauge2.canvas.onmousemove_rgraph = function (e)
+    {
+        if (state.mousedown) {
+            gauge2.value = gauge2.getValue(e);
+            RGraph.Clear(gauge2.canvas);
+            gauge2.Draw();
+            
+            document.getElementById("gauge2_readout").value = gauge2.value.toFixed(1);
+        }
+    }
+&lt;/script&gt;
+</pre>
+    
+    <br clear="all" />
+
+    <h2>DOM2 <span>event listeners</span></h2>
+        <p>
+            When you use the DOM2 event listeners to add events to your canvas it doesn't have the effect of clearing the
+            other event listeners - including any DOM1 event listeners. This means that you can add event listeners using
+            the DOM2 function <i>addEventListener()</i> without fear of it affecting other dynamic features.
+        </p>
+        
+        <p>
+            Value: <input type="text" id="gauge3_readout" value="67" />
+        </p>
+
+    <canvas id="cvs_dom2" width="300" height="300" style="float: right">[No canvas support]</canvas>
+
+    <script>
+        var gauge3 = new RGraph.Gauge('cvs_dom2', 0,100,67);
+        gauge3.Draw();
+        
+        var state = {}
+        
+        gauge3.canvas.addEventListener('mousedown', function (e)
+        {
+            state.mousedown = true;
+        }, false);
+        
+        window.addEventListener('mouseup', function (e)
+        {
+            state.mousedown = false;
+        }, false);
+        
+        gauge3.canvas.addEventListener('mousemove', function (e)
+        {
+            if (state.mousedown) {
+                var obj = e.target.__object__;
+                
+                obj.value = obj.getValue(e);
+                RGraph.Clear(obj.canvas);
+                obj.Draw();
+                
+                document.getElementById("gauge3_readout").value = gauge3.value.toFixed(1);
+            }
+        }, false);
+    </script>
+    
+    <br clear="all" />
+    
+    <pre class="code">
+&lt;script&gt;
+    var gauge3 = new RGraph.Gauge('cvs_dom2', 0,100,67);
+    gauge3.Draw();
+    
+    var state = {}
+    
+    gauge3.canvas.addEventListener('mousedown', function (e)
+    {
+        state.mousedown = true;
+    }, false);
+    
+    window.addEventListener('mouseup', function (e)
+    {
+        state.mousedown = false;
+    }, false);
+    
+    gauge3.canvas.addEventListener('mousemove', function (e)
+    {
+        if (state.mousedown) {
+            var obj = e.target.__object__;
+            
+            obj.value = obj.getValue(e);
+            RGraph.Clear(obj.canvas);
+            obj.Draw();
+            
+            document.getElementById("gauge3_readout").value = gauge3.value.toFixed(1);
+        }
+    }, false);
+&lt;/script&gt;
+</pre>
+    
+    <br clear="all" />
+
+    <h2>Using <span>animation effects</span></h2>
+        
+        <canvas id="cvs_effect" width="300" height="300" style="float: right">[No canvas support]</canvas>
+
+        <script>
+            var gauge4 = new RGraph.Gauge('cvs_effect', 0,100,67);
+            RGraph.Effects.Gauge.Grow(gauge4);
+            
+            gauge4.canvas.addEventListener('mousedown', function (e)
+            {
+                var obj = e.target.__object__;
+                
+                obj.value = obj.getValue(e);
+                RGraph.Clear(obj.canvas);
+                RGraph.Effects.Gauge.Grow(obj, null, function () {document.getElementById("gauge4_readout").value = gauge4.value.toFixed(1);});
+            }, false);
+        </script>
+
+        <p>
+            Instead of using the regular <i>Draw()</i> method to update your charts you can also use the RGraph effects.
+            This allows you to create animated, adjustable Gauges and meters.
+        </p>
+        
+        <p>
+            <b>Note:</b>
+            If you use this method that the Gauge will not be reading the desired value until the end of the animation.
+            Therefore it is necessary to use the callback function to update the form input.
+        </p>
+
+        <p>
+            Value: <input type="text" id="gauge4_readout" value="67" />
+        </p>
+
+        <br clear="all" />
+
+        <pre class="code">
+&lt;script&gt;
+    var gauge4 = new RGraph.Gauge('cvs_effect', 0,100,67);
+    RGraph.Effects.Gauge.Grow(gauge4);
+    
+    gauge4.canvas.addEventListener('mousedown', function (e)
+    {
+        var obj = e.target.__object__;
+        
+        obj.value = obj.getValue(e);
+        RGraph.Clear(obj.canvas);
+        RGraph.Effects.Gauge.Grow(obj, null, function () {document.getElementById("gauge4_readout").value = gauge4.value.toFixed(1);});
+    }, false);
+&lt;/script&gt;
+</pre>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>

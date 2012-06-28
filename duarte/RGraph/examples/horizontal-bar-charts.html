@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+    <title>Examples of Horizontal Bar charts</title>
+    
+    <meta name="keywords" content="rgraph html5 canvas example horizontal bar charts" />
+    <meta name="description" content="An example of the Horizontal Bar chart that RGraph can produce" />
+    <meta name="googlebot" content="NOODP">
+    
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A charts library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.png"/>
+
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+
+    <script src="../libraries/RGraph.common.core.js" ></script>
+    <script src="../libraries/RGraph.common.dynamic.js" ></script>
+    <script src="../libraries/RGraph.common.tooltips.js" ></script>
+    <script src="../libraries/RGraph.common.effects.js" ></script>
+    <script src="../libraries/RGraph.hbar.js" ></script>
+    <script src="../libraries/RGraph.pie.js" ></script>
+    <!--[if lt IE 9]><script src="../excanvas/excanvas.original.js"></script><![endif]-->
+
+    <script>
+        window.onload = function (e)
+        {
+            var hbar = new RGraph.HBar('cvs', [688.9,233.6,223.6,165.3]);
+            hbar.Set('chart.units.pre', '$');
+            hbar.Set('chart.units.post', 'm');
+            hbar.Set('chart.colors', ['#FDB515']);
+            hbar.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+            hbar.Set('chart.labels.above', true);
+            hbar.Set('chart.labels.above', true);
+            hbar.Set('chart.vmargin', 15);
+            hbar.Set('chart.background.grid', false);
+            hbar.Set('chart.labels', ['Government of Haiti, multilateral\r\nagencies NHOs and private contractors','Budget support to government','Haiti Reconstruction fund','Loans to goverment']);
+            
+            if (!RGraph.isOld()) {
+                hbar.Set('chart.tooltips', ['Government of Haiti, multilateral<br />agencies NHOs and private contractors','Budget support to government','Haiti Reconstruction fund','Loans to goverment']);
+            }
+            
+            hbar.Set('chart.labels.above.decimals', 1);
+            hbar.Set('chart.xlabels', false);
+            hbar.Set('chart.gutter.left', 250);
+            hbar.Set('chart.gutter.right', 50);
+            hbar.Set('chart.gutter.top', 25);
+            hbar.Set('chart.noxaxis', true);
+            hbar.Set('chart.noxtickmarks', true);
+            hbar.Set('chart.noytickmarks', true);
+            RGraph.isOld() ? hbar.Draw() : RGraph.Effects.HBar.Grow(hbar);
+
+            var pie = new RGraph.Pie('cvs', [65,35]);
+            pie.Set('chart.colors', ['#FDB515', 'gray']);
+            pie.Set('chart.labels', ['$1.28bn disbursed','$2.01bn* pledged']);
+            pie.Set('chart.labels.sticks', true);
+            pie.Set('chart.labels.sticks.length', 15);
+            pie.Set('chart.exploded', 5);
+            
+            if (!RGraph.isOld()) {
+                pie.Set('chart.shadow', true);
+                pie.Set('chart.shadow.offsetx', 0);
+                pie.Set('chart.shadow.offsety', 0);
+                pie.Set('chart.shadow.blur', 10);
+                pie.Set('chart.tooltips', ['$1.28bn disbursed','$2.01bn* pledged']);
+            }
+
+            pie.Set('chart.radius', 50);
+            pie.Set('chart.centerx', 700);
+            pie.Set('chart.centery', 180);
+            pie.Set('chart.strokestyle', 'rgba(0,0,0,0)');
+            
+            RGraph.isOld() ? pie.Draw() : RGraph.Effects.Pie.RoundRobin(pie, {'frames': 60});
+        }
+    </script>
+
+    <?php PrintAnalyticsCode() ?>
+</head>
+<body>
+
+    
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+    <div id="breadcrumb">
+        <a href="../index.html">Home</a>
+        >
+        <a href="./index.html">Examples</a>
+        >
+        Horizontal Bar charts
+    </div>
+
+
+    <h1>Horizontal <span>bar charts</span></h1>
+
+    <script>
+        if (RGraph.isOld()) {
+            document.write('<div style="background-color: #fee; border: 2px dashed red; padding: 5px"><b>Important</b><br /><br /> Internet Explorer does not natively support the HTML5 canvas tag, so if you want to see the charts, you can either:<ul><li>Install <a href="http://code.google.com/chrome/chromeframe/">Google Chrome Frame</a></li><li>Use ExCanvas. This is provided in the RGraph Archive.</li><li>Use another browser entirely. Your choices are Firefox 3.5+, Chrome 2+, Safari 4+ or Opera 10.5+. </li></ul> <b>Note:</b> Internet Explorer 9 fully supports the canvas tag.</div>');
+        }
+    </script>
+    
+    <p>
+        A horizontal bar chart can be useful when your labels are too big for regular bar charts. Below is an example Horizontal Bar
+        chart. In this case it has been combined with a Pie chart and shows off the ObjectRegistry - which is used to allow you to
+        combine charts
+    </p>
+    
+    <ul>
+        <li><a href="../docs/hbar.html">Horizontal bar charts API documentation</a></li>
+    </ul>
+
+    <a name="gutter-example"></a>
+    <canvas id="cvs" width="900" height="300" style="border: 1px solid gray; border-radius: 15px">[No canvas support]</canvas>
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="../docs/about.html">About</a>, <a href="../docs/privacy.html">Privacy policy</a>,
+        <a href="../docs/terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>

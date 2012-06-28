@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <!--
+        /**
+        * o------------------------------------------------------------------------------o
+        * | This file is part of the RGraph package - you can learn more at:             |
+        * |                                                                              |
+        * |                          http://www.rgraph.net                               |
+        * |                                                                              |
+        * | This package is licensed under the RGraph license. For all kinds of business |
+        * | purposes there is a small one-time licensing fee to pay and for non          |
+        * | commercial  purposes it is free to use. You can read the full license here:  |
+        * |                                                                              |
+        * |                      http://www.rgraph.net/LICENSE.txt                       |
+        * o------------------------------------------------------------------------------o
+        */
+    -->
+    <title>HOWTO: Debugging your charts with Chrome</title>
+
+    <meta name="keywords" content="rgraph html5 canvas chart docs links" />
+    <meta name="description" content="A HOWTO guide for debugging your charts with Chrome" />
+    <meta name="googlebot" content="NOODP">
+
+    <meta property="og:title" content="RGraph: HTML5/Javascript charts for your website" />
+    <meta property="og:description" content="A charts library based on the HTML5 canvas tag" />
+    <meta property="og:image" content="http://www.rgraph.net/images/logo.jpg"/>
+
+    <link rel="stylesheet" href="../css/website.css" type="text/css" media="screen" />
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+    
+    <!-- Place this tag in your head or just before your close body tag -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+
+    <!--[if lt IE 9]><script src="../excanvas/excanvas.original.js"></script><![endif]-->
+
+    <?php PrintAnalyticsCode() ?>
+</head> 
+<body>
+
+    <!-- Social networking buttons -->
+        <?php
+            $prefix = substr($_SERVER['SERVER_NAME'], 0, 3);
+            require("/rgraph.{$prefix}/social.html");
+        ?>
+    <!-- Social networking buttons -->
+
+
+<div id="breadcrumb">
+    <a href="../index.html">Home</a>
+    >
+    <a href="./index.html">Documentation</a>
+    >
+    HOWTO: Debugging your charts with Chrome
+</div>
+
+    <h1>HOWTO: <span>Debugging your charts with Chrome</span></h1>
+
+    <p>
+        Debugging your charts becomes an awful lot easier if you use a Javascript console. This is where you'll find error messages
+        and its these messages that can help you to trace the location of an error. This page focuses on the developer tools built into
+        Chrome, however each browser will have its own developer tools - eg <a href="http://www.getfirebug.com" target="_blank" rel="nofollow">Firebug</a>
+        for Mozilla Firefox.
+    </p>
+    
+    <h4>1. The Chrome developer tools in undocked mode</h4>
+        <img src="../images/howto-debugging1.png" width="320" height="240" alt="The Chrome developer tools in undocked mode" style="float: right; box-shadow: 0 0 15px gray; margin: 10px" />
+        
+        <p>
+            When you first open the developer tools in Chrome (you can press CTRL+SHIFT+J to open the tools) they usually look like this - ie in undocked mode.
+            You may prefer this as it gives you more space initially or you may find that showing them in docked mode is more convenient.
+            The button for switching modes is highlighted.
+        </p>
+    
+    <br clear="all" />
+    
+    <h4>2. The Chrome developer tools in docked mode</h4>
+    
+        <img src="../images/howto-debugging2.png" width="320" height="240" alt="The Chrome developer tools in docked mode" style="float: right; box-shadow: 0 0 15px gray; margin: 10px" />
+        
+        <p>
+            Here the tools are docked so that they appear joined to the main browser window at the bottom. Using them this way means that
+            any Javascript errors will appear in the console which will make debugging your charts much easier.
+        </p>
+    
+    <br clear="all" />
+    
+    <h3> More information</h3>
+        <p>
+            This is a video from Google IO 2010 detailing the development tools. Remember that other browsers as well as Chrome have
+            developer tools - so refer to their documentation for more details.
+        </p>
+        
+        <p align="center">
+            <object width="640" height="360"><param name="movie" value="http://www.youtube.com/v/TH7sJbyXHuk&hl=en_US&feature=player_embedded&version=3"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param><embed src="http://www.youtube.com/v/TH7sJbyXHuk&hl=en_US&feature=player_embedded&version=3" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="640" height="360"></embed></object>
+        </p>
+
+
+    <p style="text-align: center; font-size: 70%">
+        &copy; Copyright RGraph licensing 2008-2012 All rights reserved.
+        <a href="about.html">About</a>, <a href="privacy.html">Privacy policy</a>,
+        <a href="terms.html">Terms and conditions</a>
+    </p>
+
+</body>
+</html>
