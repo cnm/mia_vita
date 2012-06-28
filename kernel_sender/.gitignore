@@ -6,3 +6,4 @@
 *.o.cmd
 Module.symvers
 TAGS
+.tmp_versions
