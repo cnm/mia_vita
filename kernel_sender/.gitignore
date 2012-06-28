@@ -5,3 +5,4 @@
 *.ko.cmd
 *.o.cmd
 Module.symvers
+TAGS
