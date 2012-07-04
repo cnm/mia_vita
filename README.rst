@@ -79,6 +79,10 @@ Filesystem and kernels
 ======================
 http://tagus.inesc-id.pt/~jtrindade/mia_vita/
 
+Stable image is at:
+
+http://tagus.inesc-id.pt/~jtrindade/mia_vita/block_images/mia_vita_image_stable
+
 
 Establishing AD-HOC Communication
 =================================
