@@ -139,6 +139,11 @@ In linux initrd (busybox) in the root directory issue:
 
 rm linuxrc; ln -sf linuxrc-sdroot linuxrc; save
 
+Boot from sdcard via hardware
+=============================
+
+Connect pin 7 to GND
+
 Changes done in the Operating System
 ====================================
 
@@ -484,6 +489,7 @@ HAWNU1 Hi-Gain Wireless-150N USB Network Adapter w/Range Amplifi
 http://www.gohawking.com/store/product_info.php?products_id=438&osCsid=valhhlsf19rnueqs8shgdgduk1
 
 Compile for uCLIBC
-------------------
+==================
 
 Use the crosstool/arm-uclibc-3.4.6/ not the crosstool/arm-unknown-linux-gnu/ crosstool
+
