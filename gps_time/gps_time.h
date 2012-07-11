@@ -8,6 +8,8 @@
 #ifndef GPS_TIME_H_
 #define GPS_TIME_H_
 
+#define VERBOSE 1
+
 typedef enum {
 	GPS_OK,
 	GPS_ANTENA_SHORT,

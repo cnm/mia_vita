@@ -41,44 +41,72 @@ void* uart_read_thread( void *);
  * the GPS state machine.
  * */
 void uart_init( char indoor, FILE *status_output) {
-	error_f = status_output;
-	gps_device_fd = open( GPS_DEVICE, O_RDWR);
-	if( gps_device_fd == -1) {
-		fprintf( error_f, "gps_uartctl.c: Error while opening GPS device: %s.\n", GPS_DEVICE);
-		fprintf( error_f, "Error %d: %s\n", errno, strerror_r( errno, error_buf, ERROR_BUF_SIZE) == 0 ? error_buf : "");
-		exit( 1);
-	}
-	// start thread to read messages from GPS device
-	pthread_create( &read_thread, NULL, uart_read_thread, NULL);
+    error_f = status_output;
+    gps_device_fd = open( GPS_DEVICE, O_RDWR);
+    if( gps_device_fd == -1) {
+        fprintf( error_f, "gps_uartctl.c: Error while opening GPS device: %s.\n", GPS_DEVICE);
+        fprintf( error_f, "Error %d: %s\n", errno, strerror_r( errno, error_buf, ERROR_BUF_SIZE) == 0 ? error_buf : "");
+        exit( 1);
+    }
+    // start thread to read messages from GPS device
+    pthread_create( &read_thread, NULL, uart_read_thread, NULL);
 
-	// give some time to consume all the messages, which will be ignored, before initializing GPS module
-	sleep( 2);
-	init_gps( indoor, uart_write, status_output);
+    // give some time to consume all the messages, which will be ignored, before initializing GPS module
+    sleep( 2);
+    init_gps( indoor, uart_write, status_output);
 }
 
 /* Sends a message to the GPS device.
  */
-void uart_write( char *msg, int msg_len) {
-	int written_b = write( gps_device_fd, msg, msg_len);
-	if( written_b != msg_len) {
-		fprintf( error_f, "gps_uartctl.c: Error while writing to GPS device. Only wrote %d of %d B\n", written_b, msg_len);
-		exit(1);
-	}
-	//else
-	//	fprintf( error_f, "Sent %dB to GPS.\n", written_b);
+void uart_write( char *msg, int msg_len) 
+{
+  int x;
+  int written_b = write( gps_device_fd, msg, msg_len);
+  if( written_b != msg_len) {
+      fprintf( error_f, "gps_uartctl.c: Error while writing to GPS device. Only wrote %d of %d B\n", written_b, msg_len);
+      exit(1);
+  }
+  else
+    {
+/*      fprintf(error_f, "\n");*/
+
+/*      for (x = 0; x != msg_len; x++)*/
+/*        {*/
+/*          switch(msg[x])*/
+/*            {*/
+/*            case 0x10:*/
+/*              fprintf(error_f, "\t DLE\t");*/
+/*              if(msg[++x] != 0x03)*/
+/*                {*/
+/*                  fprintf(error_f, "\t ID: %hhX\t", msg[x]);*/
+/*                }*/
+/*              else*/
+/*                {*/
+/*                  fprintf(error_f, "\t ETX\t");*/
+/*                }*/
+/*              break;*/
+/*            default:*/
+/*              fprintf(error_f, "\t %hhX ", msg[x]);*/
+/*              break;*/
+/*            }*/
+/*        }*/
+/*      fprintf(error_f, "\n");*/
+/*    }*/
+
+/*      fprintf(error_f, "Ended write\n");*/
 }
 
 /* Creates a new thread responsible for reading data from the
  * uart device and providing it to the gps state machine */
 void* uart_read_thread( void *unused) {
-	size_t read_count;
+    size_t read_count;
 
-	while( 1) {
-		read_count = read( gps_device_fd, gps_buf, GPS_BUF_SIZE);
-		if( read_count == 0) {
-			fprintf( error_f, "gps_uartctl.c: Unable to read from GPS\n");
-			exit(1);
-		}
-		output_from_gps( gps_buf, read_count);
-	}
+    while( 1) {
+        read_count = read( gps_device_fd, gps_buf, GPS_BUF_SIZE);
+        if( read_count == 0) {
+            fprintf( error_f, "gps_uartctl.c: Unable to read from GPS\n");
+            exit(1);
+        }
+        output_from_gps( gps_buf, read_count);
+    }
 }

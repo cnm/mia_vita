@@ -22,7 +22,7 @@
 
 #define GPS_CMD_RESET 0x25
 #define GPS_CMD_AUTOMATIC_POS_REPORT 0x35
-#define GPS_CMD_ENHANCED_SENSITIVITY 0x6D
+#define GPS_CMD_ENHANCED_SENSITIVITY 0x69
 
 #define GPS_MSG_TIME 0x41
 #define GPS_MSG_SW_VERSION 0x45
@@ -93,12 +93,48 @@ gps_state_t gps_state = GPS_PRE_INIT;
 void (*gps_write)(char *msg, int msg_len);
 void* process_msg(void *unused);
 
+void pretty_print_packet(int start, int end)
+{
+  fprintf(debug_f, "\n");
+  switch(msg_buf[start % MSG_BUF_SIZE])
+    {
+    case 0x41:
+      fprintf(debug_f, "\t GPS Time\t\t\t\t\t");
+      break;
+    case 0x45:
+      fprintf(debug_f, "\t  Software Version Information\t\t");
+      break;
+    case 0x46:
+      fprintf(debug_f, "\t Health of Receiver\t\t\t\t");
+      break;
+    case 0x4A:
+      fprintf(debug_f, "\t 9 Byte Format\t\t\t\t\t");
+      break;
+    case 0x4B:
+      fprintf(debug_f, "\t Machine/Code ID and Additional Status\t\t");
+      break;
+    case 0x56:
+      fprintf(debug_f, "\t Velocity Fix, East-North-Up\t\t");
+      break;
+    case 0x6D:
+      fprintf(debug_f, "\t All-In-View Satellite Selection\t\t");
+      break;
+    case 0x82:
+      fprintf(debug_f, "\t Differential Position Fix Mode\t\t\t");
+      break;
+    }
+}
+
 void packet_content(char *error_msg, int start, int end) {
     int x;
     if (debug_f == NULL)
       return;
 
-    fprintf(debug_f, "Packet content %d to %d. %s: ", start, end, error_msg);
+    /*    fprintf(debug_f, "Packet content %d to %d. %s: ", start, end, error_msg);*/
+
+#ifdef GPS_DEBUG
+    pretty_print_packet(start, end);
+#endif
 
     for (x = start; x != end; x++)
       fprintf(debug_f, "%hhX ", msg_buf[x % MSG_BUF_SIZE]);
@@ -182,11 +218,10 @@ char lookup_packet(int *start, int *end) {
     return 1;
 }
 
-
-
 void init_gps(char indoor, void(*input_for_gps)(char *msg, int msg_len),
               FILE *output_status_func) {
     debug_f = output_status_func;
+
     gps_write = input_for_gps;
 
     pthread_mutex_lock(&gps_write_m);
@@ -305,8 +340,8 @@ void* process_msg(void *unused) {
           end += MSG_BUF_SIZE;
 
 #ifdef GPS_DEBUG
-        printf("Will process new message - Size = %d, from %d to %d\n",
-               end - start, start, end);
+        /*        printf("Will process new message - Size = %d, from %d to %d\n",*/
+        /*               end - start, start, end);*/
         packet_content("found this ", start, end);
 #endif
 
