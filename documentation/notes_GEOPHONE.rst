@@ -3,6 +3,6 @@ Connections
 
 Still haven't check directions (positive/negative):
 
-N - White, Blue
-E - Green Yellow
-Z - Red, Black
+Channel 1 - N - White, Blue
+Channel 2 - E - Green Yellow
+Channel 3 - Z - Red, Black
