@@ -1,82 +1,34 @@
-			h1	{ font-family: Verdana; text-align : center; }
-			.h3	{ font-family: Verdana; text-align : left; margin: 20;}
-			.right	{ font-family: Verdana; text-align : right; }
-			#ready	{ font-family: Verdana; color: red;}
-			#googleMaps	{ width:720px; height:530px; margin-left : auto; margin-right : auto; margin-top: 1%; margin-bottom: 1%;}
-				
-				.toggler { width: 500px; height: 200px; }
-				#welcome { padding: .5em 1em; text-decoration: none; }
-				#effect { width: 240px; height: 135px; padding: 0.4em; position: relative; }
-				#effect h3 { margin: 0; padding: 0.4em; text-align: center; }
-
-.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
-.ui-timepicker-div dl { text-align: left; }
-.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
-.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
-.ui-timepicker-div td { font-size: 90%; }
-.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
-
-*{
+html, body{
+   	font-family:Arial,Helvetica,"Nimbus Sans L",sans-serif;
 	font-size:13px;
-}
-html,body{
-	margin:0;
-	padding:0;
-}
-body{
-    font-family:Arial,Helvetica,"Nimbus Sans L",sans-serif;
+	text-align:center;
 	background:#fafafa;
-	text-align:center;
 }
-h3{
-	font-size:16px;
-	font-weight:bold;
-	margin:12px 0;
-}
-h4{
-	font-size:16px;
-	font-weight:bold;
-	color:#CC0000;
-	margin:10px 0;
-}
-h5{
-	font-size:14px;
-	font-weight:bold;
-	color:#990000;
-	margin:5px 0;
-}
+
+/* Header Related */
 #header{
-	width:982px;
-	text-align:center;
-	background:#666;
-	margin-left:auto;
-	margin-right:auto;
+	background: #666;
+	padding-left: 5mm;
+	padding-right: 5mm;
+	margin-top: 5px;
+	margin-left: 5mm;
+	margin-right: 5mm;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	text-decoration:none;
+	color:#fff;
 }
 #header-inner{
 	text-align:left;
 	margin:0 auto;
-	width:960px;
 	padding:10px 0;
 }
-#mainwrap{
-	text-align:center;
-	margin-top:5px;
-}
-#content{
-	text-align:left;
-	width:960px;
-	margin:0 auto;
-	padding:10px;
-	border-radius:5px;
-	border:1px solid #ddd;
-	background:#fff;
-}
-#content img{
-	margin-left:9px;
-}
-#footer{
-	text-align:center;
-	padding:10px;
+#title{ 
+	font-size:16px;
+	font-weight:bold;
+	color: #fff;
+	margin: 1mm 3mm;
 }
 #topmenu{
 	text-align:right;
@@ -91,77 +43,83 @@ h5{
 	text-decoration:underline;
 }
 
-a.download-link{
-	color:#0000ff;
+/* Main Frame */
+#mainwrap{
+	margin-top:5px;
+	margin-left: 5mm;
+	margin-right: 5mm;
 }
-
-.doc-table{
-	border-collapse:collapse;
-	border-spacing:0;
+#content{
+	text-align:left;
+	margin:0 auto;
+	padding:10px;
+	border-radius:5px;
+	border:1px solid #ddd;
+	background:#fff;
+}
+#content img{
 	margin-left:9px;
 }
-.doc-table th,.doc-table td{
-	border:1px solid #8CACBB;
-	padding:0.3em 0.7em;
+
+/* Footer */
+#footer{
+	text-align:center;
 }
-.doc-table th{
+
+/* All the rest */
+#googleMaps{
+	width:720px;
+	height:530px;
+	margin-left : auto;
+	margin-right : auto;
+	margin-top: 1%;
+	margin-bottom: 1%;
+}
+
+/* Left Menu */
+.accordion .accordion-header{
+	background:#fafafa;
+}
+.accordion .accordion-header-selected{
+	background:url('./images/nav.png') center bottom no-repeat;
+	height:35px;
+	border:0;
+}
+.pitem{
+	list-style-type:none;
+	margin:0;
+	padding:2px 0 10px 20px;
+}
+.pitem li{
+	font-size:12px;
+	line-height:18px;
+}
+        
+/* conteudo real da Main Frame */
+.frame{
+	margin-left: 220px;
+	height:550px;
+	background:#fff;
+	border:1px solid #ccc;
+	border-radius:5px;
+	-moz-border-radius:5px;
+	-webkit-border-radius: 5px;
+}
+
+/* titulo de cada uma das seccoes */
+.title{
+	font-size:15px;
+	font-weight:bold;
+	padding:10px 5px;
 	background:#eee;
+	overflow:hidden;
+	border-bottom:1px solid #ccc;
+}
+.t-list{
+	padding:5px;
 }
 
-
-
-
-        .accordion .accordion-header{
-                background:#fafafa;
-        }
-        .accordion .accordion-header-selected{
-                background:url('./images/nav.png') center bottom no-repeat;
-                height:35px;
-                border:0;
-        }
-        .pitem{
-                list-style-type:none;
-                margin:0;
-                padding:2px 0 10px 20px;
-        }
-        .pitem li{
-                font-size:12px;
-                line-height:18px;
-        }
-        .frame{
-                width:740px;
-                height:550px;
-                float:right;
-                background:#fff;
-                border:1px solid #ccc;
-                border-radius:5px;
-                -moz-border-radius:5px;
-                -webkit-border-radius: 5px;
-        }
-
-
-
-
-
-			.title{
-				font-size:15px;
-				font-weight:bold;
-				padding:15px 5px;
-				background:#eee;
-				overflow:hidden;
-				border-bottom:1px solid #ccc;
-			}
-			.t-list{
-				padding:5px;
-			}
-
-
-
-
-
-
-
-
+/* Icons */
 .icon-blank{
 	background:url('images/icons/blank.gif') no-repeat;
 }
@@ -216,7 +174,6 @@ a.download-link{
 .icon-tip{
 	background:url('images/icons/tip.png') no-repeat;
 }
-
 .icon-mini-add{
 	background:url('images/icons/mini_add.png') no-repeat 2px 2px;
 }
@@ -226,13 +183,19 @@ a.download-link{
 .icon-mini-refresh{
 	background:url('images/icons/mini_refresh.png') no-repeat 3px 2px;
 }
-
-
 .icon-calendar{
 	background:url('images/icons/calendar.png') no-repeat 2px 2px;
 }
 
+/* timepicker */
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
 
+/* Portal */
 .portal{
 	padding:0;
 	margin:0;
@@ -266,3 +229,11 @@ a.download-link{
 	border:3px dashed #eee;
 	margin-bottom:10px;
 }
+
+/*				
+	.toggler { width: 500px; height: 200px; }
+	#effect { width: 240px; height: 135px; padding: 0.4em; position: relative; }
+	#effect h3 { margin: 0; padding: 0.4em; text-align: center; }
+*/
+
+
