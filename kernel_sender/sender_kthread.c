@@ -55,13 +55,13 @@ module_param(sport, ushort, 0000);
 MODULE_PARM_DESC(sport, "This is the UDP port which the sender thread will bind to. Default is 57843.");
 
 module_param(sink_port, ushort, 0000);
-MODULE_PARM_DESC(sink_port, "This is the sink UDP port. Default is 57843.");
+MODULE_PARM_DESC(sink_port, "This is the sink UDP port. Default is 57844.");
 
 module_param(node_id, ushort, 0000);
 MODULE_PARM_DESC(node_id, "This is the identifier of the node running this thread. Defaults to 0.");
 
 module_param(read_t, uint, 0000);
-MODULE_PARM_DESC(read_t, "The sleep time for reading the buffer.");
+MODULE_PARM_DESC(read_t, "The sleep time for reading the buffer. In miliseconds");
 
 /*Global structures*/
 static struct sockaddr_in my_addr;
