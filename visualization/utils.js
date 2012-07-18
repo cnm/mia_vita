@@ -23,6 +23,17 @@ Array.prototype.min = function() {
   return Math.min.apply(null, this)
 }
 
+function init(){
+	hideContent('config_network');
+	hideContent('config_sysmology');
+	hideContent('sysmology');
+	hideContent('network');
+	show('welcome');
+	readFile();
+	remove();
+}
+
+
 var maximumDate = 0;
 var minimumDate = 0;
 	
@@ -165,20 +176,24 @@ function remove(){
 		
 function add(portal, node){
 
+//vir cá fora buscar o valor - doesn't matter which portal it is as they are equal!
+	var width = $(networkViewPortal).width();
+	var height = $(networkViewPortal).height();
+
 	var p = $('<div/>').appendTo('body');
 	if(contentShown == "#network")
 		p.panel({
 			title: 'Node ' + node,
-			content:'<div id=networkPanelNode' + node + ' style="padding:10px;"><canvas id="networkGraphNode' + node + '" width="700" height="300">[No canvas support]</canvas><br/></div>',
-			height:360,
+			content:'<div id=networkPanelNode' + node + ' style="padding:10px;"><canvas id="networkGraphNode' + node + '" width="' + (width - 20) + '" height="' + (height*0.8) +'">[No canvas support]</canvas><br/></div>',
+			height:(height*0.9),
 			closable:false,
 			collapsible:true
 		});
 	else
 		p.panel({
 			title: 'Node ' + node,
-			content:'<div id=sysmologyPanelNode' + node + ' style="padding:10px;"><canvas id="sysmologyGraphNode' + node + '" width="700" height="300">[No canvas support]</canvas><br/></div>',
-			height:360,
+			content:'<div id=sysmologyPanelNode' + node + ' style="padding:10px;"><canvas id="sysmologyGraphNode' + node + '" width="' + (width - 20) + '" height="' + (height*0.8) +'">[No canvas support]</canvas><br/></div>',
+			height:(height*0.9),
 			closable:false,
 			collapsible:true
 		});

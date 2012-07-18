@@ -2,7 +2,7 @@
 			var node = new Array(13);
 
 			function readFile() {
-				var myUrl = "log.json";
+				var myUrl = "miavita.json";
 				$.ajax({
 				  url: myUrl,
 				  context: document.body,
@@ -32,7 +32,7 @@
 					var i = 0;
 
 					node[index].push(packet);
-					node[index][packet] = new Array(8);
+					node[index][packet] = new Array(9);
 
 					node[index][packet][1] = contents[k].timestamp;
 					node[index][packet][2] = contents[k].air_time;
@@ -42,6 +42,7 @@
 					node[index][packet][6] = contents[k].sample_1;
 					node[index][packet][7] = contents[k].sample_2;
 					node[index][packet][8] = contents[k].sample_3;
+					node[index][packet][9] = contents[k].sample_4;
 				}
 			}
 
@@ -73,6 +74,7 @@
 					  parameter = 8;
 					  break;
 					case 'sample4':
+					  parameter = 9;
 					//gps coordinates, temp, battery level
 					  break;
 					default:
@@ -147,6 +149,21 @@
 				return result;
 			}
 
+		
+			function relabel(data){
+				var size = Object.size(data);
+				var result = new Array(size/20);
+				var i = 0;
+
+				for(var j = 0; j < size; j+=20){
+					var tmp = new Date(data[j]*1000);
+					var month = tmp.getMonth() + 1;
+					result[i] = new String(tmp.getDate() + "/" + month + "@" + tmp.getHours() + ":" + tmp.getMinutes() + ":" + tmp.getSeconds());
+					i++;
+				}
+				return result;
+			}
+
 			//network
 			function draw(node){
 				var xaxis = "timestamp";
@@ -154,13 +171,13 @@
 				var graph = "networkGraphNode" + node;
 				
 				var bar = new RGraph.Bar(graph, formatStackedData(retrieveData(node, "retries"), retrieveData(node, "fails")));
-				bar.Set('chart.title', "Node : " + node + " Coordinates: ");
-				bar.Set('chart.ymax', 15);
+				//bar.Set('chart.title', "Node : " + node + " Coordinates: ");
+				bar.Set('chart.ymax', 7);
 				bar.Set('chart.colors', ['#ccc', 'green']);
 				bar.Set('chart.background.grid.autofit', true);
 				bar.Set('chart.grouping', 'stacked');
 				//legendas para o eixo dos xx
-				bar.Set('chart.labels', retrieveData(node, xaxis));
+				bar.Set('chart.labels', relabel(retrieveData(node, xaxis)));
 				//bar.Set('chart.tooltips', ['as', 'asd', 'assdf', 'qw', 'qwe', 'rty']);
 				bar.Set('chart.tooltips', formatTooltipsBar(node));
 				//titulos para os eixos
@@ -173,7 +190,6 @@
 				//sombras
 				bar.Set('chart.shadow', true);
 				bar.Set('chart.shadow.color', '#bbb');
-				bar.Set('chart.shadow.blur', 3);
 
 				var line = new RGraph.Line(graph, retrieveData(node, yaxis));
 				
@@ -189,6 +205,7 @@
 					['Zoom in', RGraph.Zoom],
 					['Annotations', [['Enable', function(){line.Set('chart.annotatable', true);}],
 							['Disable', function(){line.Set('chart.annotatable', false);}],
+							//['Show palette', RGraph.Showpalette],
 							['Refresh', function(){combo.Draw();}],
 							['Clear', function(){
 									RGraph.ClearAnnotations(line.canvas);	// Clear the annotation data
@@ -199,13 +216,8 @@
 				                                      }]]]
 					]);
 
-				bar.Set('chart.zoom.hdir', 'left');
-				bar.Set('chart.zoom.factor', 1.5);
+				bar.Set('chart.zoom.hdir', 'center');
 				bar.Set('chart.zoom.vdir', 'center');
-				bar.Set('chart.zoom.frames', 100); // Number of frames
-				bar.Set('chart.zoom.delay', 5);  // Delay between each frame
-				bar.Set('chart.zoom.shadow', true);  // Show a shadow on the zoomed chart
-				bar.Set('chart.zoom.background', true);
 
 				//key
 				bar.Set('chart.key', ['Retries', 'Fails']);
@@ -226,41 +238,57 @@
 
 				combo.Draw();				
 			}
-		
-		function drawSysmology(node){
-				var xaxis = "timestamp";
-				var yaxis = "position";
-				var graph = "sysmologyGraphNode" + node;
 
+		
+			function drawSysmology(node){
+
+				var graph = "sysmologyGraphNode" + node;
 				var line = new RGraph.Line(graph, retrieveData(node, 'sample1'), retrieveData(node, 'sample2'), retrieveData(node, 'sample3'));
+				//var line = new RGraph.Scatter(graph, data);
+           			line.Set('chart.ymax', 130000);
+				//line.Set('chart.ymin', -100);
+				//line.Set('chart.scale.decimals', 1);
+			        //line.Set('chart.xscale.decimals', 0);
+			    	//line.Set('chart.tickmarks', 'circle');
+			        //line.Set('chart.xscale', true);
+				
 				line.Set('chart.background.grid.color', 'rgba(238,238,238,1)');
 				line.Set('chart.tooltips', formatTooltipsLineSysmology(node));
-				line.Set('chart.linewidth', 2);
+				//line.Set('chart.linewidth', 2);
 				line.Set('chart.tickmarks', 'endcircle');
 				line.Set('chart.filled', false);
 				line.Set('chart.background.barcolor1', 'white');
 				line.Set('chart.background.barcolor2', 'white');
-				line.Set('chart.hmargin', 5);
+				//posição relativa do eixo xx
 				line.Set('chart.xaxispos', 'center');
 				//titulos para os eixos
-				line.Set('chart.title.xaxis', xaxis);
-				line.Set('chart.title.yaxis', yaxis);
+				line.Set('chart.title.xaxis', "timestamp");
+				line.Set('chart.title.yaxis', "position");
 				//espaço para legendas
-				line.Set('chart.labels', retrieveData(node, xaxis));
-				line.Set('chart.gutter.left', 40);
+				line.Set('chart.labels', relabel(retrieveData(node, "timestamp")));
+
+				//line.Set('chart.hmargin', 40);
+				line.Set('chart.gutter.left', 60);
+				line.Set('chart.gutter.right', 60);
 				line.Set('chart.gutter.bottom', 40); 
 				//key
 				line.Set('chart.key', ['X Axis', 'Y Axis', 'Z Axis']);
 				line.Set('chart.key.background', 'rgba(255,255,255,0.7)');
 				line.Set('chart.key.position.y', line.Get('chart.gutter.top') + 5);
 				line.Set('chart.key.border', true);
+				line.Set('chart.key.interactive', true);
+				//line.Set('chart.scale.round', true);
+//				line.Set('chart.variant', true);
+				line.Set('chart.zoom.hdir', 'center');
+				line.Set('chart.zoom.vdir', 'center');
 				
 				line.Set('chart.contextmenu', [
 					['Zoom in', RGraph.Zoom],
-					['Annotations', [['Enable', function(){line.Set('chart.annotatable', true);}],
-							['Disable', function(){line.Set('chart.annotatable', false);}],
-							['Refresh', function(){line.Draw();}],
-							['Clear', function(){
+					['Annotations', [['Enable', function() {line.Set('chart.annotatable', true);}],
+							['Disable', function() {line.Set('chart.annotatable', false);}],
+							//['Show palette', RGraph.Showpalette],
+							['Refresh', function() {line.Draw();}],
+							['Clear', function() {
 									RGraph.ClearAnnotations(line.canvas);	// Clear the annotation data
 									RGraph.Clear(line.canvas);		// Clear the chart
 									line.Draw();
@@ -270,6 +298,10 @@
 				//efeitos
 				if(sysmologyShowEffects){
 					RGraph.Effects.Line.Unfold(line);
+				}
+				else {
+					line.Set('chart.zoom.fade.in', true);
+					line.Set('chart.zoom.fade.out', true);
 				}
 									
 				line.Draw();
