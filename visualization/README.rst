@@ -7,6 +7,8 @@ INSTALLATION
 RUNNING
 -------
 
+Just make sure that there is a file named miavita.json in the root folder of the web app and open the index.html page in a browser.
+
 User's Manual
 -------------
 
