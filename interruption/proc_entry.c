@@ -56,9 +56,6 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_
      */
     uint32_t samples_to_copy, i;
 
-#warning "Changed for simao. BIG MISTAKE"
-    *last_read = (*last_read + 100) % DATA_SIZE;
-
     if(*last_read == last_write)
       {
 #ifdef __DEBUG__
@@ -79,11 +76,7 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_
 
     for(i = 0; i < samples_to_copy; i += 1)
       {
-#warning "Changed for simao. BIG MISTAKE"
         (*be_samples)[i] = (DATA[(*last_read + i) % DATA_SIZE]);
-        (*be_samples)[i].data[0] = 0xAABB00CC | (i << 8  & 0xF0);
-        (*be_samples)[i].data[1] = 0xCC00DDEE | (i << 16 & 0xF00);
-        (*be_samples)[i].data[2] = 0x00FF7700 | (i << 24 & 0xF000);
       }
 
     *last_read = (*last_read + samples_to_copy) % DATA_SIZE;
