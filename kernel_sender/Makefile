@@ -18,4 +18,4 @@ all:
 
 clean:
 	make -C $(KERNEL_PATH) M=$(PWD) clean
-	rm -f *~
+	rm -f *~ Module.symvers
