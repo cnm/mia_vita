@@ -7,10 +7,6 @@
  */
 typedef struct{
 
-#ifdef __GPS__
-    int64_t gps_us;
-#endif
-
     int64_t timestamp;
     uint32_t data[3];//each sample will hold 4 channels
 }sample;
@@ -18,12 +14,7 @@ typedef struct{
 
 extern void create_proc_file(void);
 
-#ifdef __GPS__
-extern void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us);
-extern int read_nsamples(sample** be_samples, uint32_t* len_in_samples, int64_t* gps_us, uint32_t* last_read);
-#else
 extern void write_to_buffer(unsigned int * value, int64_t timestamp);
 extern int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_read);
-#endif
 
 #endif

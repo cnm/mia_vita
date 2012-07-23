@@ -17,10 +17,6 @@
 
 typedef struct __attribute__ ((__packed__)){ // specifies that the minimum required memory be used to represent the type.
 
-#ifdef __GPS__
-  int64_t gps_us;                            // where to store the GPS time
-#endif
-
   int64_t timestamp;                         // Signed Transmission time the packet was created (1) or the time since packet was created (2)
   int64_t air;                               // Estimated time the packet was "on the air"
   uint32_t seq;                              // Sequence number

@@ -4,7 +4,7 @@
 #include <linux/ioport.h>
 #include <linux/interrupt.h>
 #include <asm/io.h>             /* ioremap */
-/*#include <linux/miavita_xtime.h>*/
+#include <linux/miavita_xtime.h>
 
 #include "mem_addr.h"
 #include "proc_entry.h"
@@ -54,19 +54,14 @@ unsigned int counter_scl = 0;
 unsigned int counter_seconds = 0;
 
 extern void release_mem_spi(void);
-#ifdef __GPS__
-extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp, int64_t* gps_us);
-#else
+
 extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
-#endif
+
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
 
-#ifdef __GPS__
-extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp, int64_t gps_us);
-#else
 extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
-#endif
+
 extern void write_dio26(bool b);
 extern unsigned short read_dio26(void);
 
@@ -291,16 +286,7 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_scl++;
 
         if((counter_scl % DIVISOR) == 0){
-            /*            if((counter_scl % 2) == 0){*/
-            /*            printk(KERN_INFO "Received adc int ADC\n");*/
-            /*            }*/
-
-            /*            if((counter_scl % 10000) != 0){*/
-            /*            }*/
-            /*            else{*/
-            /*                printk(KERN_EMERG "Kern Emerg %u HANDLING\n", counter_scl);*/
             handle_adc_int();
-            /*            }*/
         }
     }
 
@@ -342,7 +328,7 @@ void handle_gps_int(void){
         mux_state = 0;
         write_watchdog();
     }
-    /*  pulse_miavita_xtime();*/
+    pulse_miavita_xtime();
     return;
 }
 
@@ -353,9 +339,6 @@ void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
     int64_t timestamp;
-#ifdef __GPS__
-    int64_t gps_us;
-#endif
 
     counter++;
     if(fpga_busy){
@@ -369,21 +352,12 @@ void handle_adc_int(){
         if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);
     }
 
-
-#ifdef __GPS__
-    /* Read the adc  */
-    read_four_channels(value_buffer, &timestamp, &gps_us);
-
-    /* Save to a buffer the value */
-    write_to_buffer(value_buffer, timestamp, gps_us);
-#else
     /* Read the adc  */
     read_four_channels(value_buffer, &timestamp);
 
     /* Save to a buffer the value */
     write_to_buffer(value_buffer, timestamp);
-    /*    }*/
-#endif
+
 }
 /******************************** End of Interruption handlers ************************/
 
