@@ -479,7 +479,7 @@ Test Image (made by Simao)
 This image should be used for all wireless tests from now on.
 
 check the following url:
-http://tagus.inesc-id.pt/~spedro/MIA-VITA/mia_vita_image_tests
+http://tagus.inesc-id.pt/~spedro/MIA-VITA/mia_vita_image_tests_0.1
 
 
 Arms Embedded suggested this Wireless card with external antenna
