@@ -19,7 +19,9 @@
 #include <linux/module.h>
 #include <linux/kernel.h>       /* printk() */
 
-#include <linux/miavita_xtime.h> /* pulse_miavita_xtime and __miavita_elapsed_secs */
+#ifdef __GPS__
+#include <linux/miavita_xtime.h>
+#endif
 
 #include "mem_addr.h"
 
@@ -205,24 +207,21 @@ void set_lun_speed_edge(){
 #define SEC_2_NSEC 1000000000L
 #define USEC_2_NSEC 1000
 
-int64_t get_current_sample_time(void) {
+int64_t get_kernel_current_time(void) {
   struct timeval t;
   memset(&t, 0, sizeof(struct timeval));
   do_gettimeofday(&t);
-  return ((int64_t) __miavita_elapsed_secs) * SEC_2_NSEC + ((int64_t) t.tv_usec)
+  return ((int64_t) t.tv_sec) * SEC_2_NSEC + ((int64_t) t.tv_usec)
     * USEC_2_NSEC;
 }
 
-
-void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
+#ifdef __GPS__
+void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* gps_us){
     unsigned int a,b,c,d,e,f;
-    uint32_t temp_buffer1 = 0;
-    uint32_t temp_buffer2 = 0;
-    uint32_t temp_buffer3 = 0;
-
     a = b = c = d = e = f = 0;
 
-    *timestamp = get_current_sample_time();
+    *timestamp = get_kernel_current_time();
+    *gps_us = __miavita_elapsed_secs * 1000000 + __miavita_elapsed_usecs;
 
     a = peek16(0x4A);//2/3 da primeira
     b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
@@ -236,6 +235,43 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     read_buffer[1] = (c<<16|d);
     read_buffer[2] = (e<<16|f);
 
+
+    /* Usefull to debug stuff */
+/*    read_buffer[0] = 0x44332211;*/
+/*    read_buffer[1] = 0x88776655;*/
+/*    read_buffer[2] = 0xCCBBAA99;*/
+
+/*    printk(KERN_INFO "DATA: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);*/
+
+    return;
+}
+#else
+void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
+    unsigned int a,b,c,d,e,f;
+    uint32_t temp_buffer1 = 0;
+    uint32_t temp_buffer2 = 0;
+    uint32_t temp_buffer3 = 0;
+
+    a = b = c = d = e = f = 0;
+
+    *timestamp = get_kernel_current_time();
+
+    a = peek16(0x4A);//2/3 da primeira
+    b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
+    c = peek16(0x4A);//2/3 da segunda
+    d = peek16(0x4A);//2/3 da terceira 
+    e = peek16(0x4A);//1/3 da terceira 1/3 da quarta
+
+    f = peek16(0x4C);//2/3 da quarta
+
+    temp_buffer1 = (a<<16|b);
+    temp_buffer2 = (c<<16|d);
+    temp_buffer3 = (e<<16|f);
+
+    /* Usefull to debug stuff - Remeber it is MSB to the left*/
+/*    temp_buffer1 = 0x11223344; */
+/*    temp_buffer2 = 0x55667788;*/
+/*    temp_buffer3 = 0x99AABBCC;*/
 
     (((uint8_t *) read_buffer))[0]  = *(((uint8_t *) &temp_buffer1) + 3);
     (((uint8_t *) read_buffer))[1]  = *(((uint8_t *) &temp_buffer1) + 2);
@@ -253,8 +289,11 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     (((uint8_t *) read_buffer))[10] = *(((uint8_t *) &temp_buffer3) + 1);
     (((uint8_t *) read_buffer))[11] = *(((uint8_t *) &temp_buffer3) + 0);
 
+/*    printk(KERN_EMERG "DATA: %04X - %04X - %04X - %04X - %04X - %04X \n", a, b, c, d, e, f);*/
+
     return;
 }
+#endif
 
 void release_mem_spi(void){
     release_mem(GPIOA_REGISTER, WORD_SIZE);

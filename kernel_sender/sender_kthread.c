@@ -115,6 +115,9 @@ static int main_loop(void* data)
   uint32_t offset = 0, len, i;
   packet_t* pkt;
   static uint32_t seq = 0;
+#ifdef __GPS__
+  int64_t gps_us;
+#endif
 
   if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0)
     {
@@ -150,8 +153,13 @@ static int main_loop(void* data)
           break;
         }
 
+#ifdef __GPS__
+      if(read_nsamples(&samples, &len, &gps_us, &offset))
+        {
+#else
       if(read_nsamples(&samples, &len, &offset))
         {
+#endif
 
 #ifdef __DEBUG__
           printk(KERN_EMERG "Read %d samples:\n", len);
@@ -168,6 +176,9 @@ static int main_loop(void* data)
               memset(pkt, 0, sizeof(*pkt));
               memcpy(pkt->samples, (samples + i)->data, sizeof(pkt->samples));
               pkt->timestamp = cpu_to_be64((samples+i)->timestamp);
+#ifdef __GPS__
+              pkt->gps_us = cpu_to_be64(gps_us);
+#endif
 
               pkt->seq = cpu_to_be32(seq++);
 #ifdef __DEBUG__
