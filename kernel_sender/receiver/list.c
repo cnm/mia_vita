@@ -12,8 +12,10 @@
 #include "macros.h"
 #include "list.h"
 
-char* output_binary_file = "/tmp/manel/miavita.bin";
-char* output_json_file = "/tmp/manel/miavita.json";
+/* char* output_binary_file = "/tmp/manel/miavita.bin"; */
+/* char* output_json_file = "/tmp/manel/miavita.json"; */
+char* output_binary_file = "miavita.bin";
+char* output_json_file = "miavita.json";
 int bin_fd = -1, json_fd = -1;
 
 list* mklist(uint32_t capacity, char* new_filename)
@@ -78,9 +80,9 @@ static packet_t ntohpkt(packet_t pkt)
     return pkt;
 }
 
-static void write_json(packet_t pkt)
+static void write_json(packet_t pkt, uint8_t first)
 {
-  static uint8_t first = 1;
+  /* static uint8_t first = 1; */
   char buff[2048] = {0};
   uint32_t to_write, written = 0, status;
   uint32_t sample1 = 0, sample2 = 0, sample3 = 0, sample4 = 0;
@@ -144,9 +146,9 @@ static void write_json(packet_t pkt)
       pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
       pkt.gps_us = get_millis_offset() - pkt.gps_us;
     }
-  sprintf(buff"\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff"\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
-  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %d, \"sample_2\" : %d, \"sample_3\" : %d, \"sample_4\" : %d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #endif
   to_write = strlen(buff);
   while(written < to_write)
@@ -202,10 +204,14 @@ static void dump(list* l)
 
   if(open_output_files())
     {
-      for(i = 0; i < l->lst_size; i++)
+
+      write_bin(l->buff[0]);
+      write_json(l->buff[0], 1);
+
+      for(i = 1; i < l->lst_size; i++)
         {
           write_bin(l->buff[i]);
-          write_json(l->buff[i]);
+          write_json(l->buff[i], 0);
         }
       close_output_files();
     }

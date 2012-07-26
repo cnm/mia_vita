@@ -155,7 +155,7 @@ int main(int argc, char** argv)
 {
   if(!parse_args(argv, argc) || !bind_socket())
     {
-      printf("Some error ocurred. Leaving the program");
+      printf("Some error ocurred. Leaving the program\n");
       return 1;
     }
 
