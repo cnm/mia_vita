@@ -28,6 +28,7 @@ Code structure
 =======
 
 Code structure::
+
   .
   ├── gps_time.c          - Contacts the GPS and ask him the time
   ├── gps_time.h          - "" 
@@ -48,6 +49,7 @@ Help
 Usage: ./main [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>] [-o <moved_file_prefix>]
 
 Parameter description::
+
 -i Interface name on which the program will listen. Default is eth0
 -p UDP port on which the program will listen. Default is 57843
 -b Name of the binary file to where the data is going to be written. Default is miavita.bin
