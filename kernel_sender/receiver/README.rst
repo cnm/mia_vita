@@ -24,9 +24,6 @@ File Structure
 ==============
 Note: There are two mains here: One to set the time in the kernel through the GPS and one to read packets
 
-Code structure
-=======
-
 Code structure::
 
   .
@@ -42,6 +39,11 @@ Code structure::
   ├── miavita_packet.h -> ../../kernel_sender/miavita_packet.h
   ├── syscall_wrapper.c   - Syscalls to set the two time variables in the kernel
   └── syscall_wrapper.h   - ""
+
+Important Note
+##############
+
+If you need/want to run the receiver in your local machine just comment the second line of the Makefile.
 
 Help
 ====
