@@ -23,6 +23,10 @@ This code also contains a program (init_counter) which will initialize the GPS v
 File Structure
 ==============
 Note: There are two mains here: One to set the time in the kernel through the GPS and one to read packets
+
+Code structure
+=======
+
 Code structure::
   .
   ├── gps_time.c          - Contacts the GPS and ask him the time
