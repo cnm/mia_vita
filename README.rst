@@ -493,3 +493,8 @@ Compile for uCLIBC
 
 Use the crosstool/arm-uclibc-3.4.6/ not the crosstool/arm-unknown-linux-gnu/ crosstool
 
+Ping broadcast in ADHOC
+=======================
+
+echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+
