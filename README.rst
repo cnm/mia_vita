@@ -84,8 +84,8 @@ Stable image is at:
 http://tagus.inesc-id.pt/~jtrindade/mia_vita/block_images/mia_vita_image_stable
 
 
-Establishing AD-HOC Communication
-=================================
+Establishing AD-HOC Communication (On the OLD devices with rt2050)
+===================================================================
 
 PC1 - LGs laptops from INESC
 PC2 - TS-7550s
