@@ -4,3 +4,6 @@
 [submodule "ts7500_kernel"]
 	path = ts7500_kernel
 	url = git@github.com:cnm/ts7500_kernel.git
+[submodule "visualization"]
+	path = visualization
+	url = https://github.com/duartebarbosa/miavita-monitor.git
