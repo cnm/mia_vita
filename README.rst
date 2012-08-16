@@ -496,5 +496,16 @@ Use the crosstool/arm-uclibc-3.4.6/ not the crosstool/arm-unknown-linux-gnu/ cro
 Ping broadcast in ADHOC
 =======================
 
-echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
+    echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 
+
+Change from 802.11N to 802.11G
+===============================
+
+Edit file:
+
+    etc/Wireless/RT2870STA/RT2870STA.dat
+
+and change WirelessMode=5 to WirelessMode=1
+
+More info available at: http://ubuntuforums.org/showthread.php?t=1566572
