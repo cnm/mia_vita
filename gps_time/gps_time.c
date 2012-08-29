@@ -52,7 +52,7 @@ int num_satellites = 0;
 #define BIT(x,y) ( (x >> y) & 0x01)
 
 /* enables debug messages */
-#define GPS_DEBUG
+#define GPS_DEBUG 1
 
 #define MSG_BUF_SIZE 1024
 
