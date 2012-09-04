@@ -8,6 +8,8 @@
 #include <endian.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/time.h>
+
 
 #include "macros.h"
 #include "list.h"
@@ -199,6 +201,7 @@ static uint8_t open_output_files()
 static void close_output_files()
 {
   close(bin_fd);
+
   write(json_fd, "\n}", 2);
   close(json_fd);
 
@@ -263,8 +266,19 @@ int  __packet_comparator(const void* a, const void* b){
     return 0;
 }
 
+#define SEC_2_NSEC 1000000000L
+#define USEC_2_NSEC 1000
+int64_t get_kernel_current_time(void) {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return ((int64_t) tv.tv_sec) * SEC_2_NSEC + ((int64_t) tv.tv_usec);
+}
+
 void insert(list* l, packet_t* p)
 {
+  // Let's insert the latency of packet p
+  p->retries = get_kernel_current_time() - p->timestamp;
+
   memcpy(l->buff + l->lst_size, p, sizeof(*p));
   l->lst_size++;
   if(l->rotate_at == l->lst_size)
