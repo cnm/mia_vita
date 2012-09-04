@@ -16,7 +16,8 @@
 /* char* output_json_file = "/tmp/manel/miavita.json"; */
 char* output_binary_file = "miavita.bin";
 char* output_json_file = "miavita.json";
-int bin_fd = -1, json_fd = -1;
+char* archive_json_file = "miavita.json.archive";
+int bin_fd = -1, json_fd = -1, archive_json_fd = -1;
 
 list* mklist(uint32_t capacity, char* new_filename)
 {
@@ -146,7 +147,7 @@ static void write_json(packet_t pkt, uint8_t first)
       pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
       pkt.gps_us = get_millis_offset() - pkt.gps_us;
     }
-  sprintf(buff"\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %05d, \"sample_2\" : %05d, \"sample_3\" : %05d, \"sample_4\" : %05d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
   sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %d, \"sample_2\" : %d, \"sample_3\" : %d, \"sample_4\" : %d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #endif
@@ -159,6 +160,7 @@ static void write_json(packet_t pkt, uint8_t first)
           perror("Unable to write to json file");
           return;
         }
+      status = write(archive_json_fd, buff + written, to_write - written);
       written += status;
     }
 }
@@ -180,6 +182,17 @@ static uint8_t open_output_files()
       return 0;
     }
   write(json_fd, "{", 1);
+
+
+  archive_json_fd = open(archive_json_file, O_WRONLY | O_APPEND );
+  if(archive_json_fd == -1)
+    {
+      close(bin_fd);
+      close(json_fd);
+      perror("Unable to open archive json output file");
+      return 0;
+    }
+  write(archive_json_fd, "{", 1);
   return 1;
 }
 
@@ -188,6 +201,9 @@ static void close_output_files()
   close(bin_fd);
   write(json_fd, "\n}", 2);
   close(json_fd);
+
+  write(archive_json_fd, "\n}", 2);
+  close(archive_json_fd);
 }
 
 static void dump(list* l)

@@ -26,11 +26,12 @@ list *l;
 
 void print_usage(char* cmd)
 {
-  printf("Usage: %s [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>] [-o <moved_file_prefix>]\n", cmd);
+  printf("Usage: %s [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>] [-o <moved_file_prefix>] [-z archive_json_file]\n", cmd);
   printf("-i\tInterface name on which the program will listen. Default is %s\n", iface);
   printf("-p\tUDP port on which the program will listen. Default is %u\n", port);
   printf("-b\tName of the binary file to where the data is going to be written. Default is %s\n", output_binary_file);
   printf("-j\tName of the json file to where the data is going to be written. Default is %s\n", output_json_file);
+  printf("-z\tName of the json file to where the archive data is going to be written. Default is %s\n", archive_json_file);
   printf("-t\tTest the program against GPS time. Make sure to compile this program with -D__GPS__.\n");
   printf("-o\tOutput file prefix when the file is moved by log rotation. Default is %s.\n", move_file_to);
   printf("-c\tBuffer capacity expressed in terms of number of packets. Default is %d.\n", capacity);
@@ -62,6 +63,11 @@ uint8_t parse_args(char** argv, int argc)
       }
       if(!strcmp(argv[i], "-j")){
           output_json_file = argv[i + 1];
+          i += 2;
+          continue;
+      }
+      if(!strcmp(argv[i], "-z")){
+          archive_json_file = argv[i + 1];
           i += 2;
           continue;
       }

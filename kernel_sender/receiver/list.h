@@ -14,6 +14,7 @@ typedef struct{
 
 extern char* output_binary_file;
 extern char* output_json_file;
+extern char* archive_json_file;
 
 extern list* mklist(uint32_t capacity, char* new_filename);
 extern void rmlist(list* l);
