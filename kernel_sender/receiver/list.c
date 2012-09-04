@@ -20,6 +20,7 @@ char* output_binary_file = "miavita.bin";
 char* output_json_file = "miavita.json";
 char* archive_json_file = "miavita.json.archive";
 int bin_fd = -1, json_fd = -1, archive_json_fd = -1;
+int last_packet[16];
 
 list* mklist(uint32_t capacity, char* new_filename)
 {
@@ -277,7 +278,14 @@ int64_t get_kernel_current_time(void) {
 void insert(list* l, packet_t* p)
 {
   // Let's insert the latency of packet p
-  p->retries = get_kernel_current_time() - p->timestamp;
+  p->retries = get_kernel_curroent_time() - p->timestamp;
+
+  //Check if node id > 0 && < 16
+
+  if(p->id > 0 && p->id < 16){
+    p->fails = p->seq - last_packet[p->id] + 1;
+    last_packet[p->id] = p->seq;
+  }
 
   memcpy(l->buff + l->lst_size, p, sizeof(*p));
   l->lst_size++;
