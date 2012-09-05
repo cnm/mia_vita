@@ -34,8 +34,8 @@ uint64_t get_mean_value(){
   uint64_t res;
   int i = syscall(GPS_MEAN_SYS_CALL, &res);
   if(i == -1){
-  	perror("get_mean_value syscall failed");
-  	exit(-1);
+	perror("get_mean_value syscall failed");
+	exit(-1);
   }
   return res;
 }

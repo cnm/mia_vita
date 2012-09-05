@@ -187,7 +187,7 @@ static uint8_t open_output_files()
   write(json_fd, "{", 1);
 
 
-  archive_json_fd = open(archive_json_file, O_WRONLY | O_APPEND );
+  archive_json_fd = open(archive_json_file, O_WRONLY | O_CREAT | O_APPEND );
   if(archive_json_fd == -1)
     {
       close(bin_fd);

@@ -1,5 +1,5 @@
-CC=gcc
-#CC=../../crosstool/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
+# CC=gcc
+CC=../../crosstool/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
 #CFLAGS=-g
 #CFLAGS += -D__GPS__
 #CFLAGS += -D__DEBUG__
