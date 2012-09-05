@@ -40,7 +40,7 @@ void* uart_read_thread( void *);
 /* Opens de device for communicating with the GPS and initializes
  * the GPS state machine.
  * */
-void uart_init( char indoor, FILE *status_output) {
+void uart_init( char indoor, char reset, FILE *status_output) {
     error_f = status_output;
     gps_device_fd = open( GPS_DEVICE, O_RDWR);
     if( gps_device_fd == -1) {
@@ -53,7 +53,7 @@ void uart_init( char indoor, FILE *status_output) {
 
     // give some time to consume all the messages, which will be ignored, before initializing GPS module
     sleep( 2);
-    init_gps( indoor, uart_write, status_output);
+    init_gps( indoor, reset, uart_write, status_output);
 }
 
 /* Sends a message to the GPS device.

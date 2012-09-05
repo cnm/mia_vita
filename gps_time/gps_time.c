@@ -15,6 +15,8 @@
 
 #include "gps_time.h"
 
+#define PI 3.1415926535898
+
 #define DLE 0x10
 #define ETX 0x03
 
@@ -23,10 +25,13 @@
 #define GPS_CMD_RESET 0x25
 #define GPS_CMD_AUTOMATIC_POS_REPORT 0x35
 #define GPS_CMD_ENHANCED_SENSITIVITY 0x69
+#define GPS_CMD_REQ_HEALTH 0x26
+#define GPS_CMD_REQ_POS 0x37
 
 #define GPS_MSG_TIME 0x41
 #define GPS_MSG_SW_VERSION 0x45
 #define GPS_MSG_RECEIVER_HEALTH 0x46
+#define GPS_MSG_LLA 0x4A
 //#define GPS_MSG_ 0x4B
 //#define GPS_MSG_ 0x6D
 //#define GPS_MSG_ 0x82
@@ -37,13 +42,15 @@
 gps_fault_t gps_fault = GPS_OK;
 
 char reset_msg[] = { DLE, GPS_CMD_RESET, DLE, ETX };
-char disable_auto_report_msg[] = { DLE, GPS_CMD_AUTOMATIC_POS_REPORT, 0, 0,
-    DLE, ETX };
+// set latitude longitude altitude (LLA) position reports
+char config_auto_report_msg[] = { DLE, GPS_CMD_AUTOMATIC_POS_REPORT, 2, 0, 1, 0, DLE, ETX };
 char enhance_sensitivity_on_msg[] = { DLE, GPS_CMD_ENHANCED_SENSITIVITY, 1, 0,
     DLE, ETX };
 char enhance_sensitivity_off_msg[] = { DLE, GPS_CMD_ENHANCED_SENSITIVITY, 0, 0,
     DLE, ETX };
 char request_time_msg[] = { DLE, GPS_REQUEST_TIME, DLE, ETX };
+char request_health_msg[] = { DLE, GPS_CMD_REQ_HEALTH, DLE, ETX};
+char request_position_msg[] = { DLE, GPS_CMD_REQ_POS, DLE, ETX};
 
 int num_satellites = 0;
 
@@ -69,10 +76,15 @@ pthread_mutex_t gps_write_m = PTHREAD_MUTEX_INITIALIZER;
 /* notify message handling thread that new data is available */
 pthread_cond_t data_available_cond = PTHREAD_COND_INITIALIZER;
 /* notify time request handling thread that time reply is available */
-pthread_cond_t time_available_cond = PTHREAD_COND_INITIALIZER;
+pthread_cond_t reply_available_cond = PTHREAD_COND_INITIALIZER;
 
 // structure to store time reply
 struct timeval *current_time = NULL;
+
+// variables for storing current possition
+float *current_latitude = NULL;
+float *current_longitude = NULL;
+float *current_altitude = NULL;
 
 FILE *debug_f;
 
@@ -82,9 +94,9 @@ typedef enum {
     GPS_PRE_INIT, // before GPS reset, dump all messages
     GPS_RESET, // after GPS reset, before first post GPS message is received
     GPS_SEARCH, // GPS is reset. Waiting for GPS signal. Yet unable to provide time
-    GPS_READY, // was gps signal. Can provide time
+    GPS_READY, // has gps signal. Can provide time
     GPS_QUERY
-      // waiting from reply to time request
+      // waiting from reply to time/position request
       // sent a query request. Waiting for reply
 } gps_state_t;
 
@@ -95,42 +107,47 @@ void* process_msg(void *unused);
 
 void pretty_print_packet(int start, int end)
 {
-  fprintf(debug_f, "\n");
   switch(msg_buf[start % MSG_BUF_SIZE])
     {
     case 0x41:
-      fprintf(debug_f, "\t GPS Time\t\t\t\t\t");
+      fprintf(debug_f, "\t GPS Time\n");
       break;
     case 0x45:
-      fprintf(debug_f, "\t  Software Version Information\t\t");
+      fprintf(debug_f, "\t  Software Version Information\n");
       break;
     case 0x46:
-      fprintf(debug_f, "\t Health of Receiver\t\t\t\t");
+      fprintf(debug_f, "\t Health of Receiver\n");
       break;
     case 0x4A:
-      fprintf(debug_f, "\t 9 Byte Format\t\t\t\t\t");
+      fprintf(debug_f, "\t Single-Precision LLA Position Fix and Bias Information\n");
       break;
     case 0x4B:
-      fprintf(debug_f, "\t Machine/Code ID and Additional Status\t\t");
+      fprintf(debug_f, "\t Machine/Code ID and Additional Status\n");
       break;
     case 0x56:
-      fprintf(debug_f, "\t Velocity Fix, East-North-Up\t\t");
+      fprintf(debug_f, "\t Velocity Fix, East-North-Up\n");
       break;
+    case 0x57:
+          fprintf(debug_f, "\t Information About Last Computed Fix\n");
+	  break;
     case 0x6D:
-      fprintf(debug_f, "\t All-In-View Satellite Selection\t\t");
+      fprintf(debug_f, "\t All-In-View Satellite Selection\n");
       break;
     case 0x82:
-      fprintf(debug_f, "\t Differential Position Fix Mode\t\t\t");
+      fprintf(debug_f, "\t Differential Position Fix Mode\n");
       break;
+    case 0x84:
+          fprintf(debug_f, "\t Double-Precision LLA Position Fix and Bias Information\n");
+	  break;
+    default:
+    	  fprintf(debug_f, "\t Unknown\n");
     }
 }
 
 void packet_content(char *error_msg, int start, int end) {
     int x;
-    if (debug_f == NULL)
-      return;
 
-    /*    fprintf(debug_f, "Packet content %d to %d. %s: ", start, end, error_msg);*/
+    fprintf(debug_f, "Packet content %d to %d. %s: ", start, end, error_msg);
 
 #ifdef GPS_DEBUG
     pretty_print_packet(start, end);
@@ -170,8 +187,7 @@ char lookup_packet(int *start, int *end) {
     // does buffer start with a message?
     if (msg_buf[*start] != DLE) {
         //if (gps_state != GPS_RESET) {
-        packet_content(
-                       "Packet does not start with DLE. Should never happen rewrite code!",
+        packet_content( "Packet does not start with DLE. Should never happen rewrite code!",
                        *start, *end);
         exit(1);
         //} else {
@@ -218,26 +234,37 @@ char lookup_packet(int *start, int *end) {
     return 1;
 }
 
-void init_gps(char indoor, void(*input_for_gps)(char *msg, int msg_len),
+void init_gps(char indoor, char reset, void(*input_for_gps)(char *msg, int msg_len),
               FILE *output_status_func) {
     debug_f = output_status_func;
 
     gps_write = input_for_gps;
 
-    pthread_mutex_lock(&gps_write_m);
-    // enable enhanced sensitivity for indoor operation
-    if (indoor)
-      gps_write(enhance_sensitivity_on_msg,
-                sizeof(enhance_sensitivity_on_msg));
-    else
-      gps_write(enhance_sensitivity_off_msg,
-                sizeof(enhance_sensitivity_off_msg));
+    if( indoor && !reset)
+    	fprintf(debug_f, "Warning, indoor mode requested but device not reset\n");
 
-    // reset gps device
-    gps_write(reset_msg, sizeof(reset_msg));
-    gps_state = GPS_RESET;
-    // disable automatic position and velocity reports
-    gps_write(disable_auto_report_msg, sizeof(disable_auto_report_msg));
+    pthread_mutex_lock(&gps_write_m);
+    if( reset) {
+    	// enable enhanced sensitivity for indoor operation
+    	if (indoor)
+    		gps_write(enhance_sensitivity_on_msg, sizeof(enhance_sensitivity_on_msg));
+    	else
+    		gps_write(enhance_sensitivity_off_msg, sizeof(enhance_sensitivity_off_msg));
+
+    	// reset gps device
+		gps_write(reset_msg, sizeof(reset_msg));
+		gps_state = GPS_RESET;
+    }
+    else
+    	gps_state = GPS_SEARCH;
+
+    // configure automatic position and velocity reports
+    gps_write(config_auto_report_msg, sizeof(config_auto_report_msg));
+
+    if( !reset)
+    	// request health message now instead of awaiting for an automatic message (which takes up to 5s)
+    	gps_write(request_health_msg, sizeof(request_health_msg));
+
     pthread_mutex_unlock(&gps_write_m);
 
     pthread_create(&process_msg_t, NULL, process_msg, NULL);
@@ -267,7 +294,7 @@ void output_from_gps(unsigned char* msg, int msg_len) {
         exit(1);
     }
 #ifdef GPS_DEBUG
-    //	printf("Stored message - Size = %d. Buffer using from %d to %d\n", msg_len,
+    //	fprintf(debug_f, "Stored message - Size = %d. Buffer using from %d to %d\n", msg_len,
     //			buff_start, buff_end);
 #endif
     pthread_mutex_unlock(&state_change_m);
@@ -279,7 +306,7 @@ char is_gps_ready() {
 
 /* Get current time from the GPS device
  * Will return 1 if currently unable to read the time
- * Will return 2 if error occured while waiting for time reply
+ * Will return 2 if error occurred while waiting for time reply
  * Will return 0 if time is read
  * */
 int getGPStimeUTC(struct timeval *tv) {
@@ -299,13 +326,52 @@ int getGPStimeUTC(struct timeval *tv) {
         gps_state = GPS_QUERY;
         // wait for reply
         while (gps_state == GPS_QUERY)
-          pthread_cond_wait(&time_available_cond, &state_change_m);
+          pthread_cond_wait(&reply_available_cond, &state_change_m);
 
         // gps received error message before being able to provide reply
         if (gps_state != GPS_READY)
           return_value = 2;
 
         current_time = NULL;
+        pthread_mutex_unlock(&state_change_m);
+        return return_value;
+    }
+}
+
+/* Get current latitude, longitude and altitude from the GPS device
+ * Will return 1 if currently unable to read the position
+ * Will return 2 if error occurred while waiting for position reply
+ * Will return 0 if position is read
+ * Longitude and longitude in degrees (-180 to 180)
+ * Altitude in meters
+ * */
+int getGPSLLA(float *latitude, float * longitude, float *altitude) {
+    int return_value = 0;
+
+    pthread_mutex_lock(&state_change_m);
+    if (gps_state != GPS_READY || gps_fault != GPS_OK || current_latitude != NULL) {
+        pthread_mutex_unlock(&state_change_m);
+        return 1;
+    } else {
+        // send position request
+        pthread_mutex_lock(&gps_write_m);
+        gps_write(request_position_msg, sizeof(request_position_msg));
+        pthread_mutex_unlock(&gps_write_m);
+
+        current_latitude = latitude;
+        current_longitude = longitude;
+        current_altitude = altitude;
+
+        gps_state = GPS_QUERY;
+        // wait for reply
+        while (gps_state == GPS_QUERY)
+          pthread_cond_wait(&reply_available_cond, &state_change_m);
+
+        // gps received error message before being able to provide reply
+        if (gps_state != GPS_READY)
+          return_value = 2;
+
+        current_latitude = NULL;
         pthread_mutex_unlock(&state_change_m);
         return return_value;
     }
@@ -322,9 +388,10 @@ gps_fault_t getgpsfault() {
 void* process_msg(void *unused) {
     int start, end;
     char byte;
-    char float_buf[sizeof(float)];
+    char number_buf[sizeof(double)];
     int x;
     float time_sec;
+    short week_num;
 
     pthread_mutex_lock(&state_change_m);
     while (1) {
@@ -340,7 +407,7 @@ void* process_msg(void *unused) {
           end += MSG_BUF_SIZE;
 
 #ifdef GPS_DEBUG
-        /*        printf("Will process new message - Size = %d, from %d to %d\n",*/
+        /*        fprintf(debug_f, "Will process new message - Size = %d, from %d to %d\n",*/
         /*               end - start, start, end);*/
         packet_content("found this ", start, end);
 #endif
@@ -356,7 +423,7 @@ void* process_msg(void *unused) {
 
                 if (gps_state == GPS_QUERY) {
                     // will never receive reply for current time request
-                    pthread_cond_signal(&time_available_cond);
+                    pthread_cond_signal(&reply_available_cond);
                 }
 
                 gps_fault = GPS_NEEDED_RESET;
@@ -381,7 +448,7 @@ void* process_msg(void *unused) {
             if (msg_buf[start] == GPS_MSG_SW_VERSION) {
                 gps_state = GPS_SEARCH;
 #ifdef GPS_DEBUG
-                printf("*\nReset completed, entering satellite search mode.\n");
+                fprintf(debug_f, "*\nReset completed, entering satellite search mode.\n");
 #endif
             }
         } else if (gps_state == GPS_SEARCH) {
@@ -390,7 +457,7 @@ void* process_msg(void *unused) {
                 if (msg_buf[(start + 1) % MSG_BUF_SIZE] == 0) {
                     gps_state = GPS_READY;
 #ifdef GPS_DEBUG
-                    printf("*\nGPS fix obtained.\n");
+                    fprintf(debug_f, "*\nGPS fix obtained.\n");
 #endif
                 }
                 break;
@@ -401,7 +468,7 @@ void* process_msg(void *unused) {
                 if (msg_buf[(start + 1) % MSG_BUF_SIZE] != 0) {
                     gps_state = GPS_SEARCH;
 #ifdef GPS_DEBUG
-                    printf("*\nGPS fix LOST. Searching for satellites.\n");
+                    fprintf(debug_f, "*\nGPS fix LOST. Searching for satellites.\n");
 #endif
                 }
                 break;
@@ -414,39 +481,76 @@ void* process_msg(void *unused) {
 
                     gps_state = GPS_SEARCH;
 #ifdef GPS_DEBUG
-                    printf(
-                           "*\nGPS fix LOST while waiting for TIME REPLY. Searching for satellites.\n");
+                    fprintf(debug_f, "*\nGPS fix LOST while waiting for TIME REPLY. Searching for satellites.\n");
 #endif
 
-                    pthread_cond_signal(&time_available_cond);
+                    pthread_cond_signal(&reply_available_cond);
                 }
                 break;
               case GPS_MSG_TIME:
+            	if( !current_time)
+            		break;
                 // process time reply
-
-
 #ifdef GPS_DEBUG
-                printf("*\nReceived time.\n");
+            	  fprintf(debug_f, "*\nReceived time.\n");
 #endif
                 // GPS time of week
                 for (x = 0; x < sizeof(float); x++) {
-                    float_buf[x] = msg_buf[(start + sizeof(float) - x)
-                      % MSG_BUF_SIZE];
+                    number_buf[x] = msg_buf[(start + sizeof(float) - x)
+                                           % MSG_BUF_SIZE];
                 }
-                time_sec = *((float *) float_buf);
+                time_sec = *((float *) number_buf);
 
                 // GPS time offset
                 for (x = 0; x < sizeof(float); x++) {
-                    float_buf[x] = msg_buf[(start + 6 + sizeof(float) - x)
-                      % MSG_BUF_SIZE];
+                    number_buf[x] = msg_buf[(start + 6 + sizeof(float) - x)
+                                           % MSG_BUF_SIZE];
                 }
+                time_sec -= *((float *) number_buf);
 
-                time_sec += *((float *) float_buf);
-                current_time->tv_sec = SEC_GPS_EPOCH + ((long) SEC_WEEK) * (long) ntohs( *((short *) (msg_buf + (start + 5) % MSG_BUF_SIZE))) + ( (long) time_sec);
+                // week number
+                for (x = 0; x < sizeof(short); x++) {
+                	number_buf[x] = msg_buf[(start + 4 + sizeof(short) - x)
+                	                       % MSG_BUF_SIZE];
+				}
+                week_num = *((short *) number_buf);
+
+                current_time->tv_sec = SEC_GPS_EPOCH + ((long) SEC_WEEK) * week_num + ( (long) time_sec);
                 current_time->tv_usec =  (int) ((time_sec - (int) time_sec) * 1000000.0);
                 gps_state = GPS_READY;
-                pthread_cond_signal(&time_available_cond);
+                pthread_cond_signal(&reply_available_cond);
                 break;
+              case GPS_MSG_LLA:
+            	  if( !current_latitude)
+            		  break;
+            	  // process time reply
+#ifdef GPS_DEBUG
+            	  fprintf(debug_f, "*\nReceived position.\n");
+#endif
+				  // GPS latitude
+				  for (x = 0; x < sizeof(float); x++) {
+					  number_buf[x] = msg_buf[(start + sizeof(float) - x)
+											 % MSG_BUF_SIZE];
+				  }
+				  *current_latitude = *((float *) number_buf) / PI * 180;
+
+				  // GPS longitude
+				  for (x = 0; x < sizeof(float); x++) {
+					  number_buf[x] = msg_buf[(start + 4 + sizeof(float) - x)
+											 % MSG_BUF_SIZE];
+				  }
+				  *current_longitude = *((float *) number_buf) / PI * 180;
+
+				  // GPS altitude
+				  for (x = 0; x < sizeof(float); x++) {
+					  number_buf[x] = msg_buf[(start + 8 + sizeof(float) - x)
+											 % MSG_BUF_SIZE];
+				  }
+				  *current_altitude = *((float *) number_buf);
+
+				  gps_state = GPS_READY;
+				  pthread_cond_signal(&reply_available_cond);
+            	  break;
             }
         }
 

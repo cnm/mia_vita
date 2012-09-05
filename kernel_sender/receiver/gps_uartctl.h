@@ -8,7 +8,7 @@
 #ifndef GPS_UARTCTL_H_
 #define GPS_UARTCTL_H_
 
-void uart_init( char indoor, char reset, FILE *status_output);
+void uart_init( char indoor, char reset, FILE *status_output, char * gps_device);
 
 void uart_write( char *msg, int msg_len);
 

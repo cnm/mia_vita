@@ -20,7 +20,7 @@ typedef enum {
 
 
 // Used by serial port interface
-void init_gps( char indoor, void (*input_for_gps)( char *msg, int msg_len), FILE *output_status_f);
+void init_gps( char indoor, char reset, void (*input_for_gps)( char *msg, int msg_len), FILE *output_status_f);
 
 void output_from_gps( unsigned char* msg, int msg_len);
 
@@ -30,6 +30,8 @@ void output_from_gps( unsigned char* msg, int msg_len);
 char is_gps_ready();
 
 int getGPStimeUTC( struct timeval *tv);
+
+int getGPSLLA(float *latitude, float * longitude, float *altitude);
 
 int getgpssatellites();
 

@@ -20,7 +20,7 @@ typedef enum {
 
 
 // Used by serial port interface
-void init_gps( char indoor, char reset, void (*input_for_gps)( char *msg, int msg_len), FILE *output_status_f);
+void uart_init( char indoor, char reset, FILE *status_output, char * gps_device);
 
 void output_from_gps( unsigned char* msg, int msg_len);
 

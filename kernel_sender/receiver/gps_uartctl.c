@@ -25,7 +25,6 @@
  *   xuartctl -d -p 0 -o 8o1 -s 9600
  */
 
-#define GPS_DEVICE "/dev/pts/1"
 #define ERROR_BUF_SIZE 1000
 #define GPS_BUF_SIZE 100
 
@@ -40,11 +39,11 @@ void* uart_read_thread( void *);
 /* Opens de device for communicating with the GPS and initializes
  * the GPS state machine.
  * */
-void uart_init( char indoor, char reset, FILE *status_output) {
+void uart_init( char indoor, char reset, FILE *status_output, char * gps_device) {
     error_f = status_output;
-    gps_device_fd = open( GPS_DEVICE, O_RDWR);
+    gps_device_fd = open( gps_device, O_RDWR);
     if( gps_device_fd == -1) {
-        fprintf( error_f, "gps_uartctl.c: Error while opening GPS device: %s.\n", GPS_DEVICE);
+        fprintf( error_f, "gps_uartctl.c: Error while opening GPS device: %s.\n", gps_device);
         fprintf( error_f, "Error %d: %s\n", errno, strerror_r( errno, error_buf, ERROR_BUF_SIZE) == 0 ? error_buf : "");
         exit( 1);
     }

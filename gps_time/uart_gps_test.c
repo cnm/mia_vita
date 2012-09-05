@@ -33,8 +33,9 @@ int main(int argc, char **argv) {
     int x;
     struct tm *broken_time;
     struct timeval t;
+    float lat, lon, alt;
 
-    uart_init(1, stderr);
+    uart_init(0, 0, stderr);
 
     while (!is_gps_ready()) {
         sleep(1);
@@ -42,7 +43,8 @@ int main(int argc, char **argv) {
 
     printf("GPS is ready\n");
 
-    for (x = 0; x < 100; x++) {
+    for (x = 0; x < 1; x++) {
+    	// read time
         getGPStimeUTC(&t);
         broken_time = localtime(&(t.tv_sec));
 
@@ -51,6 +53,13 @@ int main(int argc, char **argv) {
                broken_time->tm_mday, broken_time->tm_mon + 1,
                broken_time->tm_year + 1900, broken_time->tm_hour,
                broken_time->tm_min, broken_time->tm_sec, (int) t.tv_usec);
+
+        // read position
+        getGPSLLA( &lat, &lon, &alt);
+        printf("latitude %f\n", lat);
+        printf("longitude %f\n", lon);
+        printf("altitude %f\n", alt);
     }
+
     return 0;
 }
