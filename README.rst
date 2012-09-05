@@ -509,3 +509,16 @@ Edit file:
 and change WirelessMode=5 to WirelessMode=1
 
 More info available at: http://ubuntuforums.org/showthread.php?t=1566572
+
+Some test commands
+==================
+
+Commands ::
+
+   insmod int_mod.ko
+   insmod sender_kthread.ko bind-ip="192.168.2.45" sink-ip="192.168.2.47" node-id="5"
+   ./receiver -i bat0 -j /tmp/manel/miavita.json -z /tmp/manel/miavita.json.archive
+
+
+
+================================
