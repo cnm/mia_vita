@@ -8,6 +8,8 @@
 #ifndef GPS_TIME_H_
 #define GPS_TIME_H_
 
+#define VERBOSE 1
+
 typedef enum {
 	GPS_OK,
 	GPS_ANTENA_SHORT,
@@ -28,6 +30,8 @@ void output_from_gps( unsigned char* msg, int msg_len);
 char is_gps_ready();
 
 int getGPStimeUTC( struct timeval *tv);
+
+int getGPSLLA(float *latitude, float * longitude, float *altitude);
 
 int getgpssatellites();
 
