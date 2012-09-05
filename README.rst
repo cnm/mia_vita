@@ -517,7 +517,7 @@ Commands ::
 
    insmod int_mod.ko
    insmod sender_kthread.ko bind-ip="192.168.2.45" sink-ip="192.168.2.47" node-id="5"
-   ./receiver -i bat0 -j /tmp/manel/miavita
+   ./receiver -i bat0 -j /tmp/manel/miavita.json -z /tmp/manel/miavita.json.archive
 
 
 
