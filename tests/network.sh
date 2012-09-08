@@ -50,11 +50,14 @@ mount /dev/sda1 /tmp/data
 /usr/local/bin/xuartctl -p 0 -o 8o1 -s 9600 -d &> /root/logXuart
 
 #Let's start MiaVita stuff
-/root/read_gps.sh &
+#/root/read_gps.sh &
+/bin/bash -c "nohup /root/read_gps.sh &"
 sleep 3
 
 insmod /root/int_mod.ko &> /root/logIntMod
 sleep 1
 
-insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.43" node-id="$NODE" &> /root/logSenderMod
+insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.43" node-id="$((NODE - 42))" &> /root/logSenderMod
 echo "Done"
+
+/bin/bash -c "nohup /root/receiver -i bat0 -j /tmp/data/miavita.json -z /tmp/data/archive.json &"
