@@ -2,9 +2,9 @@
 
 #Let's start MiaVita stuff
 NO_GPS=1
-while [  $NO_GPS ne 0 ]; do
+while [ $NO_GPS ne 0 ]; do
     /root/init_counter &> /root/logGps
-    NO_GPS = $?
+    NO_GPS=$?
     if [ $NO_GPS -ne 0 ]
     then #Error
         /usr/local/bin/ts7500ctl --setdio=0x0D00000000 #Now POWER_ON and Error
