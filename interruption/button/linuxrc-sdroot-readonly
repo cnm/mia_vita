@@ -67,12 +67,17 @@ if [ "$model" = "0x4500" ]; then
 	ts7500ctl --setdio $dio_out --setdiodir $diodir
 fi
 
-ts7500ctl --setdio=0x0000000000
-ts7500ctl --setdiodir=0x1000000000
+ts7500ctl --setdio=0x0100000000
+ts7500ctl --setdiodir=0x1000000000 
 ts7500ctl --redledon --greenledoff
 sleep 3
 ts7500ctl --redledon --greenledon
-                                
+
+
+#Let work with the leds
+ts7500ctl --setdio=0x0D00000000 # BOOT and Error
+ts7500ctl --setdiodir=0x1f00000000
+
 # If there is a USB drive, mount it
 # If it has 'tsinit', execute it
 # (this allows software auto-update)
@@ -199,6 +204,7 @@ if [ -e /mnt/root/sbin/init ]; then
   ./bin/mount -n --move ./initrd/sys ./sys
   ./bin/mount -n --move ./initrd/proc ./proc
   ./bin/mount -n --move ./initrd/dev/pts ./dev/pts
+
   exec ./usr/sbin/chroot . ./sbin/init < .$CONSOLE > .$CONSOLE 2>&1
 fi
 

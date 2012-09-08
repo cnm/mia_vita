@@ -25,7 +25,7 @@
  *   xuartctl -d -p 0 -o 8o1 -s 9600
  */
 
-#define GPS_DEVICE "/dev/pts/1"
+#define GPS_DEVICE "/dev/pts/0"
 #define ERROR_BUF_SIZE 1000
 #define GPS_BUF_SIZE 100
 

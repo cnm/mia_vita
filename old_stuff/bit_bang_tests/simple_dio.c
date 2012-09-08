@@ -65,8 +65,8 @@ int main(int argc, char **argv)
       /* We print argv[0] assuming it is the program name */
       printf( "usage: %s [-s|-g] n v", argv[0] );
     }
-  else 
-    {
+/*  else */
+/*    {*/
       option = argv[1][1];
       dio_n = atoi(argv[2]);
 
@@ -86,5 +86,5 @@ int main(int argc, char **argv)
         {
           printf("Error");
         }
-    }
+/*    }*/
 }

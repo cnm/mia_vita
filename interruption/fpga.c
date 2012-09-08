@@ -19,9 +19,9 @@
 #include <linux/module.h>
 #include <linux/kernel.h>       /* printk() */
 
-#ifdef __GPS__
+/*#ifdef __GPS__*/
 #include <linux/miavita_xtime.h>
-#endif
+/*#endif*/
 
 #include "mem_addr.h"
 
@@ -254,7 +254,8 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
 
     a = b = c = d = e = f = 0;
 
-    *timestamp = get_kernel_current_time();
+/*    *timestamp = get_kernel_current_time();*/
+    *timestamp = __miavita_elapsed_secs * 1000000 + __miavita_elapsed_usecs;
 
     a = peek16(0x4A);//2/3 da primeira
     b = peek16(0x4A);//1/3 da primeira 1/3 da segunda

@@ -301,7 +301,7 @@ void output_from_gps(unsigned char* msg, int msg_len) {
 }
 
 char is_gps_ready() {
-    return gps_state == GPS_READY && gps_fault == GPS_OK;
+    return gps_state == GPS_READY; // && gps_fault == GPS_OK;
 }
 
 /* Get current time from the GPS device
@@ -313,7 +313,7 @@ int getGPStimeUTC(struct timeval *tv) {
     int return_value = 0;
 
     pthread_mutex_lock(&state_change_m);
-    if (gps_state != GPS_READY || gps_fault != GPS_OK || current_time != NULL) {
+    if (gps_state != GPS_READY || current_time != NULL) { //|| gps_fault != GPS_OK 
         pthread_mutex_unlock(&state_change_m);
         return 1;
     } else {
@@ -349,7 +349,7 @@ int getGPSLLA(float *latitude, float * longitude, float *altitude) {
     int return_value = 0;
 
     pthread_mutex_lock(&state_change_m);
-    if (gps_state != GPS_READY || gps_fault != GPS_OK || current_latitude != NULL) {
+    if (gps_state != GPS_READY || current_latitude != NULL) { //|| gps_fault != GPS_OK 
         pthread_mutex_unlock(&state_change_m);
         return 1;
     } else {

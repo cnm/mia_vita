@@ -21,6 +21,8 @@ char* output_json_file = "miavita.json";
 char* archive_json_file = "miavita.json.archive";
 int bin_fd = -1, json_fd = -1, archive_json_fd = -1;
 int last_packet[16];
+int64_t last_arrival_interval[16];
+int64_t last_arrival_time[16];
 
 list* mklist(uint32_t capacity, char* new_filename)
 {
@@ -152,7 +154,7 @@ static void write_json(packet_t pkt, uint8_t first)
     }
   sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %d, \"sample_2\" : %d, \"sample_3\" : %d, \"sample_4\" : %d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp / 100, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
-  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %d, \"sample_2\" : %d, \"sample_3\" : %d, \"sample_4\" : %d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp / 100, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
+  sprintf(buff, "\"%u:%u\" : {\"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %d, \"sample_2\" : %d, \"sample_3\" : %d, \"sample_4\" : %d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.timestamp / 1000, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #endif
   to_write = strlen(buff);
   while(written < to_write)
@@ -267,22 +269,31 @@ int  __packet_comparator(const void* a, const void* b){
     return 0;
 }
 
-#define SEC_2_NSEC 1000000000L
+#define SEC_2_USEC 1000000L
 #define USEC_2_NSEC 1000
 int64_t get_kernel_current_time(void) {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  return ((int64_t) tv.tv_sec) * SEC_2_NSEC + ((int64_t) tv.tv_usec);
+  return ((int64_t) tv.tv_sec) * SEC_2_USEC + ((int64_t) tv.tv_usec);
 }
 
 void insert(list* l, packet_t* p)
 {
-  // Let's insert the latency of packet p
-  p->retries = get_kernel_current_time() - p->timestamp;
+  int64_t current_time, current_interval;
 
   //Check if node id > 0 && < 16
-
   if(p->id > 0 && p->id < 16){
+
+    // Let's insert the jitter of packet p
+    current_time = get_kernel_current_time();
+    current_interval = current_time - last_arrival_time[p->id];
+    last_arrival_time[p->id] = current_time;
+
+    /* Retries is actually jitter in milliseconds */
+    p->retries = abs(current_interval - last_arrival_interval[p->id]) / 1000;
+    last_arrival_interval[p->id] = p->retries;
+
+    // Calculate missing packets
     p->fails = p->seq - last_packet[p->id] + 1;
     last_packet[p->id] = p->seq;
   }

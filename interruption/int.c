@@ -4,7 +4,7 @@
 #include <linux/ioport.h>
 #include <linux/interrupt.h>
 #include <asm/io.h>             /* ioremap */
-/*#include <linux/miavita_xtime.h>*/
+#include <linux/miavita_xtime.h>
 
 #include "mem_addr.h"
 #include "proc_entry.h"
@@ -334,6 +334,8 @@ void handle_gps_int(void){
     counter = 0;
     counter_seconds++;
     udelay_in_second = 0;
+    __miavita_elapsed_usecs = 0;
+    __miavita_elapsed_secs++;
     if(is_fpga_used()){
         return;
     }
@@ -342,11 +344,12 @@ void handle_gps_int(void){
         mux_state = 0;
         write_watchdog();
     }
-    /*  pulse_miavita_xtime();*/
+/*    pulse_miavita_xtime();*/
     return;
 }
 
-#define SAMPLE_RATE_TIME_INTERVAL_U    2000        /* 50Hz -> 2 Miliseconds -> 2 000 Micro*/
+/*#define SAMPLE_RATE_TIME_INTERVAL_U   20000        |+ 50Hz -> 20 Miliseconds -> 20 000 Micro+|*/
+#define SAMPLE_RATE_TIME_INTERVAL_U   13513        /* 74Hz -> 20 Miliseconds -> 20 000 Micro*/
 #define DATA_READY_TIME_U                13        /* 1 / (3.6??? Mhz / 512) TODO - Calculate this */
 
 void handle_adc_int(){
@@ -357,6 +360,8 @@ void handle_adc_int(){
     int64_t gps_us;
 #endif
 
+    __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
+
     counter++;
     if(fpga_busy){
         /*        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);*/
@@ -366,7 +371,8 @@ void handle_adc_int(){
     if (mux_state == 0) {
         write_dio26(1);
         mux_state = 1;
-        if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);
+/*        if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
+/*        if(counter != 1) __miavita_elapsed_usecs = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
     }
 
 
