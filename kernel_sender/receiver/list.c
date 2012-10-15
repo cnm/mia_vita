@@ -294,7 +294,7 @@ void insert(list* l, packet_t* p)
     last_arrival_interval[p->id] = p->retries;
 
     // Calculate missing packets
-    p->fails = p->seq - last_packet[p->id] + 1;
+    p->fails = p->seq - last_packet[p->id];
     last_packet[p->id] = p->seq;
   }
 
