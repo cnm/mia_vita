@@ -22,7 +22,7 @@ uint32_t capacity = 500;
 
 int sockfd = -1;
 
-list *l;
+list* l[3];
 
 void print_usage(char* cmd)
 {
@@ -124,8 +124,21 @@ uint8_t bind_socket()
 /* Binds sockets, receives packets and inserts them in list l*/
 void serve()
 {
+  char path1[100] = {0};
+  char path2[100] = {0};
+  char path3[100] = {0};
 
-  l = mklist(capacity, move_file_to);
+  memset(path1, 0, sizeof(path1));
+  memset(path2, 0, sizeof(path2));
+  memset(path3, 0, sizeof(path3));
+
+  sprintf(path1, "%s1.json", output_json_file);
+  sprintf(path2, "%s2.json", output_json_file);
+  sprintf(path3, "%s3.json", output_json_file);
+
+  l[0] = mklist(capacity, path1);
+  l[1] = mklist(capacity, path2);
+  l[2] = mklist(capacity, path3);
 
   while(1)
     {
@@ -146,14 +159,19 @@ void serve()
 #ifdef __DEBUG__
       printf("Received packet.\n");
 #endif
-      insert(l, &pkt);
+      insert(l[pkt.id - 1], &pkt);
     }
 }
 
 void cleanup()
 {
+  int i = 0;
   close(sockfd);
-  rmlist(l);
+
+  for(i = 0; i < 3; i++)
+    {
+      rmlist(l[i]);
+    }
   exit(0);
 }
 
