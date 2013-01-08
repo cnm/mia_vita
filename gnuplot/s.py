@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def get_values():
     values = { 1: [], 2: [], 3: []}
-    with open('miavita.json.4') as data_file:
+    with open('miavita.json') as data_file:
         data = json.load(data_file)
         for k in data.keys():
             node_id = data[k]["node_id"]
@@ -21,7 +21,9 @@ def get_values():
 def draw_values(val):
     plt.ion() # turn on interactive mode
     i = 1
-    fig = plt.figure("Main")
+    fig = plt.figure(1, figsize=(15,10))
+    plt.draw()
+    plt.clf()
 
     # Draw samples
     for node in val.keys():
@@ -30,10 +32,11 @@ def draw_values(val):
         channel2 = [v[1] for v in val[node]]
         channel3 = [v[2] for v in val[node]]
 
-        plt.plot(channel1)
-        plt.plot(channel2)
-        plt.plot(channel3)
-        a.set_title(str(node))
+        plt.plot(channel1, label="x")
+        plt.plot(channel2, label="y")
+        plt.plot(channel3, label="z")
+        plt.ylim(-10000000, 10000000)
+        a.set_title("Node: " + str(node))
         i += 1
 
     # Draw channel 4
@@ -41,18 +44,50 @@ def draw_values(val):
         a = fig.add_subplot(2,2,i)
         channel4 = [v[3] for v in val[node]]
         plt.plot(channel4)
+        plt.ylim(-100000, 100000)
+        a.set_title("Battery ")
 
+    #plt.xlim(0,1000)
     plt.draw()
-    plt.show()
+
+#    plt.show()
 
 def get_file():
     from subprocess import call
-    url = "http://tagus.inesc-id.pt/~jtrindade/miavita.json.4"
+    url = "http://192.168.2.43/miavita/miavita.json"
+    call(["rm", 'miavita.json'])
     call(["wget", url])
 
-while(True):
-    get_file()
-    val = get_values()
-    draw_values(val)
-    sleep(10)
+def join_values(previous, val):
+    for k in previous.keys():
+        previous[k] += (val[k])
 
+def limit_size(previous, maxi):
+    for k in previous.keys():
+        n = len(previous[k])
+        if(n > maxi):
+            previous[k] = previous[k][n - maxi:] #Discard older elements
+            print "Previous: " + str(n) + " - " + str(maxi)
+        print "Len result" + str(len(previous[k]))
+        print
+
+def run(previous):
+    while(True):
+            get_file()
+            val = get_values()
+            join_values(previous, val)
+            limit_size(previous, 3000)
+            draw_values(previous)
+            sleep(5)
+
+previous = {1:[], 2:[], 3:[]}
+while True:
+    try:
+        print "Weird: " + str(len(previous[1]))
+        run(previous)
+    except Exception as e:
+        print "###################################"
+        print "Except" + str(e)
+        print "###################################"
+        print
+        sleep(2)
