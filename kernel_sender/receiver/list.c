@@ -179,6 +179,7 @@ static void dump(list* l)
 {
   uint32_t i;
   int json_fd;
+  #warning  326 is not a logical number. Had to use it as 6 (the supossed correct value) gave a seg fault. REDO URGENT
   char * temp_path = (char *) calloc (sizeof(l->new_filename) + 326 * sizeof(char), sizeof(char));
   sprintf(temp_path, "%s.temp", l->new_filename);
 

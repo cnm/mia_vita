@@ -19,7 +19,7 @@
 
 uint16_t port = 57844;
 char* iface = "lo", *move_file_to = "miavita_old";
-uint32_t capacity = 500;
+uint32_t capacity = 250;
 
 int sockfd = -1;
 
