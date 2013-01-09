@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def get_values():
     values = { 1: [], 2: [], 3: []}
-    with open('miavita.json') as data_file:
+    with open('miavita.json.2') as data_file:
         data = json.load(data_file)
         for k in data.keys():
             node_id = data[k]["node_id"]
@@ -16,7 +16,18 @@ def get_values():
             c4 = data[k]["sample_4"]
 
             values[node_id].append((c1, c2, c3, c4))
-        return values
+
+    with open('miavita.json.3') as data_file:
+        data = json.load(data_file)
+        for k in data.keys():
+            node_id = data[k]["node_id"]
+            c1 = data[k]["sample_1"]
+            c2 = data[k]["sample_2"]
+            c3 = data[k]["sample_3"]
+            c4 = data[k]["sample_4"]
+
+            values[node_id].append((c1, c2, c3, c4))
+    return values
 
 def draw_values(val):
     plt.ion() # turn on interactive mode
@@ -44,7 +55,7 @@ def draw_values(val):
         a = fig.add_subplot(2,2,i)
         channel4 = [v[3] for v in val[node]]
         plt.plot(channel4)
-        plt.ylim(-100000, 100000)
+        plt.ylim(-10000000, 10000000)
         a.set_title("Battery ")
 
     #plt.xlim(0,1000)
@@ -54,9 +65,12 @@ def draw_values(val):
 
 def get_file():
     from subprocess import call
-    url = "http://192.168.2.43/miavita/miavita.json"
-    call(["rm", 'miavita.json'])
-    call(["wget", url])
+    url2 = "http://192.168.2.43/miavita/miavita.json.2"
+    url3 = "http://192.168.2.43/miavita/miavita.json.3"
+    call(["rm", 'miavita.json.2'])
+    call(["rm", 'miavita.json.3'])
+    call(["wget", url2])
+    call(["wget", url3])
 
 def join_values(previous, val):
     for k in previous.keys():
