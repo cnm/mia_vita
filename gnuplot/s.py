@@ -9,24 +9,26 @@ def get_values():
     with open('miavita.json.2') as data_file:
         data = json.load(data_file)
         for k in data.keys():
-            node_id = data[k]["node_id"]
-            c1 = data[k]["sample_1"]
-            c2 = data[k]["sample_2"]
-            c3 = data[k]["sample_3"]
-            c4 = data[k]["sample_4"]
+            node_id = int(k.split(':')[0])
+            seq = int(k.split(':')[1])
+            c1 = data[k]["1"]
+            c2 = data[k]["2"]
+            c3 = data[k]["3"]
+            c4 = data[k]["4"]
 
-            values[node_id].append((c1, c2, c3, c4))
+            values[node_id].append((c1, c2, c3, c4, seq))
 
     with open('miavita.json.3') as data_file:
         data = json.load(data_file)
         for k in data.keys():
-            node_id = data[k]["node_id"]
-            c1 = data[k]["sample_1"]
-            c2 = data[k]["sample_2"]
-            c3 = data[k]["sample_3"]
-            c4 = data[k]["sample_4"]
+            node_id = int(k.split(':')[0])
+            seq = int(k.split(':')[1])
+            c1 = data[k]["1"]
+            c2 = data[k]["2"]
+            c3 = data[k]["3"]
+            c4 = data[k]["4"]
 
-            values[node_id].append((c1, c2, c3, c4))
+            values[node_id].append((c1, c2, c3, c4, seq))
     return values
 
 def draw_values(val):
@@ -47,7 +49,14 @@ def draw_values(val):
         plt.plot(channel2, label="y")
         plt.plot(channel3, label="z")
         plt.ylim(-2500000, 2500000)
-        a.set_title("Node: " + str(node))
+
+        if 1 == int(node):
+            a.set_title("Sink Node: " + str(node))
+        if 2 == int(node):
+            a.set_title("UniAxial Sensor: " + str(node))
+        if 3 == int(node):
+            a.set_title("TriAxial Sensor: " + str(node))
+
         i += 1
 
     # Draw channel 4
@@ -85,21 +94,45 @@ def limit_size(previous, maxi):
         print "Len result" + str(len(previous[k]))
         print
 
-def run(previous):
+def clean_values(new, previous, last_seq):
+    for k in new.keys():
+
+        for n in new[k]:
+            seq_n_new = n[4]
+
+            # Ignore repeated values
+            if(seq_n_new <= last_seq[k]):
+                continue
+
+            # Insert missing values
+            for x in xrange(last_seq[k] + 1, seq_n_new):
+                previous[k].append((0,0,0,0,x))
+
+            last_seq[k] = seq_n_new
+            previous[k].append(n)
+
+            # Sort new[k]
+            new[k].sort(key=lambda x: x[4])
+
+    print "After " + str(last_seq)
+
+def run(previous, last_seq):
     while(True):
-            get_file()
+   #         get_file()
             val = get_values()
-            join_values(previous, val)
+ #           join_values(previous, val)
+            clean_values(val, previous, last_seq)
             limit_size(previous, 1500)
             draw_values(previous)
-            sleep(5)
+            sleep(0.5)
 
 previous = {1:[], 2:[], 3:[]}
+last_seq = {1:0, 2:0, 3:0}
 while True:
-    try:
+   try:
         print "Weird: " + str(len(previous[1]))
-        run(previous)
-    except Exception as e:
+        run(previous, last_seq)
+   except Exception as e:
         print "###################################"
         print "Except" + str(e)
         print "###################################"
