@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <unistd.h>
 
+#define DEBUG 1
 
 #ifdef __GPS__
 #include "syscall_wrapper.h"
@@ -132,9 +133,9 @@ void serve()
   memset(path2, 0, sizeof(path2));
   memset(path3, 0, sizeof(path3));
 
-  sprintf(path1, "%s1.json", output_json_file);
-  sprintf(path2, "%s2.json", output_json_file);
-  sprintf(path3, "%s3.json", output_json_file);
+  sprintf(path1, "%s.1", output_json_file);
+  sprintf(path2, "%s.2", output_json_file);
+  sprintf(path3, "%s.3", output_json_file);
 
   l[0] = mklist(capacity, path1);
   l[1] = mklist(capacity, path2);

@@ -167,28 +167,31 @@ static uint8_t open_output_files(char * output_filename)
   return json_fd;
 }
 
-static void close_output_files(int json_fd)
+static void close_output_files(int json_fd, char * temp_path, char * new_path)
 {
   write(json_fd, "\n}", 2);
   close(json_fd);
+
+  rename(temp_path, new_path);
 }
 
 static void dump(list* l)
 {
   uint32_t i;
   int json_fd;
+  char * temp_path = (char *) calloc (sizeof(l->new_filename) + 326 * sizeof(char), sizeof(char));
+  sprintf(temp_path, "%s.temp", l->new_filename);
 
-  if((json_fd = open_output_files(l->new_filename)))
+  if((json_fd = open_output_files(temp_path)))
     {
-
       write_json(l->buff[0], 1, json_fd);
-
       for(i = 1; i < l->lst_size; i++)
         {
           write_json(l->buff[i], 0, json_fd);
         }
-      close_output_files(json_fd);
+      close_output_files(json_fd, temp_path, l->new_filename);
     }
+  free(temp_path);
 }
 
 #warning "This implementation of __packet_comparator has bugs. It is not receiving the correct memory address of a and b."
