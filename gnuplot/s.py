@@ -46,7 +46,7 @@ def draw_values(val):
         plt.plot(channel1, label="x")
         plt.plot(channel2, label="y")
         plt.plot(channel3, label="z")
-        plt.ylim(-10000000, 10000000)
+        plt.ylim(-2500000, 2500000)
         a.set_title("Node: " + str(node))
         i += 1
 
@@ -55,7 +55,7 @@ def draw_values(val):
         a = fig.add_subplot(2,2,i)
         channel4 = [v[3] for v in val[node]]
         plt.plot(channel4)
-        plt.ylim(-10000000, 10000000)
+        plt.ylim(4000000, 6000000)
         a.set_title("Battery ")
 
     #plt.xlim(0,1000)
@@ -90,7 +90,7 @@ def run(previous):
             get_file()
             val = get_values()
             join_values(previous, val)
-            limit_size(previous, 3000)
+            limit_size(previous, 1500)
             draw_values(previous)
             sleep(5)
 
