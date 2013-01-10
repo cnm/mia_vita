@@ -31,6 +31,10 @@ def get_values():
             c4 = data[k]["4"]
 
             values[node_id].append([c1, c2, c3, c4, seq])
+
+    for k in values.keys():
+        values[k].sort(key=lambda x: x[4])
+
     return values
 
 def draw_values(val):
@@ -98,31 +102,29 @@ def is_outlier(index, l):
     lenght = len(l)
     n = 10
 
+    # First see difference in nodes around
     to_compare = range(index + 1, min(index + 1 + n, len(l)))
-
     if(len(to_compare) < n):
         to_compare += range(max(0, index - (n - len(to_compare))), index)
-
-    total = 0
+    neighbour_diff = 0
     for i in to_compare:
         if (i + 1 == len(l)): continue
-#        print str(l[i][3]) + " " + str(l[i+1][3])
-        total = abs(l[i][3] - l[i+1][3])
+        neighbour_diff += abs(l[i][3] - l[i+1][3])
 
-    beta = float(10000)
-
-    if(index > 0):
-        if total * beta < abs(l[index][3] - l[index -1][3]):
-            print total
-            return True
-        else:
-            return False
+    # Now see point difference to neighbours
+    point_dif = 0
+    if(index == 0):
+        point_dif = min(abs(l[index][3] - l[index + 1][3]), abs(l[index][3] - l[index + 2][3]))
+    elif(index + 1 == len(l)):
+        point_dif = min(abs(l[index][3] - l[index - 1][3]), abs(l[index][3] - l[index - 2][3]))
     else:
-        if total * beta < abs(l[index][3] - l[index + 1][3]):
-            print total
-            return True
-        else:
-            return False
+        point_dif = min(abs(l[index][3] - l[index + 1][3]), abs(l[index][3] - l[index - 1][3]))
+
+  #  print "Point " + str(index) + " gave point/neighbour_diff: " + str(point_dif) + " / " + str(neighbour_diff) + "  " + str(l[index][3])
+
+    beta = float(1.5)
+
+    return point_dif > neighbour_diff * beta;
 
 def clean_values(new, previous, last_seq, means):
 
@@ -135,8 +137,10 @@ def clean_values(new, previous, last_seq, means):
         for n in new[k]:
             seq_n_new = n[4]
 
+            clone = n[:]
             if is_outlier(i, new[k]):
-                print "OUTLIER"
+                print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][3])
+                clone[3] = means[k][3]
             i += 1
 
             # Ignore repeated values
@@ -148,10 +152,13 @@ def clean_values(new, previous, last_seq, means):
 
             alpha = float(0.8)
 
-            n[3] = means[k][3] = means[k][3] * alpha + n[3] * (1 - alpha)
+            means[k][3] = means[k][3] * alpha + clone[3] * (1 - alpha)
+
+            #Make a copy of n
+            clone[3] = means[k][3]
 
             last_seq[k] = seq_n_new
-            previous[k].append(n)
+            previous[k].append(clone)
 
 def run(previous, last_seq, means):
     while(True):
