@@ -19,7 +19,6 @@
 char* output_binary_file = "miavita.bin";
 char* output_json_file = "miavita.json";
 char* archive_json_file = "miavita.json.archive";
-int bin_fd = -1, json_fd = -1, archive_json_fd = -1;
 int last_packet[16];
 int64_t last_arrival_interval[16];
 int64_t last_arrival_time[16];
@@ -47,19 +46,6 @@ void rmlist(list* l){
       }
 }
 
-static void write_bin(packet_t pkt){
-    int32_t to_write = sizeof(pkt), status, written = 0;
-    while(written < to_write)
-      {
-        status = write(bin_fd, ((char*) &pkt) + written, to_write - written);
-        if(status == -1)
-          {
-            perror("Unable to write binary data.\n");
-            return;
-          }
-        written += status;
-      }
-}
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define sample_to_le(S)				\
@@ -86,7 +72,7 @@ static packet_t ntohpkt(packet_t pkt)
     return pkt;
 }
 
-static void write_json(packet_t pkt, uint8_t first)
+static void write_json(packet_t pkt, uint8_t first, int json_fd )
 {
   /* static uint8_t first = 1; */
   char buff[2048] = {0};
@@ -165,78 +151,47 @@ static void write_json(packet_t pkt, uint8_t first)
           perror("Unable to write to json file");
           return;
         }
-      status = write(archive_json_fd, buff + written, to_write - written);
       written += status;
     }
 }
 
-static uint8_t open_output_files()
+static uint8_t open_output_files(char * output_filename)
 {
-  bin_fd = open(output_binary_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-  if(bin_fd == -1)
-    {
-      perror("Unable to open binary output file");
-      return 0;
-    }
-
-  json_fd = open(output_json_file, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  int json_fd = open(output_filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if(json_fd == -1)
     {
-      close(bin_fd);
       perror("Unable to open json output file");
       return 0;
     }
   write(json_fd, "{", 1);
-
-
-  archive_json_fd = open(archive_json_file, O_WRONLY | O_CREAT | O_APPEND );
-  if(archive_json_fd == -1)
-    {
-      close(bin_fd);
-      close(json_fd);
-      perror("Unable to open archive json output file");
-      return 0;
-    }
-  write(archive_json_fd, "{", 1);
-  return 1;
+  return json_fd;
 }
 
-static void close_output_files()
+static void close_output_files(int json_fd, char * temp_path, char * new_path)
 {
-  close(bin_fd);
-
   write(json_fd, "\n}", 2);
   close(json_fd);
 
-  write(archive_json_fd, "\n}", 2);
-  close(archive_json_fd);
+  rename(temp_path, new_path);
 }
 
 static void dump(list* l)
 {
-  char buff[100] = {0};
   uint32_t i;
+  int json_fd;
+  char * temp_path = (char *) calloc (sizeof(l->new_filename) + 326 * sizeof(char), sizeof(char));
+  sprintf(temp_path, "%s.temp", l->new_filename);
 
-  sprintf(buff, "%s.bin", l->new_filename);
-  rename(output_binary_file, buff);
-
-  memset(buff, 0, sizeof(buff));
-  sprintf(buff, "%s.json", l->new_filename);
-  rename(output_json_file, buff);
-
-  if(open_output_files())
+  if((json_fd = open_output_files(temp_path)))
     {
-
-      write_bin(l->buff[0]);
-      write_json(l->buff[0], 1);
-
+      write_json(l->buff[0], 1, json_fd);
       for(i = 1; i < l->lst_size; i++)
         {
-          write_bin(l->buff[i]);
-          write_json(l->buff[i], 0);
+          write_json(l->buff[i], 0, json_fd);
         }
-      close_output_files();
+      close_output_files(json_fd, temp_path, l->new_filename);
     }
+  free(temp_path);
 }
 
 #warning "This implementation of __packet_comparator has bugs. It is not receiving the correct memory address of a and b."
