@@ -102,6 +102,16 @@ def is_outlier(index, l):
     lenght = len(l)
     n = 10
 
+    if(l[index][3] < 4300000):
+        return True
+
+    if(abs(l[index][0]) > 1000000):
+        return True
+    if(abs(l[index][1]) > 1000000):
+        return True
+    if(abs(l[index][2]) > 1000000):
+        return True
+
     # First see difference in nodes around
     to_compare = range(index + 1, min(index + 1 + n, len(l)))
     if(len(to_compare) < n):
@@ -140,6 +150,9 @@ def clean_values(new, previous, last_seq, means):
             clone = n[:]
             if is_outlier(i, new[k]):
                 print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][3])
+                clone[0] = means[k][0]
+                clone[1] = means[k][1]
+                clone[2] = means[k][2]
                 clone[3] = means[k][3]
             i += 1
 
