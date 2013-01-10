@@ -6,6 +6,8 @@ import pdb
 from time import sleep
 import matplotlib.pyplot as plt
 
+MV_CONST = 12000 / float(4800000)
+
 def get_values():
     values = { 1: [], 2: [], 3: []}
     with open('miavita.json.2') as data_file:
@@ -13,10 +15,10 @@ def get_values():
         for k in data.keys():
             node_id = int(k.split(':')[0])
             seq = int(k.split(':')[1])
-            c1 = data[k]["1"]
-            c2 = data[k]["2"]
-            c3 = data[k]["3"]
-            c4 = data[k]["4"]
+            c1 = data[k]["1"] * MV_CONST
+            c2 = data[k]["2"] * MV_CONST * 0
+            c3 = data[k]["3"] * MV_CONST * 0
+            c4 = data[k]["4"] * MV_CONST
 
             values[node_id].append([c1, c2, c3, c4, seq])
 
@@ -25,10 +27,10 @@ def get_values():
         for k in data.keys():
             node_id = int(k.split(':')[0])
             seq = int(k.split(':')[1])
-            c1 = data[k]["1"]
-            c2 = data[k]["2"]
-            c3 = data[k]["3"]
-            c4 = data[k]["4"]
+            c1 = data[k]["1"] * MV_CONST
+            c2 = (data[k]["2"] - 100000) * MV_CONST
+            c3 = (data[k]["3"] + 50000) * MV_CONST
+            c4 = data[k]["4"] * MV_CONST
 
             values[node_id].append([c1, c2, c3, c4, seq])
 
@@ -40,13 +42,17 @@ def get_values():
 def draw_values(val):
     plt.ion() # turn on interactive mode
     i = 1
-    fig = plt.figure(1, figsize=(15,10))
+    fig = plt.figure(1, figsize=(16,13))
     plt.draw()
     plt.clf()
 
     # Draw samples
-    for node in val.keys():
-        a = fig.add_subplot(2,2,i)
+    for node in range(2,4):
+        if(i == 1):
+            a = fig.add_subplot(3,1,i)
+        else:
+            a = fig.add_subplot(3,1,i)
+
         channel1 = [v[0] for v in val[node]]
         channel2 = [v[1] for v in val[node]]
         channel3 = [v[2] for v in val[node]]
@@ -54,7 +60,8 @@ def draw_values(val):
         plt.plot(channel1, label="x")
         plt.plot(channel2, label="y")
         plt.plot(channel3, label="z")
-        plt.ylim(-1200000, 1200000)
+        plt.ylim(-1200000 * MV_CONST, 1200000 * MV_CONST)
+        plt.legend()
 
         if 1 == int(node):
             a.set_title("Sink Node: " + str(node))
@@ -67,10 +74,10 @@ def draw_values(val):
 
     # Draw channel 4
     for node in val.keys():
-        a = fig.add_subplot(2,2,i)
+        a = fig.add_subplot(7,1,6)
         channel4 = [v[3] for v in val[node]]
         plt.plot(channel4)
-        plt.ylim(4000000, 6000000)
+        plt.ylim(3000000 * MV_CONST, 5000000 * MV_CONST)
         a.set_title("Battery ")
 
     #plt.xlim(0,1000)
@@ -102,14 +109,14 @@ def is_outlier(index, l):
     lenght = len(l)
     n = 10
 
-    if(l[index][3] < 4300000):
+    if(l[index][3] < (4300000 * MV_CONST)):
         return True
 
-    if(abs(l[index][0]) > 1000000):
+    if(abs(l[index][0]) > (4000000 * MV_CONST)):
         return True
-    if(abs(l[index][1]) > 1000000):
+    if(abs(l[index][1]) > (4000000 * MV_CONST)):
         return True
-    if(abs(l[index][2]) > 1000000):
+    if(abs(l[index][2]) > (4000000 * MV_CONST)):
         return True
 
     # First see difference in nodes around
@@ -136,6 +143,17 @@ def is_outlier(index, l):
 
     return point_dif > neighbour_diff * beta;
 
+def average_neighbours(i, l, pos):
+    if(len(l) < 3):
+        return l[i] # Nothing I can do
+
+    if(i == 0):
+        return (l[i+1][pos] + l[i+2][pos]) / 2
+    elif(i +1 == len(l)):
+        return (l[i-1][pos] + l[i-2][pos]) / 2
+    else:
+        return (l[i-1][pos] + l[i+1][pos]) / 2
+
 def clean_values(new, previous, last_seq, means):
 
     for k in new.keys():
@@ -149,11 +167,11 @@ def clean_values(new, previous, last_seq, means):
 
             clone = n[:]
             if is_outlier(i, new[k]):
-                print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][3])
-                clone[0] = means[k][0]
-                clone[1] = means[k][1]
-                clone[2] = means[k][2]
-                clone[3] = means[k][3]
+                print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][2]) + "\t\t" + str(means[k][2])
+                clone[0] = means[k][0] 
+                clone[1] = average_neighbours(i, new[k], 1)
+                clone[2] = average_neighbours(i, new[k], 2)
+                clone[3] = average_neighbours(i, new[k], 3)
             i += 1
 
             # Ignore repeated values
@@ -164,6 +182,7 @@ def clean_values(new, previous, last_seq, means):
                 previous[k].append([0,0,0,0,x])
 
             alpha = float(0.8)
+            beta = float(0.1)
 
             means[k][3] = means[k][3] * alpha + clone[3] * (1 - alpha)
 
@@ -186,9 +205,9 @@ previous = {1:[], 2:[], 3:[]}
 last_seq = {1:0, 2:0, 3:0}
 means = {1:[0,0,0,0], 2:[0,0,0,0], 3:[0,0,0,0]}
 while True:
-#   try:
+   try:
         run(previous, last_seq, means)
-#   except Exception as e:
+   except Exception as e:
         print "###################################"
         print "Except" + str(e)
         print "###################################"
