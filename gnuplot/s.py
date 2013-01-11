@@ -28,8 +28,10 @@ def get_values():
             node_id = int(k.split(':')[0])
             seq = int(k.split(':')[1])
             c1 = data[k]["1"] * MV_CONST
-            c2 = (data[k]["2"] - 100000) * MV_CONST
-            c3 = (data[k]["3"] + 50000) * MV_CONST
+#            c2 = (data[k]["2"] - 100000) * MV_CONST
+            c2 = (data[k]["2"] - 00000) * MV_CONST
+#            c3 = (data[k]["3"] + 50000) * MV_CONST
+            c3 = (data[k]["3"]) * MV_CONST
             c4 = data[k]["4"] * MV_CONST
 
             values[node_id].append([c1, c2, c3, c4, seq])
@@ -60,7 +62,7 @@ def draw_values(val):
         plt.plot(channel1, label="x")
         plt.plot(channel2, label="y")
         plt.plot(channel3, label="z")
-        plt.ylim(-1200000 * MV_CONST, 1200000 * MV_CONST)
+        plt.ylim(-200000 * MV_CONST, 200000 * MV_CONST)
         plt.legend()
 
         if 1 == int(node):
@@ -87,8 +89,8 @@ def draw_values(val):
 
 def get_file():
     from subprocess import call
-    url2 = "http://192.168.2.43/miavita/miavita.json.2"
-    url3 = "http://192.168.2.43/miavita/miavita.json.3"
+    url2 = "http://192.168.1.43/miavita/miavita.json.2"
+    url3 = "http://192.168.1.43/miavita/miavita.json.3"
     call(["rm", 'miavita.json.2'])
     call(["rm", 'miavita.json.3'])
     call(["wget", url2])
