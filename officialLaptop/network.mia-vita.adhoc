@@ -1,0 +1,35 @@
+#!/bin/bash
+
+NODE=254
+
+  #echo -n "Bringing interface eth0 up ..."
+  #ifconfig eth0 192.168.0.$NODE
+  #echo "Done"
+  echo -n "Bringing interface ra0 up..."
+  #ifconfig wlan0 up
+  #if [ $? -ne 0 ]
+  #then
+#	echo "FAILED"
+#	exit 1
+ # fi
+  iwconfig wlan0 mode ad-hoc essid 'MIA-VITA' channel 11
+  if [ $? -ne 0 ]
+  then
+	echo "FAILED"
+	exit 1
+  fi
+  ifconfig wlan0 192.168.1.$NODE
+ if [ $? -ne 0 ]
+  then
+	echo "FAILED"
+	exit 1
+  fi
+  echo "Done"
+
+ ifconfig wlan0 down
+ sleep 5
+ ifconfig wlan0 up
+ sleep 5
+ echo "Done"
+watch -n 1 'batctl o'
+
