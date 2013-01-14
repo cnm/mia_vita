@@ -226,7 +226,7 @@ while True:
         run(previous, last_seq, means)
    except Exception as e:
         print "###################################"
-        pprint "Except" + str(e)
+        print "Except" + str(e)
         print "###################################"
         print
         sleep(2)
