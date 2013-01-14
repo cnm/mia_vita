@@ -183,7 +183,7 @@ def clean_values(new, previous, last_seq, means):
 
             clone = n[:]
             if is_outlier(i, new[k]):
-                print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][2]) + "\t\t" + str(means[k][2])
+                #print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][2]) + "\t\t" + str(means[k][2])
                 clone[0] = means[k][0] 
                 clone[1] = average_neighbours(i, new[k], 1)
                 clone[2] = average_neighbours(i, new[k], 2)
@@ -226,7 +226,7 @@ while True:
         run(previous, last_seq, means)
    except Exception as e:
         print "###################################"
-        print "Except" + str(e)
+        pprint "Except" + str(e)
         print "###################################"
         print
         sleep(2)
