@@ -63,9 +63,9 @@ def draw_values(val):
             plt.plot(channel1, lw=0.8, color='b', label="z")
 
         elif(node==3):
-            plt.plot(channel1, lw=0.8, color='g', label="x")
-            plt.plot(channel2, lw=0.8, color='r', label="y")
-            plt.plot(channel3, lw=0.8, color='b', label="z")
+            plt.plot(channel1, lw=0.8, color='b', label="z")
+            plt.plot(channel2, lw=0.8, color='r', label="e")
+            plt.plot(channel3, lw=0.8, color='b', label="n")
         plt.ylim(-200000 * MV_CONST, 200000 * MV_CONST)
         plt.legend()
 
