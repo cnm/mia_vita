@@ -59,9 +59,13 @@ def draw_values(val):
         channel2 = [v[1] for v in val[node]]
         channel3 = [v[2] for v in val[node]]
 
-        plt.plot(channel1, label="x")
-        plt.plot(channel2, label="y")
-        plt.plot(channel3, label="z")
+        if(node==2):
+            plt.plot(channel1, lw=0.8, color='b', label="z")
+
+        elif(node==3):
+            plt.plot(channel1, lw=0.8, color='g', label="x")
+            plt.plot(channel2, lw=0.8, color='r', label="y")
+            plt.plot(channel3, lw=0.8, color='b', label="z")
         plt.ylim(-200000 * MV_CONST, 200000 * MV_CONST)
         plt.legend()
 
@@ -72,15 +76,23 @@ def draw_values(val):
         if 3 == int(node):
             a.set_title("TriAxial Sensor: " + str(node))
 
+        # plt.xlabel("Time")
+        plt.ylabel("mV")
+
         i += 1
 
     # Draw channel 4
     for node in val.keys():
+        if node == 1:
+            continue
         a = fig.add_subplot(7,1,6)
         channel4 = [v[3] for v in val[node]]
-        plt.plot(channel4)
-        plt.ylim(3000000 * MV_CONST, 5000000 * MV_CONST)
+        plt.plot(channel4, label="Node " + str(node))
+        plt.ylim(3000000 * MV_CONST, 5500000 * MV_CONST)
         a.set_title("Battery ")
+        plt.legend(loc='lower left')
+        # plt.xlabel("Time")
+        plt.ylabel("mV")
 
     #plt.xlim(0,1000)
     plt.draw()
@@ -180,8 +192,9 @@ def clean_values(new, previous, last_seq, means):
             if(seq_n_new <= last_seq[k]):
                 continue
 
+            # Fill missing values
             for x in xrange(last_seq[k] + 1, seq_n_new):
-                previous[k].append([0,0,0,0,x])
+                previous[k].append([means[k][0],means[k][1],means[k][2],means[k][3],x])
 
             alpha = float(0.8)
             beta = float(0.1)
