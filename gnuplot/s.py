@@ -125,14 +125,14 @@ def is_outlier(index, l):
     lenght = len(l)
     n = 10
 
-    if(l[index][3] < (4300000 * MV_CONST)):
+    if(abs(l[index][3]) < (11500)):
         return True
 
-    if(abs(l[index][0]) > (4000000 * MV_CONST)):
+    if(abs(l[index][0]) > (2500)):
         return True
-    if(abs(l[index][1]) > (4000000 * MV_CONST)):
+    if(abs(l[index][1]) > (2500)):
         return True
-    if(abs(l[index][2]) > (4000000 * MV_CONST)):
+    if(abs(l[index][2]) > (2500)):
         return True
 
     # First see difference in nodes around
@@ -184,10 +184,10 @@ def clean_values(new, previous, last_seq, means):
             clone = n[:]
             if is_outlier(i, new[k]):
                 #print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][2]) + "\t\t" + str(means[k][2])
-                clone[0] = means[k][0] 
+                clone[0] = average_neighbours(i, new[k], 0)
                 clone[1] = average_neighbours(i, new[k], 1)
                 clone[2] = average_neighbours(i, new[k], 2)
-                clone[3] = average_neighbours(i, new[k], 3)
+                clone[3] = means[k][3]
             i += 1
 
             # Ignore repeated values
