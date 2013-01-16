@@ -6,7 +6,8 @@ import pdb
 from time import sleep
 import matplotlib.pyplot as plt
 
-MV_CONST = 12000 / float(4800000)
+MV_CONST = 13900 / float(5605682)
+MV_SENSOR = 2500 / float(pow(2,23))
 
 def get_values():
     values = { 1: [], 2: [], 3: []}
@@ -15,9 +16,9 @@ def get_values():
         for k in data.keys():
             node_id = int(k.split(':')[0])
             seq = int(k.split(':')[1])
-            c1 = data[k]["1"] * MV_CONST
-            c2 = data[k]["2"] * MV_CONST * 0
-            c3 = data[k]["3"] * MV_CONST * 0
+            c1 = data[k]["1"] * MV_SENSOR
+            c2 = data[k]["2"] * MV_SENSOR * 0
+            c3 = data[k]["3"] * MV_SENSOR * 0
             c4 = data[k]["4"] * MV_CONST
 
             values[node_id].append([c1, c2, c3, c4, seq])
@@ -27,11 +28,11 @@ def get_values():
         for k in data.keys():
             node_id = int(k.split(':')[0])
             seq = int(k.split(':')[1])
-            c1 = data[k]["1"] * MV_CONST
+            c1 = data[k]["1"] * MV_SENSOR
 #            c2 = (data[k]["2"] - 100000) * MV_CONST
-            c2 = (data[k]["2"] - 00000) * MV_CONST
+            c2 = (data[k]["2"] - 00000) * MV_SENSOR
 #            c3 = (data[k]["3"] + 50000) * MV_CONST
-            c3 = (data[k]["3"]) * MV_CONST
+            c3 = (data[k]["3"]) * MV_SENSOR
             c4 = data[k]["4"] * MV_CONST
 
             values[node_id].append([c1, c2, c3, c4, seq])
@@ -61,12 +62,13 @@ def draw_values(val):
 
         if(node==2):
             plt.plot(channel1, lw=0.8, color='b', label="z")
+            plt.ylim(-2500, 2500)
 
         elif(node==3):
-            plt.plot(channel1, lw=0.8, color='g', label="x")
-            plt.plot(channel2, lw=0.8, color='r', label="y")
-            plt.plot(channel3, lw=0.8, color='b', label="z")
-        plt.ylim(-200000 * MV_CONST, 200000 * MV_CONST)
+            plt.plot(channel1, lw=0.8, color='b', label="z")
+            plt.plot(channel2, lw=0.8, color='r', label="e")
+            plt.plot(channel3, lw=0.8, color='g', label="n")
+            plt.ylim(-100, 100)
         plt.legend()
 
         if 1 == int(node):
@@ -88,7 +90,7 @@ def draw_values(val):
         a = fig.add_subplot(7,1,6)
         channel4 = [v[3] for v in val[node]]
         plt.plot(channel4, label="Node " + str(node))
-        plt.ylim(3000000 * MV_CONST, 5500000 * MV_CONST)
+        plt.ylim(11000, 14000)
         a.set_title("Battery ")
         plt.legend(loc='lower left')
         # plt.xlabel("Time")
@@ -101,8 +103,8 @@ def draw_values(val):
 
 def get_file():
     from subprocess import call
-    url2 = "http://192.168.1.43/miavita/miavita.json.2"
-    url3 = "http://192.168.1.43/miavita/miavita.json.3"
+    url2 = "http://192.168.1.43/miavita.json.2"
+    url3 = "http://192.168.1.43/miavita.json.3"
     call(["rm", 'miavita.json.2'])
     call(["rm", 'miavita.json.3'])
     call(["wget", url2])
@@ -123,14 +125,14 @@ def is_outlier(index, l):
     lenght = len(l)
     n = 10
 
-    if(l[index][3] < (4300000 * MV_CONST)):
+    if(abs(l[index][3]) < (11500)):
         return True
 
-    if(abs(l[index][0]) > (4000000 * MV_CONST)):
+    if(abs(l[index][0]) > (2500)):
         return True
-    if(abs(l[index][1]) > (4000000 * MV_CONST)):
+    if(abs(l[index][1]) > (2500)):
         return True
-    if(abs(l[index][2]) > (4000000 * MV_CONST)):
+    if(abs(l[index][2]) > (2500)):
         return True
 
     # First see difference in nodes around
@@ -181,11 +183,11 @@ def clean_values(new, previous, last_seq, means):
 
             clone = n[:]
             if is_outlier(i, new[k]):
-                print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][2]) + "\t\t" + str(means[k][2])
-                clone[0] = means[k][0] 
+                #print "OUTLIER " + str(i) + "\t\t\t\t\t" + str(new[k][i][2]) + "\t\t" + str(means[k][2])
+                clone[0] = average_neighbours(i, new[k], 0)
                 clone[1] = average_neighbours(i, new[k], 1)
                 clone[2] = average_neighbours(i, new[k], 2)
-                clone[3] = average_neighbours(i, new[k], 3)
+                clone[3] = means[k][3]
             i += 1
 
             # Ignore repeated values
