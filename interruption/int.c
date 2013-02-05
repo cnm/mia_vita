@@ -344,7 +344,7 @@ void handle_gps_int(void){
         mux_state = 0;
         write_watchdog();
     }
-    pulse_miavita_xtime();
+    /* pulse_miavita_xtime();                          /1* Trigger the miavita syscall in kernel to add a seconds *1/ */
     return;
 }
 

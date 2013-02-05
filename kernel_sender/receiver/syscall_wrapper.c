@@ -40,6 +40,11 @@ uint64_t get_mean_value(){
   return res;
 }
 
+/**
+ * @brief Sets the seconds passed in the miavita variable
+ *
+ * @param seconds passed in 64bits size
+ */
 void set_seconds(uint64_t s){
   int i = syscall(GPS_SET_SECONDS_SYS_CALL, &s);
   if(i == -1){

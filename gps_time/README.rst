@@ -1,6 +1,6 @@
 GPS Utilities
 -------------
-
+The **uart_gps_test** created is only used for debug purposes.
 
 
 To run

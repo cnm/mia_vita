@@ -48,13 +48,13 @@ void rmlist(list* l){
 
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-#define sample_to_le(S)				\
-  do{						\
-      uint8_t* ___s = (uint8_t*) (S);		\
-      uint8_t ___t[3] = {0};			\
-      memcpy(___t, ___s, 3);			\
-      ___s[0] = ___t[2];				\
-      ___s[2] = ___t[0];				\
+#define sample_to_le(S)               \
+  do{                                 \
+      uint8_t* ___s = (uint8_t*) (S); \
+      uint8_t ___t[3] = {0};          \
+      memcpy(___t, ___s, 3);          \
+      ___s[0] = ___t[2];              \
+      ___s[2] = ___t[0];              \
   }while(0)
 #else
 #define sample_to_le(S)
@@ -140,7 +140,7 @@ static void write_json(packet_t pkt, uint8_t first, int json_fd )
     }
   sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %d, \"sample_2\" : %d, \"sample_3\" : %d, \"sample_4\" : %d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp / 100, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
 #else
-  sprintf(buff, "\"%u:%u\":{\"1\":%d,\"2\":%d,\"3\":%d,\"4\": %d}", pkt.id, pkt.seq, sample1, sample2, sample3, sample4);
+  sprintf(buff, "\"%u:%u\":{\"ts\":\"%s\",\"1\":%d,\"2\":%d,\"3\":%d,\"4\": %d}", pkt.id, pkt.seq, pkt.timestamp, sample1, sample2, sample3, sample4);
 #endif
   to_write = strlen(buff);
   while(written < to_write)
@@ -179,7 +179,7 @@ static void dump(list* l)
 {
   uint32_t i;
   int json_fd;
-  #warning  326 is not a logical number. Had to use it as 6 (the supossed correct value) gave a seg fault. REDO URGENT
+  #warning 326 is not a logical number. Had to use it as 6 (the supossed correct value) gave a seg fault. REDO URGENT
   char * temp_path = (char *) calloc (sizeof(l->new_filename) + 326 * sizeof(char), sizeof(char));
   sprintf(temp_path, "%s.temp", l->new_filename);
 
