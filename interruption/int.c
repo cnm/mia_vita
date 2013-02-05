@@ -201,12 +201,12 @@ void cleanup(void){
     p = (unsigned int *) int_mask_new_address;
     unregister_handle_interruption();
 
-    printk(KERN_INFO "ANTES DE MEMORIA.\n");
+    printk(KERN_INFO "MEMORY BEFORE.\n");
     unregister_memory_region();
-    printk(KERN_INFO "DEPOIS DE MEMORIA.\n");
+    printk(KERN_INFO "MEMORY AFTER.\n");
 
     release_mem_spi();
-    printk(KERN_INFO "Unregister module interruption.\n");
+    printk(KERN_INFO "Unregistered module interruption.\n");
 }
 
 /* Register the interruption handler (and the IRQ number) */
@@ -310,7 +310,7 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_sda++;
 
         if((counter_sda % DIVISOR) == 0){
-/*            printk(KERN_INFO "Received PPS\n");*/
+            printk(KERN_INFO "Received PPS\n");
             handle_gps_int();
         }
     }
@@ -344,7 +344,7 @@ void handle_gps_int(void){
         mux_state = 0;
         write_watchdog();
     }
-/*    pulse_miavita_xtime();*/
+    pulse_miavita_xtime();
     return;
 }
 
