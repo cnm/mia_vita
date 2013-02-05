@@ -393,6 +393,5 @@ void handle_adc_int(){
 }
 /******************************** End of Interruption handlers ************************/
 
-
 module_init(init);
 module_exit(cleanup);
