@@ -92,12 +92,12 @@ pthread_t process_msg_t;
 
 typedef enum {
     GPS_PRE_INIT, // before GPS reset, dump all messages
-    GPS_RESET, // after GPS reset, before first post GPS message is received
-    GPS_SEARCH, // GPS is reset. Waiting for GPS signal. Yet unable to provide time
-    GPS_READY, // has gps signal. Can provide time
+    GPS_RESET,    // after GPS reset, before first post GPS message is received
+    GPS_SEARCH,   // GPS is reset. Waiting for GPS signal. Yet unable to provide time
+    GPS_READY,    // has gps signal. Can provide time
     GPS_QUERY
-      // waiting from reply to time/position request
-      // sent a query request. Waiting for reply
+                  // waiting from reply to time/position request
+                  // sent a query request. Waiting for reply
 } gps_state_t;
 
 gps_state_t gps_state = GPS_PRE_INIT;

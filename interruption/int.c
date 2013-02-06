@@ -291,16 +291,11 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_scl++;
 
         if((counter_scl % DIVISOR) == 0){
-            /*            if((counter_scl % 2) == 0){*/
-            /*            printk(KERN_INFO "Received adc int ADC\n");*/
-            /*            }*/
+            /* if((counter_scl % 2) == 0){ */
+            /*     printk(KERN_INFO "Received adc int ADC\n"); */
+            /* } */
 
-            /*            if((counter_scl % 10000) != 0){*/
-            /*            }*/
-            /*            else{*/
-            /*                printk(KERN_EMERG "Kern Emerg %u HANDLING\n", counter_scl);*/
             handle_adc_int();
-            /*            }*/
         }
     }
 
@@ -371,8 +366,8 @@ void handle_adc_int(){
     if (mux_state == 0) {
         write_dio26(1);
         mux_state = 1;
-/*        if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
-/*        if(counter != 1) __miavita_elapsed_usecs = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
+        /*        if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
+        /*        if(counter != 1) __miavita_elapsed_usecs = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
     }
 
 
@@ -390,7 +385,7 @@ void handle_adc_int(){
     write_to_buffer(value_buffer, timestamp);
     /*    }*/
 #endif
-}
+    }
 /******************************** End of Interruption handlers ************************/
 
 module_init(init);

@@ -85,7 +85,7 @@ int main(int argc, char** argv){
       return -1;
     }
 
-    printf("Found: %ld\n", tv.tv_sec);
+    printf("GPS returned with UNIX seconds: %ld\n", tv.tv_sec);
     set_seconds((uint64_t) tv.tv_sec); /* Set's the seconds in the miavia counter in the kernel cat ts7500_kernel/ipc/miavita_syscall.c:sys_miavitasetseconds */
 
     printf("Program finished without errors.\n");
