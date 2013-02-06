@@ -21,6 +21,7 @@
  */
 char* gps_device = "/dev/pts/0";
 unsigned int tries = 15;
+unsigned int original_tries;
 
 uint8_t parseargs(int argc, char** argv){
     int i;
@@ -46,7 +47,7 @@ uint8_t parseargs(int argc, char** argv){
 int main(int argc, char** argv){
     struct timeval tv;
 
-    if(argc > 4 && !parseargs(argc, argv))
+    if(argc > 4 || parseargs(argc, argv) == 0)
       return -1;
 
     /*  printf("Starting xuartctl...");*/
@@ -57,11 +58,13 @@ int main(int argc, char** argv){
     printf("Starting gps with device %s\n", gps_device);
     uart_init(0, 0, stderr, gps_device);
 
+    original_tries = tries;
     for(;!is_gps_ready(); tries--)
       {
         if(tries <= 0)
           {
-            break;
+            fprintf(stderr, "Number of tries limit of %u was reached. Returning error -1\n", original_tries);
+            return -1;
           }
         sleep(1);
       }
@@ -78,6 +81,7 @@ int main(int argc, char** argv){
 
     //If it is possible that it was another second due to delay reading serial port
     if(tv.tv_usec < 300000){
+      fprintf(stderr, "Possibly it was another second. So returning an error -1\n");
       return -1;
     }
 
