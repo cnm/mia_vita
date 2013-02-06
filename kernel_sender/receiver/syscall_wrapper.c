@@ -46,7 +46,7 @@ uint64_t get_mean_value(){
  * @param seconds passed in 64bits size
  */
 void set_seconds(uint64_t s){
-  int i = syscall(GPS_SET_SECONDS_SYS_CALL, &s);
+  int i = syscall(GPS_SET_SECONDS_SYS_CALL, s);
   if(i == -1){
     perror("setseconds syscall failed");
     exit(-1);
