@@ -157,7 +157,11 @@ static void write_json(packet_t pkt, uint8_t first, int json_fd )
 
 static uint8_t open_output_files(char * output_filename)
 {
-  int json_fd = open(output_filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  /* Use this to truncate */
+  /* int json_fd = open(output_filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); */
+  /* Use this to append */
+  int json_fd = open(output_filename, O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+
   if(json_fd == -1)
     {
       perror("Unable to open json output file");
