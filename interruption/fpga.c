@@ -3,15 +3,15 @@
  *
  *       Filename:  caller.c
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  08/16/2011 12:40:08 PM
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *        Company:  
+ *         Author:  YOUR NAME (),
+ *        Company:
  *
  * =====================================================================================
  */
@@ -98,8 +98,8 @@ unsigned short peek16(unsigned int adr) {
                   "ands r1, %0, #0x10000\n"
                   "bicne %0, %0, #0xff0000\n"
                   "moveq %0, #0x0\n"
-                  "beq 2b\n" 
-                  : "+r"(ret) 
+                  "beq 2b\n"
+                  : "+r"(ret)
                   : "r"(adr), "r"(cvspiregs)
                   : "r1", "cc"
     );
@@ -260,7 +260,7 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     a = peek16(0x4A);//2/3 da primeira
     b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
     c = peek16(0x4A);//2/3 da segunda
-    d = peek16(0x4A);//2/3 da terceira 
+    d = peek16(0x4A);//2/3 da terceira
     e = peek16(0x4A);//1/3 da terceira 1/3 da quarta
 
     f = peek16(0x4C);//2/3 da quarta
