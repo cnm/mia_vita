@@ -8,13 +8,6 @@ echo "Done"
 
 /usr/local/bin/xuartctl -p 0 -o 8o1 -s 9600 -d &> /root/logXuart
 
-#Let's start MiaVita stuff
-#/root/read_gps.sh &
-#/bin/bash -c "nohup /root/read_gps.sh &"
-sleep 3
-/root/read_gps.sh
-
-
 echo -n "Bringing interface ra0 up..."
 ifconfig ra0 up
 if [ $? -ne 0 ]
@@ -53,9 +46,15 @@ iptables -t nat -A POSTROUTING -o bat0 -j MASQUERADE
 mkdir /tmp/data
 mount /dev/sda1 /tmp/data
 
+#Let's start MiaVita stuff
+#/root/read_gps.sh &
+#/bin/bash -c "nohup /root/read_gps.sh &"
+sleep 3
+/root/read_gps.sh
+
 #Let work with the leds
-/usr/local/bin/ts7500ctl --setdio=0x0100000000 #Now POWER_ON
-/usr/local/bin/ts7500ctl --setdiodir=0x1f00000000
+# /usr/local/bin/ts7500ctl --setdio=0x0100000000 #Now POWER_ON
+# /usr/local/bin/ts7500ctl --setdiodir=0x1f00000000
 
 insmod /root/int_mod.ko &> /root/logIntMod
 sleep 1
