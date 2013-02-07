@@ -326,11 +326,18 @@ irqreturn_t interrupt(int irq, void *dev_id){
 }
 
 void handle_gps_int(void){
+
+    /* Temporary */
+    struct timeval t;
+    do_gettimeofday(&t);
+    t.tv_usec = 0;
+
     counter = 0;
     counter_seconds++;
     udelay_in_second = 0;
     __miavita_elapsed_usecs = 0;
     __miavita_elapsed_secs++;
+
     if(is_fpga_used()){
         return;
     }
@@ -354,8 +361,14 @@ void handle_adc_int(){
 #ifdef __GPS__
     int64_t gps_us;
 #endif
+    /* TEMPORARY */
+    struct timeval t;
 
     __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
+
+    /* TEMPORARY */
+    do_gettimeofday(&t);
+    __miavita_elapsed_usecs = t.tv_usec;
 
     counter++;
     if(fpga_busy){
