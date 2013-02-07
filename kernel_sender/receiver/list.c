@@ -160,7 +160,7 @@ static uint8_t open_output_files(char * output_filename)
   /* Use this to truncate */
   /* int json_fd = open(output_filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); */
   /* Use this to append */
-  int json_fd = open(output_filename, O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  int json_fd = open(output_filename, O_WRONLY | O_APPEND | O_CREAT);
 
   if(json_fd == -1)
     {
@@ -176,7 +176,8 @@ static void close_output_files(int json_fd, char * temp_path, char * new_path)
   write(json_fd, "\n}", 2);
   close(json_fd);
 
-  rename(temp_path, new_path);
+  #warning Rename not happening. TODO - Create an option for archive and one for each node
+  /* rename(temp_path, new_path); */
 }
 
 static void dump(list* l)
