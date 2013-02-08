@@ -6,7 +6,6 @@ KERNEL_PATH= ../ts7500_kernel/
 EXTRA_CFLAGS += -I$(PWD)/../interruption/
 
 # EXTRA_CFLAGS += -D__DEBUG__
-#EXTRA_CFLAGS += -D__GPS__
 
 all:
 	@echo "\n\n\t\t ##### Compiling interruption Module \t####"

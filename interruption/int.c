@@ -54,19 +54,11 @@ unsigned int counter_scl = 0;
 unsigned int counter_seconds = 0;
 
 extern void release_mem_spi(void);
-#ifdef __GPS__
-extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp, int64_t* gps_us);
-#else
 extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
-#endif
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
 
-#ifdef __GPS__
-extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp, int64_t gps_us);
-#else
 extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
-#endif
 extern void write_dio26(bool b);
 extern unsigned short read_dio26(void);
 
@@ -358,9 +350,7 @@ void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
     int64_t timestamp;
-#ifdef __GPS__
-    int64_t gps_us;
-#endif
+
     /* TEMPORARY */
     struct timeval t;
 
@@ -384,21 +374,12 @@ void handle_adc_int(){
     }
 
 
-#ifdef __GPS__
-    /* Read the adc  */
-    read_four_channels(value_buffer, &timestamp, &gps_us);
-
-    /* Save to a buffer the value */
-    write_to_buffer(value_buffer, timestamp, gps_us);
-#else
     /* Read the adc  */
     read_four_channels(value_buffer, &timestamp);
 
     /* Save to a buffer the value */
     write_to_buffer(value_buffer, timestamp);
-    /*    }*/
-#endif
-    }
+}
 /******************************** End of Interruption handlers ************************/
 
 module_init(init);

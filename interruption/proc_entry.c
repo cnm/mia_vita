@@ -42,13 +42,8 @@ sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
  *be_samples is a pointer which will be allocated inside the function. It will contain the samples in big endian format.
  *len is a pointer to the number of copied samples (one sample has the three channels).
  */
-#ifdef __GPS__
-int read_nsamples(sample** be_samples, uint32_t* len_in_samples, int64_t* gps_us, uint32_t* last_read)
-{
-#else
 int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_read)
 {
-#endif
     /*DATA memory layout:
      *
      *For 3 integers 0xAABBCCDD, DATA is:
@@ -123,22 +118,6 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
     return how_many_we_copy;
   }
 
-#ifdef __GPS__
-void write_to_buffer(unsigned int * value, int64_t timestamp, int64_t gps_us)
-{
-#ifdef __DEBUG__
-/*    printk(KERN_INFO "Writing to buffer %d value %u\n", last_write, (*value));*/
-#endif
-
-    DATA[last_write].gps_us = gps_us;
-    DATA[last_write].timestamp = timestamp;
-    DATA[last_write].data[0] = *value;
-    DATA[last_write].data[1] = *(value + 1);
-    DATA[last_write].data[2] = *(value + 2);
-
-    last_write = ((last_write + 1) % DATA_SIZE);
-}
-#else
 /* This function is called by the interruption and therefore cannot be interrupted */
 void write_to_buffer(unsigned int * value, int64_t timestamp)
 {
@@ -153,7 +132,6 @@ void write_to_buffer(unsigned int * value, int64_t timestamp)
 
     last_write = ((last_write + 1) % DATA_SIZE);
 }
-#endif
 
 void create_proc_file(void)
 {

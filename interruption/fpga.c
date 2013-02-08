@@ -19,9 +19,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>       /* printk() */
 
-/*#ifdef __GPS__*/
 #include <linux/miavita_xtime.h>
-/*#endif*/
 
 #include "mem_addr.h"
 
@@ -215,37 +213,6 @@ int64_t get_kernel_current_time(void) {
     * USEC_2_NSEC;
 }
 
-#ifdef __GPS__
-void read_four_channels(unsigned int* read_buffer, int64_t* timestamp, int64_t* gps_us){
-    unsigned int a,b,c,d,e,f;
-    a = b = c = d = e = f = 0;
-
-    *timestamp = get_kernel_current_time();
-    *gps_us = __miavita_elapsed_secs * 1000000 + __miavita_elapsed_usecs;
-
-    a = peek16(0x4A);//2/3 da primeira
-    b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
-    c = peek16(0x4A);//2/3 da segunda
-    d = peek16(0x4A);//2/3 da terceira
-    e = peek16(0x4A);//1/3 da terceira 1/3 da quarta
-
-    f = peek16(0x4C);//2/3 da quarta
-
-    read_buffer[0] = (a<<16|b);
-    read_buffer[1] = (c<<16|d);
-    read_buffer[2] = (e<<16|f);
-
-
-    /* Usefull to debug stuff */
-/*    read_buffer[0] = 0x44332211;*/
-/*    read_buffer[1] = 0x88776655;*/
-/*    read_buffer[2] = 0xCCBBAA99;*/
-
-/*    printk(KERN_INFO "DATA: %x - %x - %x - %x - %x - %x \n", a, b, c, d, e, f);*/
-
-    return;
-}
-#else
 void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     unsigned int a,b,c,d,e,f;
     uint32_t temp_buffer1 = 0;
@@ -294,7 +261,6 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
 
     return;
 }
-#endif
 
 void release_mem_spi(void){
     release_mem(GPIOA_REGISTER, WORD_SIZE);

@@ -463,8 +463,6 @@ You can specify aditional parameters ::
     -p     UDP port on which the program will listen. Default is 57843
     -b     Name of the binary file to where the data is going to be written. Default is miavita.bin
     -j     Name of the json file to where the data is going to be written. Default is miavita.json
-    -t     Test the program against GPS time. Make sure to compile this program with -D__GPS__.
-
 
 Test Results (made by Simao)
 ============================

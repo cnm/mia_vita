@@ -63,9 +63,6 @@ void rmlist(list* l){
 #warning "This implementation is not converting to correct endianess. Only works if everything is ARM. (little endian)"
 static packet_t ntohpkt(packet_t pkt)
 {
-#ifdef __GPS__
-    pkt.gps_us = be64toh( pkt.gps_us );
-#endif
     pkt.timestamp = be64toh( pkt.timestamp );
     pkt.air = be64toh( pkt.air );
     pkt.seq = be32toh( pkt.seq );
@@ -129,19 +126,8 @@ static void write_json(packet_t pkt, uint8_t first, int json_fd )
       first = 0;
     }
 
-#ifdef __GPS__
-  if(test)
-    {
-      struct timeval t;
-      gettimeofday(&t, NULL);
-
-      pkt.timestamp = (((int64_t) t.tv_sec) * 1000000 + t.tv_usec) - pkt.timestamp;
-      pkt.gps_us = get_millis_offset() - pkt.gps_us;
-    }
-  sprintf(buff, "\"%u:%u\" : {\"gps_us\" : %lld, \"timestamp\" : %lld, \"air_time\" : %lld, \"sequence\" : %u, \"fails\" : %u, \"retries\" : %u, \"sample_1\" : %d, \"sample_2\" : %d, \"sample_3\" : %d, \"sample_4\" : %d, \"node_id\" : %u }", pkt.id, pkt.seq, pkt.gps_us, pkt.timestamp / 100, pkt.air, pkt.seq, pkt.fails, pkt.retries, sample1, sample2, sample3, sample4, pkt.id);
-#else
   sprintf(buff, "\"%u:%u\":{\"ts\":%lld,\"1\":%d,\"2\":%d,\"3\":%d,\"4\": %d}", pkt.id, pkt.seq, pkt.timestamp, sample1, sample2, sample3, sample4);
-#endif
+
   to_write = strlen(buff);
   while(written < to_write)
     {

@@ -6,7 +6,6 @@ PWD := $(shell pwd)
 CROSS-TOOL := ../crosstool/arm-unknown-linux-gnu/bin/
 CC1 := $(CROSS-TOOL)arm-unknown-linux-gnu-gcc
 
-# EXTRA_CFLAGS += -D__GPS__
 # EXTRA_CFLAGS += -D__DEBUG__
 
 all: userland_reader

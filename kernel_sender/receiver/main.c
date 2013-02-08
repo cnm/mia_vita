@@ -10,10 +10,6 @@
 
 #define DEBUG 1
 
-#ifdef __GPS__
-#include "syscall_wrapper.h"
-#endif
-
 #include "miavita_packet.h"
 #include "list.h"
 
@@ -33,7 +29,6 @@ void print_usage(char* cmd)
   printf("-b\tName of the binary file to where the data is going to be written. Default is %s\n", output_binary_file);
   printf("-j\tName of the json file to where the data is going to be written. Default is %s\n", output_json_file);
   printf("-z\tName of the json file to where the archive data is going to be written. Default is %s\n", archive_json_file);
-  printf("-t\tTest the program against GPS time. Make sure to compile this program with -D__GPS__.\n");
   printf("-o\tOutput file prefix when the file is moved by log rotation. Default is %s.\n", move_file_to);
   printf("-c\tBuffer capacity expressed in terms of number of packets. Default is %d.\n", capacity);
 }

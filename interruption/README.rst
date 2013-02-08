@@ -41,14 +41,6 @@ Upload the module:
 
    rmmod int_mod.ko; scp jtrindade@172.20.41.204:/home/workspace/mia_vita/interruption/int_mod.ko .; insmod int_mod.ko;
 
-Using GPS
-=========
-
-To compile the with the interruption getting values of the GPS time --> get's the variables __miavita_elapsed_secs and __miavita_elapsed_usecs which are present on the altered kernel (file: ipc/miavita_syscall.c) use the following flag:
-
-EXTRA_CFLAGS+=-D__GPS__
-
-
 Notes on ADC
 ============
 
