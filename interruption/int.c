@@ -319,7 +319,8 @@ irqreturn_t interrupt(int irq, void *dev_id){
 
 void handle_gps_int(void){
 
-    /* Temporary */
+    /* TODO - Change to use a base and then compare the base with the kernel time. Do NOT change the kernel time */
+#warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time
     struct timeval t;
     do_gettimeofday(&t);
     t.tv_usec = 0;
@@ -351,12 +352,12 @@ void handle_adc_int(){
     bool fpga_busy = is_fpga_used();
     int64_t timestamp;
 
-    /* TEMPORARY */
+    /* TODO - This solution was discard (next 2 lines) but it is extremely usefull if GPS does not find a signal. Maybe pass as a parameter??? */
     struct timeval t;
-
     __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
 
-    /* TEMPORARY */
+    /* TODO - Change to use a base and then compare the base with the kernel time. Do NOT change the kernel time */
+#warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time
     do_gettimeofday(&t);
     __miavita_elapsed_usecs = t.tv_usec;
 
