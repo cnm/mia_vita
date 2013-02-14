@@ -1,3 +1,8 @@
+/* TODO - This file was to be completelly rewritten. It has been adapted for to long to changing requirements.
+ * It is trying to do stuff for which it is no longer necessary (we use GPS devices now) and is incredibly difficult to maintain.
+ * */
+
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,12 +15,9 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-
 #include "macros.h"
 #include "list.h"
 
-/* char* output_binary_file = "/tmp/manel/miavita.bin"; */
-/* char* output_json_file = "/tmp/manel/miavita.json"; */
 char* output_binary_file = "miavita.bin";
 char* output_json_file = "miavita.json";
 char* archive_json_file = "miavita.json.archive";
@@ -34,11 +36,13 @@ list* mklist(uint32_t capacity, char* new_filename)
   return l;
 }
 
-void clear_list(list* l){
+void clear_list(list* l)
+{
   l->lst_size = 0;
 }
 
-void rmlist(list* l){
+void rmlist(list* l)
+{
     if(l)
       {
         free(l->buff);
@@ -60,7 +64,7 @@ void rmlist(list* l){
 #define sample_to_le(S)
 #endif
 
-#warning "This implementation is not converting to correct endianess. Only works if everything is ARM. (little endian)"
+#warning "Check if implementation is converting to correct endianess. IMHO only works if everything is ARM. (little endian)"
 static packet_t ntohpkt(packet_t pkt)
 {
     pkt.timestamp = be64toh( pkt.timestamp );
@@ -143,9 +147,10 @@ static void write_json(packet_t pkt, uint8_t first, int json_fd )
 
 static uint8_t open_output_files(char * output_filename)
 {
-  /* Use this to truncate */
+  /* TODO - Pass this as a parameters - Use this to truncate */
   /* int json_fd = open(output_filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); */
-  /* Use this to append */
+
+  /* TODO - Pass this as a parameters - Use this to append */
   int json_fd = open(output_filename, O_WRONLY | O_APPEND | O_CREAT);
 
   if(json_fd == -1)
@@ -218,7 +223,8 @@ int  __packet_comparator(const void* a, const void* b){
 
 #define SEC_2_USEC 1000000L
 #define USEC_2_NSEC 1000
-int64_t get_kernel_current_time(void) {
+int64_t get_kernel_current_time(void) 
+{
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return ((int64_t) tv.tv_sec) * SEC_2_USEC + ((int64_t) tv.tv_usec);
