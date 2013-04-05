@@ -7,15 +7,23 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.iris.dmc.seedcodec.DecompressedData;
 import edu.iris.dmc.seedcodec.UnsupportedCompressionType;
 import edu.sc.seis.seisFile.mseed.Blockette1000;
+import edu.sc.seis.seisFile.mseed.DataHeader;
 import edu.sc.seis.seisFile.mseed.DataRecord;
+import edu.sc.seis.seisFile.mseed.DataRecordBeginComparator;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
 import edu.sc.seis.seisFile.mseed.SeedRecord;
 
@@ -25,18 +33,43 @@ public class App
 
     public static void main(String[] args)
     {
-        List<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
+        TreeMap<DataRecord, float[]> orderedRecordDataMap;
         String filename = DEFAULT_FILENAME;
 
         try
         {
-            records = getAllDataRecords(filename);
+            orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(filename));
+            printOrderedRecordDataMap(orderedRecordDataMap);
         }
         catch (FileNotFoundException e1)
         {
             System.out.println("Unable to find file: " + filename);
             System.exit(1);
         }
+    }
+
+    private static void printOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap)
+    {
+        for (Map.Entry<DataRecord, float[]> entry : orderedRecordDataMap.entrySet())
+        {
+            DataRecord dr = entry.getKey();
+            float[] data = entry.getValue();
+
+            printHeader(dr);
+            printResults(data);
+            System.out.println("\n");
+        }
+    }
+
+    private static TreeMap<DataRecord, float[]> decompressDataRecordList(List<DataRecord> records)
+    {
+        TreeMap<DataRecord, float[]> orderedRecordDataMap = new TreeMap<DataRecord, float[]>(new DataRecordBeginComparator());
+
+        for (DataRecord record : records)
+        {
+            orderedRecordDataMap.put(record, decompressDataRecord(record));
+        }
+        return orderedRecordDataMap;
     }
 
     private static List<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
@@ -46,7 +79,8 @@ public class App
 
         dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
 
-        List<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records 
+        List<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
+
         while (!eofReached)
         {
             try
@@ -56,12 +90,8 @@ public class App
                 if (sr instanceof DataRecord)
                 {
                     DataRecord dr = (DataRecord) sr;
-                    // records.add(dr);
-                    printHeader(dr);
-
-                    float[] data = decompressDataRecord(dr);
-                    printResults(data);
-
+                    records.add(dr);
+                    // printHeader(dr);
                 }
             }
             catch (EOFException e)
@@ -96,6 +126,7 @@ public class App
                 System.out.println("");
             }
         }
+        System.out.println("\n");
     }
 
     private static float[] decompressDataRecord(DataRecord dr)
@@ -131,14 +162,36 @@ public class App
 
     private static void printHeader(DataRecord dr)
     {
-        System.out.print("\n\nStart time: " + dr.getHeader().getStartTime());
-        // System.out.print("\tData record lenght: " +
-        // b1000.getDataRecordLength());
-        System.out.print("\tSequence Number: " + dr.getHeader().getSequenceNum());
-        System.out.print("\tID: " + dr.getHeader().getStationIdentifier());
-        System.out.print("\tChannel: " + dr.getHeader().getChannelIdentifier());
-        System.out.println("\tLocation: " + dr.getHeader().getLocationIdentifier());
-        System.out.print("Number Samples: " + dr.getHeader().getNumSamples());
-        System.out.println("\tSPS: " + dr.getHeader().getSampleRateFactor());
+        // Date to format ---> 2013,038,01:22:05.0000
+        SimpleDateFormat df = new SimpleDateFormat("yyyy,DDD,HH:mm:ss.SSS");
+
+        DataHeader header = dr.getHeader();
+        Calendar cal = Calendar.getInstance();   
+        
+        try
+        {
+            Date start = df.parse(header.getStartTime().substring(0, header.getStartTime().length() - 1));
+            int timeInRecord = (1000 / header.getSampleRateFactor()) * header.getNumSamples();
+            cal.setTime(start);
+            cal.add(Calendar.MILLISECOND, timeInRecord);
+
+            System.out.println("Start: " + header.getStartTime());
+            System.out.print("Start: " + df.format(start));
+            System.out.print("\tEnd: " + df.format(cal.getTime()));
+            System.out.print("\tSequence Number: " + header.getSequenceNum());
+            System.out.print("\tID: " + header.getStationIdentifier());
+            System.out.print("\tChannel: " + header.getChannelIdentifier());
+            System.out.print("\tLocation: " + header.getLocationIdentifier());
+            System.out.print("\tNumber Samples: " + header.getNumSamples());
+            System.out.print("\tSPS: " + header.getSampleRateFactor());
+            System.out.println(" x " + header.getSampleRateMultiplier());
+            System.out.println("\n");
+        }
+        catch (ParseException e)
+        {
+
+            System.exit(1);
+        }
+
     }
 }
