@@ -1,10 +1,3 @@
-/*
- * gps_uartctl.c
- *
- *  Created on: Jun 13, 2011
- *      Author: ricardo
- */
-
 #include <sys/time.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -41,16 +34,14 @@
 
 gps_fault_t gps_fault = GPS_OK;
 
-char reset_msg[] = { DLE, GPS_CMD_RESET, DLE, ETX };
+char reset_msg[]                                          = { DLE, GPS_CMD_RESET, DLE, ETX };
 // set latitude longitude altitude (LLA) position reports
-char config_auto_report_msg[] = { DLE, GPS_CMD_AUTOMATIC_POS_REPORT, 2, 0, 1, 0, DLE, ETX };
-char enhance_sensitivity_on_msg[] = { DLE, GPS_CMD_ENHANCED_SENSITIVITY, 1, 0,
-    DLE, ETX };
-char enhance_sensitivity_off_msg[] = { DLE, GPS_CMD_ENHANCED_SENSITIVITY, 0, 0,
-    DLE, ETX };
-char request_time_msg[] = { DLE, GPS_REQUEST_TIME, DLE, ETX };
-char request_health_msg[] = { DLE, GPS_CMD_REQ_HEALTH, DLE, ETX};
-char request_position_msg[] = { DLE, GPS_CMD_REQ_POS, DLE, ETX};
+char config_auto_report_msg[]                             = { DLE, GPS_CMD_AUTOMATIC_POS_REPORT, 2, 0, 1, 0, DLE, ETX };
+char enhance_sensitivity_on_msg[]                         = { DLE, GPS_CMD_ENHANCED_SENSITIVITY, 1, 0, DLE, ETX };
+char enhance_sensitivity_off_msg[]                        = { DLE, GPS_CMD_ENHANCED_SENSITIVITY, 0, 0, DLE, ETX };
+char request_time_msg[]                                   = { DLE, GPS_REQUEST_TIME, DLE, ETX };
+char request_health_msg[]                                 = { DLE, GPS_CMD_REQ_HEALTH, DLE, ETX};
+char request_position_msg[]                               = { DLE, GPS_CMD_REQ_POS, DLE, ETX};
 
 int num_satellites = 0;
 
@@ -294,8 +285,7 @@ void output_from_gps(unsigned char* msg, int msg_len) {
         exit(1);
     }
 #ifdef GPS_DEBUG
-    //	fprintf(debug_f, "Stored message - Size = %d. Buffer using from %d to %d\n", msg_len,
-    //			buff_start, buff_end);
+    fprintf(debug_f, "Stored message - Size = %d. Buffer using from %d to %d\n", msg_len, buff_start, buff_end);
 #endif
     pthread_mutex_unlock(&state_change_m);
 }
@@ -420,8 +410,7 @@ void* process_msg(void *unused) {
           end += MSG_BUF_SIZE;
 
 #ifdef GPS_DEBUG
-        /*        fprintf(debug_f, "Will process new message - Size = %d, from %d to %d\n",*/
-        /*               end - start, start, end);*/
+        fprintf(debug_f, "Will process new message - Size = %d, from %d to %d\n", end - start, start, end);
         packet_content("found this ", start, end);
 #endif
 

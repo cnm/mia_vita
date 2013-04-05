@@ -60,7 +60,7 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_
 #ifdef __DEBUG__
       printk(KERN_INFO "NOTHING TO READ\n");
 #endif
-      return 0; //Screw this... cannot read samples 
+      return 0; //Screw this... cannot read samples
       }
 
     samples_to_copy = (*last_read > last_write)? last_write + DATA_SIZE - *last_read : last_write - *last_read;
@@ -80,11 +80,9 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_
 
     *last_read = (*last_read + samples_to_copy) % DATA_SIZE;
     *len_in_samples = samples_to_copy;
-    return 1; //Read was successful 
+    return 1; //Read was successful
 }
 EXPORT_SYMBOL(read_nsamples);
-
-
 
 //Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
 static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset,

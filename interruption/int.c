@@ -206,10 +206,11 @@ void register_handle_interruption(){
     int result;
     printk(KERN_INFO "Registering to handle IRQ number %i\n", IRQ_NUMBER);
     result = request_irq(IRQ_NUMBER, interrupt, IRQF_DISABLED, "MV_INT", NULL);
-    if (result) {
+    if (result)
+      {
         printk(KERN_INFO "can't get assigned irq %i\n", IRQ_NUMBER);
         printk(KERN_INFO "Error number result %i\n", result);
-    }
+      }
 }
 /************************ End Configuration Functions *************************/
 
@@ -279,32 +280,36 @@ irqreturn_t interrupt(int irq, void *dev_id){
     p = (unsigned int *) gpio_int_status_new_address;
 
     /* If scl interruption */
-    if(SCL_MASK & *p){
+    if(SCL_MASK & *p)
+      {
         counter_scl++;
 
-        if((counter_scl % DIVISOR) == 0){
+        if((counter_scl % DIVISOR) == 0)
+          {
             /* if((counter_scl % 2) == 0){ */
             /*     printk(KERN_INFO "Received adc int ADC\n"); */
             /* } */
 
             handle_adc_int();
-        }
-    }
+          }
+      }
 
 
     /* If sda interruption */
-    else if(SDA_MASK & *p){
+    else if(SDA_MASK & *p)
+      {
         counter_sda++;
 
         if((counter_sda % DIVISOR) == 0){
             printk(KERN_INFO "Received PPS\n");
             handle_gps_int();
         }
-    }
+      }
 
-    else{ // should not happen
-        printk(KERN_INFO "-------------ERROR SOMETHING ELSE ------------------- ??\n");
-    }
+    else
+      { // should not happen
+        printk(KERN_EMERG "------------- ERROR Received unknown interruption ------------------- ??\n");
+      }
 
     /* Clear the GPIO interruption */
     p = (unsigned int *) gpio_int_clear_new_address;
@@ -339,20 +344,19 @@ void handle_gps_int(void){
         mux_state = 0;
         write_watchdog();
     }
-    /* pulse_miavita_xtime();                          /1* Trigger the miavita syscall in kernel to add a seconds *1/ */
     return;
 }
 
-/*#define SAMPLE_RATE_TIME_INTERVAL_U   20000        |+ 50Hz -> 20 Miliseconds -> 20 000 Micro+|*/
-#define SAMPLE_RATE_TIME_INTERVAL_U   13513        /* 74Hz -> 20 Miliseconds -> 20 000 Micro*/
-#define DATA_READY_TIME_U                13        /* 1 / (3.6??? Mhz / 512) TODO - Calculate this */
+/* #define SAMPLE_RATE_TIME_INTERVAL_U   20000      /1* Supposed to be          -> 50Hz -> 20 Miliseconds -> 20 000 Micro+|*/ */
+#define SAMPLE_RATE_TIME_INTERVAL_U   13513         /* Due to error in PCB 74Hz -> 20 Miliseconds -> 20 000 Micro*/
+#define DATA_READY_TIME_U                13         /* First sample difference  -> 1 / (3.6??? Mhz / 512) TODO - Calculate this */
 
 void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
     int64_t timestamp;
 
-    /* TODO - This solution was discard (next 2 lines) but it is extremely usefull if GPS does not find a signal. Maybe pass as a parameter??? */
+    /* TODO - Current solution discards next 2 lines but they are extremely usefull if GPS does not find a signal. Maybe pass as a parameter as module is inserted??? */
     struct timeval t;
     __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
 
@@ -362,18 +366,21 @@ void handle_adc_int(){
     __miavita_elapsed_usecs = t.tv_usec;
 
     counter++;
-    if(fpga_busy){
-        /*        printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds);*/
+    if(fpga_busy)
+      {
+        /* printk(KERN_EMERG "Second %u\tFPGA being used and I'm on the ADC\n", counter_seconds); */
         return;
-    }
+      }
 
-    if (mux_state == 0) {
+    if (mux_state == 0)
+      {
         write_dio26(1);
         mux_state = 1;
-        /*        if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
-        /*        if(counter != 1) __miavita_elapsed_usecs = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U);*/
-    }
 
+        /* TODO - This lines can be usefull if no GPS is found. But we have to decide if we accept it */
+        /* if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U); */
+        /* if(counter != 1) __miavita_elapsed_usecs = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U); */
+      }
 
     /* Read the adc  */
     read_four_channels(value_buffer, &timestamp);
