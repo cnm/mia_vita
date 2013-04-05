@@ -7,7 +7,8 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.CodecException;
@@ -18,69 +19,126 @@ import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
 import edu.sc.seis.seisFile.mseed.SeedRecord;
 
-public class App {
-    public static void main(String[] args) {
-        String default_filename = "../Sesimbra_07_Jan_2012/theirs/IP.PSES..BHN.D.2013.038";
+public class App
+{
+    public static final String DEFAULT_FILENAME = "../Sesimbra_07_Jan_2012/theirs/IP.PSES..BHN.D.2013.038";
 
-        try {
-            DataInput dis = new DataInputStream(new BufferedInputStream(new FileInputStream(default_filename)));
-            Codec codec = new Codec();
+    public static void main(String[] args)
+    {
+        List<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
+        String filename = DEFAULT_FILENAME;
 
-            while (true) {
-                SeedRecord sr = SeedRecord.read(dis, 4096);
+        try
+        {
+            records = getAllDataRecords(filename);
+        }
+        catch (FileNotFoundException e1)
+        {
+            System.out.println("Unable to find file: " + filename);
+            System.exit(1);
+        }
+    }
 
-                int numSoFar = 0;
-                if (sr instanceof DataRecord) {
+    private static List<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
+    {
+        DataInput dis;
+        Boolean eofReached = false;
+
+        dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
+
+        List<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records 
+        while (!eofReached)
+        {
+            try
+            {
+                SeedRecord sr = SeedRecord.read(dis, 4096); // 4096 is for read miniseed that lack a Blockette1000
+
+                if (sr instanceof DataRecord)
+                {
                     DataRecord dr = (DataRecord) sr;
-                    Blockette1000 b1000 = (Blockette1000) dr.getBlockettes(1000)[0];
+                    // records.add(dr);
+                    printHeader(dr);
 
-                    System.out.print("\n\nStart time: " + dr.getHeader().getStartTime());
-                    // System.out.print("\tData record lenght: " + b1000.getDataRecordLength());
-                    System.out.print("\tSequence Number: " + dr.getHeader().getSequenceNum());
-                    System.out.print("\tID: " + dr.getHeader().getStationIdentifier());
-                    System.out.print("\tChannel: " + dr.getHeader().getChannelIdentifier());
-                    System.out.println("\tLocation: " + dr.getHeader().getLocationIdentifier());
-                    System.out.print("Number Samples: " + dr.getHeader().getNumSamples());
-                    System.out.println("\tSPS: " + dr.getHeader().getSampleRateFactor());
+                    float[] data = decompressDataRecord(dr);
+                    printResults(data);
 
-                    float[] data = new float[dr.getHeader().getNumSamples()];
-
-                    DecompressedData decompData = codec.decompress(b1000.getEncodingFormat(), dr.getData(), dr.getHeader()
-                            .getNumSamples(), b1000.isLittleEndian());
-                    float[] temp = decompData.getAsFloat();
-                    System.arraycopy(temp, 0, data, numSoFar, temp.length);
-
-                    int i = 0;
-                    for(float f : data){
-                        i += 1;
-                        System.out.print(String.format("%05d\t", Math.round(f)));
-                        if(i >= 24){
-                            i=0;
-                            System.out.println("");
-                        }
-                    }
-
-                    numSoFar += temp.length;
                 }
             }
-        } catch (EOFException e) {
-            System.out.println("EOF Exception");
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found Exception");
-            e.printStackTrace();
-        } catch (IOException e) {
-            System.out.println("IO exception");
-            e.printStackTrace();
-        } catch (SeedFormatException e) {
-            System.out.println("Seed formater");
-            e.printStackTrace();
-        } catch (UnsupportedCompressionType e) {
+            catch (EOFException e)
+            {
+                System.out.println("EOF Exception");
+                eofReached = true; // To get out of the loop
+            }
+            catch (IOException e)
+            {
+                System.out.println("IO exception");
+                e.printStackTrace();
+            }
+            catch (SeedFormatException e)
+            {
+                System.out.println("Seed formater");
+                e.printStackTrace();
+            }
+        }// While
+        return records;
+    }
+
+    private static void printResults(float[] data)
+    {
+        int i = 0;
+        for (float f : data)
+        {
+            i += 1;
+            System.out.print(String.format("%05d\t", Math.round(f)));
+            if (i >= 24)
+            {
+                i = 0;
+                System.out.println("");
+            }
+        }
+    }
+
+    private static float[] decompressDataRecord(DataRecord dr)
+    {
+        Codec codec = new Codec();
+        Blockette1000 b1000 = (Blockette1000) dr.getBlockettes(1000)[0];
+        float[] data = new float[dr.getHeader().getNumSamples()];
+
+        DecompressedData decompData;
+        try
+        {
+            decompData = codec.decompress(b1000.getEncodingFormat(), dr.getData(), dr.getHeader().getNumSamples(), b1000.isLittleEndian());
+
+            float[] temp = decompData.getAsFloat();
+            int numSoFar = 0;
+
+            System.arraycopy(temp, 0, data, numSoFar, temp.length);
+            numSoFar += temp.length;
+        }
+        catch (UnsupportedCompressionType e)
+        {
             System.out.println("UnsupportedCompressionType");
             e.printStackTrace();
-        } catch (CodecException e) {
+        }
+        catch (CodecException e)
+        {
             System.out.println("CodecException");
             e.printStackTrace();
         }
+
+        return data;
+    }
+
+    private static void printHeader(DataRecord dr)
+    {
+        System.out.print("\n\nStart time: " + dr.getHeader().getStartTime());
+        // System.out.print("\tData record lenght: " +
+        // b1000.getDataRecordLength());
+        System.out.print("\tSequence Number: " + dr.getHeader().getSequenceNum());
+        System.out.print("\tID: " + dr.getHeader().getStationIdentifier());
+        System.out.print("\tChannel: " + dr.getHeader().getChannelIdentifier());
+        System.out.println("\tLocation: " + dr.getHeader().getLocationIdentifier());
+        System.out.print("Number Samples: " + dr.getHeader().getNumSamples());
+        System.out.println("\tSPS: " + dr.getHeader().getSampleRateFactor());
     }
 }
