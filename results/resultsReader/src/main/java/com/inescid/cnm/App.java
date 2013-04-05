@@ -1,11 +1,13 @@
 package com.inescid.cnm;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,12 +41,45 @@ public class App
         try
         {
             orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(filename));
-            printOrderedRecordDataMap(orderedRecordDataMap);
+            // printOrderedRecordDataMap(orderedRecordDataMap);
+            writeOrderedRecordDataMap(orderedRecordDataMap, 200);
         }
         catch (FileNotFoundException e1)
         {
             System.out.println("Unable to find file: " + filename);
             System.exit(1);
+        }
+    }
+
+    private static void writeOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap, int softLineLimit)
+    {
+        String path = "out.data";
+        BufferedWriter out;
+        int lines = 0;
+
+        try
+        {
+            out = new BufferedWriter(new FileWriter(path));
+
+            for (float[] v : orderedRecordDataMap.values())
+            {
+                for (float f : v)
+                {
+                    lines +=1;
+                    out.write(Float.toString(f) + '\n');
+                }
+
+                if(lines > softLineLimit)
+                {
+                    break;   
+                }
+            }
+            out.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println("Could not write data file");
+            e.printStackTrace();
         }
     }
 
@@ -57,7 +92,6 @@ public class App
 
             printHeader(dr);
             printResults(data);
-            System.out.println("\n");
         }
     }
 
@@ -132,6 +166,8 @@ public class App
     private static float[] decompressDataRecord(DataRecord dr)
     {
         Codec codec = new Codec();
+
+        assert dr.getBlockettes().length == 1;
         Blockette1000 b1000 = (Blockette1000) dr.getBlockettes(1000)[0];
         float[] data = new float[dr.getHeader().getNumSamples()];
 
@@ -167,15 +203,14 @@ public class App
 
         DataHeader header = dr.getHeader();
         Calendar cal = Calendar.getInstance();   
-        
+
         try
         {
-            Date start = df.parse(header.getStartTime().substring(0, header.getStartTime().length() - 1));
+            Date start = df.parse(header.getStartTime().substring(0, header.getStartTime().length() - 1));  // Removed last character as it is always 0
             int timeInRecord = (1000 / header.getSampleRateFactor()) * header.getNumSamples();
             cal.setTime(start);
             cal.add(Calendar.MILLISECOND, timeInRecord);
 
-            System.out.println("Start: " + header.getStartTime());
             System.out.print("Start: " + df.format(start));
             System.out.print("\tEnd: " + df.format(cal.getTime()));
             System.out.print("\tSequence Number: " + header.getSequenceNum());
@@ -185,13 +220,10 @@ public class App
             System.out.print("\tNumber Samples: " + header.getNumSamples());
             System.out.print("\tSPS: " + header.getSampleRateFactor());
             System.out.println(" x " + header.getSampleRateMultiplier());
-            System.out.println("\n");
         }
         catch (ParseException e)
         {
-
             System.exit(1);
         }
-
     }
 }
