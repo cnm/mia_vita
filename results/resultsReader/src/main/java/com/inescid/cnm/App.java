@@ -40,6 +40,9 @@ public class App
 
         try
         {
+            ReaderCliOptions opt = new ReaderCliOptions();
+            opt.parse(args);
+
             orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(filename));
             // printOrderedRecordDataMap(orderedRecordDataMap);
             writeOrderedRecordDataMap(orderedRecordDataMap, 200);
