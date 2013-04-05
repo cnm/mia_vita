@@ -18,26 +18,16 @@ import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
 import edu.sc.seis.seisFile.mseed.SeedRecord;
 
-/**
- * Hello world!
- *
- */
 public class App {
-
     public static void main(String[] args) {
-        System.out.println("Hello World!");
-        String filename = "/home/workspace/mia_vita/results/Sesimbra_07_Jan_2012/theirs/IP.PSES..BHN.D.2013.038";
+        String default_filename = "../Sesimbra_07_Jan_2012/theirs/IP.PSES..BHN.D.2013.038";
 
         try {
-            DataInput dis = new DataInputStream(new BufferedInputStream(
-                    new FileInputStream(filename)));
+            DataInput dis = new DataInputStream(new BufferedInputStream(new FileInputStream(default_filename)));
             Codec codec = new Codec();
 
             while (true) {
                 SeedRecord sr = SeedRecord.read(dis, 4096);
-
-                // maybe print it out...
-                // sr.writeASCII(out);
 
                 int numSoFar = 0;
                 if (sr instanceof DataRecord) {
@@ -55,8 +45,7 @@ public class App {
 
                     float[] data = new float[dr.getHeader().getNumSamples()];
 
-                    DecompressedData decompData = codec.decompress(b1000
-                            .getEncodingFormat(), dr.getData(), dr.getHeader()
+                    DecompressedData decompData = codec.decompress(b1000.getEncodingFormat(), dr.getData(), dr.getHeader()
                             .getNumSamples(), b1000.isLittleEndian());
                     float[] temp = decompData.getAsFloat();
                     System.arraycopy(temp, 0, data, numSoFar, temp.length);
