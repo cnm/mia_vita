@@ -27,7 +27,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Include to external jars. Not a pretty solution, but it works -->
+            <!-- Include to external jars in MANIFEST class. Not a pretty solution, but it works -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -38,8 +38,7 @@
                             <mainClass>com.inescid.cnm.App</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Class-Path>seisFile-1.5.2_localMod.jar</Class-Path>
-                            <Class-Path>seedCodec-1.0.8.jar</Class-Path>
+                            <Class-Path>seisFile-1.5.2_localMod.jar seedCodec-1.0.8.jar</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -75,7 +74,7 @@
         <dependency>
             <groupId>seisFile</groupId>
             <artifactId>seisFile</artifactId>
-            <version>1.0.0</version>
+            <version>1.5.2</version>
             <scope>system</scope>
             <systemPath>${basedir}/src/main/resources/seisFile-1.5.2_localMod.jar</systemPath>
         </dependency>
