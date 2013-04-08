@@ -29,7 +29,7 @@ To draw the images for all the three axis run:
 
 usage: help
 ===========
-::
+
    --data-output <output path>   Filepath to write the data output
    --debug                       Prints mseed info as it reads the input file
    --help                        print this message and exit
