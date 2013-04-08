@@ -31,25 +31,21 @@ import edu.sc.seis.seisFile.mseed.SeedRecord;
 
 public class App
 {
-    public static final String DEFAULT_FILENAME = "../Sesimbra_07_Jan_2012/theirs/IP.PSES..BHN.D.2013.038";
-
     public static void main(String[] args)
     {
         TreeMap<DataRecord, float[]> orderedRecordDataMap;
-        String filename = DEFAULT_FILENAME;
+        ReaderCliOptions opt = new ReaderCliOptions();
+        opt.parse(args);
+        String inputMseedPath = opt.mseedPath;
 
         try
         {
-            ReaderCliOptions opt = new ReaderCliOptions();
-            opt.parse(args);
-
-            orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(filename));
-            // printOrderedRecordDataMap(orderedRecordDataMap);
+            orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(inputMseedPath));
             writeOrderedRecordDataMap(orderedRecordDataMap, 200);
         }
         catch (FileNotFoundException e1)
         {
-            System.out.println("Unable to find file: " + filename);
+            System.out.println("Unable to find file: " + inputMseedPath);
             System.exit(1);
         }
     }
