@@ -37,6 +37,7 @@ public class App
         ReaderCliOptions opt = new ReaderCliOptions();
         opt.parse(args);
         String inputMseedPath = opt.mseedPath;
+        System.out.println(opt);
 
         try
         {

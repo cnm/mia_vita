@@ -66,7 +66,6 @@ public class ReaderCliOptions extends Options
 
             if (cmdLine.hasOption("data-output")) {
                 System.out.println("Data output");
-                softLineLimit = true;
                 outputDataFilePath = (String) cmdLine.getParsedOptionValue("data-output");
             }
 
@@ -83,9 +82,15 @@ public class ReaderCliOptions extends Options
             }
 
         } catch (ParseException e) {
-                HelpFormatter h = new HelpFormatter();
-                h.printHelp("help", this);
-                System.exit(-1);
+            HelpFormatter h = new HelpFormatter();
+            h.printHelp("help", this);
+            System.exit(-1);
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("Options:\n\thas line Limit:\t%s\n\tsoftLineLimit:\t%d\n\tdata-output:\t%s\n\tmseed filepath:\t%s", 
+                softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath);
+    };
 }
