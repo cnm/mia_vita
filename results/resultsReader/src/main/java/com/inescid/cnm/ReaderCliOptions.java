@@ -19,6 +19,7 @@ public class ReaderCliOptions extends Options
     public Boolean softLineLimit = false;
     public int softLineLimitValue = -1;
     public boolean debug = false;
+    public boolean outputWithTime = false;
 
     public ReaderCliOptions()
     {
@@ -52,6 +53,10 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withLongOpt("debug");
         OptionBuilder.withDescription("Prints mseed info as it reads the input file");
         this.addOption(OptionBuilder.create());
+
+        OptionBuilder.withLongOpt("outputWithTime");
+        OptionBuilder.withDescription("Prints mseed info as it reads the input file");
+        this.addOption(OptionBuilder.create());
     }
 
     void parse(String[] args)
@@ -74,6 +79,10 @@ public class ReaderCliOptions extends Options
                 mseedPath = (String) cmdLine.getParsedOptionValue("mseed-path");
             }
 
+            if (cmdLine.hasOption("outputWithTime")) {
+                outputWithTime = true;
+            }
+
             if (cmdLine.hasOption("debug")) {
                 debug = true;
             }
@@ -94,7 +103,7 @@ public class ReaderCliOptions extends Options
 
     @Override
     public String toString() {
-        return String.format("Options:\n\thas line Limit:\t%s\n\tsoftLineLimit:\t%d\n\tdata-output:\t%s\n\tmseed filepath:\t%s\n\tdebug:\t%s", 
-                softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath, debug);
+        return String.format("Options:\n\thas line Limit:\t%s\n\tsoftLineLimit:\t%d\n\tdata-output:\t%s\n\tmseed filepath:\t%s\n\tdebug:\t%s\noutputWithTime:\t%s", 
+                softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath, debug, outputWithTime);
     };
 }

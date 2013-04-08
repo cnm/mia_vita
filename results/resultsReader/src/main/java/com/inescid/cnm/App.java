@@ -13,8 +13,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -50,7 +50,7 @@ public class App
             }
 
             System.out.println("Writting to output file treated data");
-            writeOrderedRecordDataMap(orderedRecordDataMap, opt.softLineLimit, opt.softLineLimitValue, opt.outputDataFilePath);
+            writeOrderedRecordDataMap(orderedRecordDataMap, opt.softLineLimit, opt.softLineLimitValue, opt.outputDataFilePath, opt.outputWithTime);
         }
         catch (FileNotFoundException e1)
         {
@@ -59,21 +59,41 @@ public class App
         }
     }
 
-    private static void writeOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean softLineLimit, int softLineLimitValue, String dataOutFilepath)
+    private static void writeOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean softLineLimit, int softLineLimitValue, String dataOutFilepath, boolean outputWithTime)
     {
         BufferedWriter out;
         int lines = 0;
+        Calendar cal = Calendar.getInstance();   
 
         try
         {
             out = new BufferedWriter(new FileWriter(dataOutFilepath));
 
-            for (float[] v : orderedRecordDataMap.values())
+            for (Map.Entry<DataRecord, float[]> entry : orderedRecordDataMap.entrySet())
             {
-                for (float f : v)
+
+                int i = 0;
+                float[] values = entry.getValue();
+                DataRecord dr = entry.getKey();
+
+                SimpleDateFormat df = new SimpleDateFormat("yyyy,DDD,HH:mm:ss.SSS");
+                DataHeader header = dr.getHeader();
+
+                Date start = df.parse(header.getStartTime().substring(0, header.getStartTime().length() - 1));  // Removed last character as it is always 0
+
+                for (float f : values)
                 {
                     lines +=1;
-                    out.write(Float.toString(f) + '\n');
+
+                    int timeInRecord = (1000 / header.getSampleRateFactor()) * i;
+                    i += 1;
+                    cal.setTime(start);
+                    cal.add(Calendar.MILLISECOND, timeInRecord);
+
+                    if(outputWithTime)
+                        out.write(df.format(cal.getTime()) + "\t" + Float.toString(f) + '\n');
+                    else
+                        out.write(Float.toString(f) + '\n');
                 }
 
                 if(softLineLimit && lines > softLineLimitValue)
@@ -90,6 +110,11 @@ public class App
             System.out.println("Could not write data file");
             e.printStackTrace();
         }
+        catch (ParseException e)
+        {
+            System.out.println("Parse exception");
+            e.printStackTrace();
+        }
     }
 
     private static void printOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap)
@@ -104,7 +129,7 @@ public class App
         }
     }
 
-    private static TreeMap<DataRecord, float[]> decompressDataRecordList(List<DataRecord> records)
+    private static TreeMap<DataRecord, float[]> decompressDataRecordList(Collection<DataRecord> records)
     {
         TreeMap<DataRecord, float[]> orderedRecordDataMap = new TreeMap<DataRecord, float[]>(new DataRecordBeginComparator());
 
@@ -115,14 +140,14 @@ public class App
         return orderedRecordDataMap;
     }
 
-    private static List<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
+    private static Collection<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
     {
         DataInput dis;
         Boolean eofReached = false;
 
         dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
 
-        List<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
+        Collection<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
 
         while (!eofReached)
         {
@@ -154,6 +179,13 @@ public class App
                 System.exit(1);
             }
         }// While
+
+        // Remove duplicates
+        // HashSet set = new HashSet();
+        // set.addAll(records);
+
+        // ArrayList nonDuplicate
+
         return records;
     }
 
