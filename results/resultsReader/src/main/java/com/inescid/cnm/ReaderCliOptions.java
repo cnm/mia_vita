@@ -27,28 +27,26 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withDescription("Limits the number of mseed lines to process (only a soft limit, number of lines limit can be higher)");
         OptionBuilder.withType(Number.class);
         OptionBuilder.hasArg();
-        OptionBuilder.withArgName("l");
+        OptionBuilder.withArgName("number");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("mseed-path");
         OptionBuilder.withDescription("Input mseed filepath");
         OptionBuilder.withType(String.class);
         OptionBuilder.hasArg();
-        OptionBuilder.withArgName("i");
+        OptionBuilder.withArgName("mseed path");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("data-output");
         OptionBuilder.withDescription("Filepath to write the data output");
         OptionBuilder.withType(String.class);
         OptionBuilder.hasArg();
-        OptionBuilder.withArgName("o");
+        OptionBuilder.withArgName("output path");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("help");
         OptionBuilder.withDescription("print this message and exit");
-        OptionBuilder.withArgName("h");
         this.addOption(OptionBuilder.create());
-
     }
 
     void parse(String[] args)

@@ -37,12 +37,15 @@ public class App
         ReaderCliOptions opt = new ReaderCliOptions();
         opt.parse(args);
         String inputMseedPath = opt.mseedPath;
-        System.out.println(opt);
+        System.out.println(opt + "\n");
 
         try
         {
+            System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
             orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(inputMseedPath));
-            writeOrderedRecordDataMap(orderedRecordDataMap, 200);
+
+            System.out.println("Writting to output file treated data");
+            writeOrderedRecordDataMap(orderedRecordDataMap, opt.softLineLimit, opt.softLineLimitValue, opt.outputDataFilePath);
         }
         catch (FileNotFoundException e1)
         {
@@ -51,15 +54,14 @@ public class App
         }
     }
 
-    private static void writeOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap, int softLineLimit)
+    private static void writeOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean softLineLimit, int softLineLimitValue, String dataOutFilepath)
     {
-        String path = "out.data";
         BufferedWriter out;
         int lines = 0;
 
         try
         {
-            out = new BufferedWriter(new FileWriter(path));
+            out = new BufferedWriter(new FileWriter(dataOutFilepath));
 
             for (float[] v : orderedRecordDataMap.values())
             {
@@ -69,11 +71,13 @@ public class App
                     out.write(Float.toString(f) + '\n');
                 }
 
-                if(lines > softLineLimit)
+                if(softLineLimit && lines > softLineLimitValue)
                 {
                     break;   
                 }
             }
+
+            System.out.println(String.format("Written: %d lines to file: %s", lines, dataOutFilepath));
             out.close();
         }
         catch (IOException e)
@@ -130,18 +134,20 @@ public class App
             }
             catch (EOFException e)
             {
-                System.out.println("EOF Exception");
+                System.out.println("EOF Exception --> Indicate the input has no more to read. Not an error");
                 eofReached = true; // To get out of the loop
             }
             catch (IOException e)
             {
                 System.out.println("IO exception");
                 e.printStackTrace();
+                System.exit(1);
             }
             catch (SeedFormatException e)
             {
-                System.out.println("Seed formater");
+                System.out.println("Exception with the mseed format");
                 e.printStackTrace();
+                System.exit(1);
             }
         }// While
         return records;
