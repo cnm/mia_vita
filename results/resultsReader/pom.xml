@@ -27,43 +27,43 @@
                 </configuration>
             </plugin>
 
-            <!-- Include to external jars in MANIFEST class. Not a pretty solution, but it works -->
+            <!-- To create a jar with all dependencies with mvn install -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-4</version>
                 <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
                             <mainClass>com.inescid.cnm.App</mainClass>
                         </manifest>
-                        <manifestEntries>
-                            <Class-Path>seisFile-1.5.2_localMod.jar seedCodec-1.0.8.jar</Class-Path>
-                        </manifestEntries>
                     </archive>
                 </configuration>
-            </plugin>
-
-            <!-- To run program with exec:exec -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
                 <executions>
                     <execution>
+                        <phase>package</phase>
                         <goals>
-                            <goal>java</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
 
+            <!-- To run program with exec:java -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.1</version>
                 <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-classpath</argument> 
-                        <argument>src/main/resources/seisFile-1.5.2_localMod.jar:src/main/resources/seedCodec-1.0.8.jar:target/classes/</argument>
-                        <argument>com.inescid.cnm.App</argument>
-                    </arguments>
+                    <mainClass>com.inescid.cnm.App</mainClass>
                 </configuration>
             </plugin>
 
@@ -73,18 +73,16 @@
     <dependencies>
         <dependency>
             <groupId>seisFile</groupId>
-            <artifactId>seisFile</artifactId>
+            <artifactId>edu.sc.seis.seisFile</artifactId>
             <version>1.5.2</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/src/main/resources/seisFile-1.5.2_localMod.jar</systemPath>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>seedCode</groupId>
-            <artifactId>seedCodec</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/src/main/resources/seedCodec-1.0.8.jar</systemPath>
+            <groupId>seedCodec</groupId>
+            <artifactId>edu.iris.dmc.seedcodec</artifactId>
+            <version>1.0.8</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
