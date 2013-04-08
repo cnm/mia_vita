@@ -14,7 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -49,8 +51,11 @@ public class App
                 printOrderedRecordDataMap(orderedRecordDataMap);
             }
 
+            System.out.println("Extracting samples");
+            ArrayList<Sample> sampleList = transformToSampleList(orderedRecordDataMap);
+
             System.out.println("Writting to output file treated data");
-            writeOrderedRecordDataMap(orderedRecordDataMap, opt.softLineLimit, opt.softLineLimitValue, opt.outputDataFilePath, opt.outputWithTime);
+            writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTime);
         }
         catch (FileNotFoundException e1)
         {
@@ -59,16 +64,40 @@ public class App
         }
     }
 
-    private static void writeOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean softLineLimit, int softLineLimitValue, String dataOutFilepath, boolean outputWithTime)
-    {
+    private static void writeSampleList(List<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTime){
         BufferedWriter out;
         int lines = 0;
-        Calendar cal = Calendar.getInstance();   
-
         try
         {
             out = new BufferedWriter(new FileWriter(dataOutFilepath));
+            for(Sample sample : sampleList){
+                out.write(sample.toString(outputWithTime) + "\n");
 
+                lines +=1;
+                if(softLineLimit && lines > softLineLimitValue)
+                {
+                    break;   
+                }
+            }
+
+            out.close();
+        }
+
+        catch (IOException e)
+        {
+            System.out.println("Could not write data file");
+            e.printStackTrace();
+        }
+
+    }
+
+    private static ArrayList<Sample> transformToSampleList(TreeMap<DataRecord, float[]> orderedRecordDataMap)
+    {
+        Calendar cal = Calendar.getInstance();   
+        ArrayList<Sample> sampleList = new ArrayList<Sample>();
+
+        try
+        {
             for (Map.Entry<DataRecord, float[]> entry : orderedRecordDataMap.entrySet())
             {
 
@@ -83,38 +112,27 @@ public class App
 
                 for (float f : values)
                 {
-                    lines +=1;
 
                     int timeInRecord = (1000 / header.getSampleRateFactor()) * i;
                     i += 1;
                     cal.setTime(start);
                     cal.add(Calendar.MILLISECOND, timeInRecord);
 
-                    if(outputWithTime)
-                        out.write(df.format(cal.getTime()) + "\t" + Float.toString(f) + '\n');
-                    else
-                        out.write(Float.toString(f) + '\n');
-                }
-
-                if(softLineLimit && lines > softLineLimitValue)
-                {
-                    break;   
+                    sampleList.add(new Sample(cal.getTime(), f));
                 }
             }
 
-            System.out.println(String.format("Written: %d lines to file: %s", lines, dataOutFilepath));
-            out.close();
-        }
-        catch (IOException e)
-        {
-            System.out.println("Could not write data file");
-            e.printStackTrace();
         }
         catch (ParseException e)
         {
             System.out.println("Parse exception");
             e.printStackTrace();
+            System.out.println("Continuing");
         }
+
+        System.out.println("Sorting...");
+        Collections.sort(sampleList, new Sample.SampleComparator());
+        return sampleList;
     }
 
     private static void printOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap)
