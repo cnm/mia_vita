@@ -44,6 +44,11 @@ public class App
             System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
             orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(inputMseedPath));
 
+            if(opt.debug)
+            {
+                printOrderedRecordDataMap(orderedRecordDataMap);
+            }
+
             System.out.println("Writting to output file treated data");
             writeOrderedRecordDataMap(orderedRecordDataMap, opt.softLineLimit, opt.softLineLimitValue, opt.outputDataFilePath);
         }
@@ -129,7 +134,6 @@ public class App
                 {
                     DataRecord dr = (DataRecord) sr;
                     records.add(dr);
-                    // printHeader(dr);
                 }
             }
             catch (EOFException e)

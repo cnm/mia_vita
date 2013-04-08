@@ -18,6 +18,7 @@ public class ReaderCliOptions extends Options
     public String outputDataFilePath = "out.data";
     public Boolean softLineLimit = false;
     public int softLineLimitValue = -1;
+    public boolean debug = false;
 
     public ReaderCliOptions()
     {
@@ -47,6 +48,10 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withLongOpt("help");
         OptionBuilder.withDescription("print this message and exit");
         this.addOption(OptionBuilder.create());
+
+        OptionBuilder.withLongOpt("debug");
+        OptionBuilder.withDescription("Prints mseed info as it reads the input file");
+        this.addOption(OptionBuilder.create());
     }
 
     void parse(String[] args)
@@ -57,19 +62,20 @@ public class ReaderCliOptions extends Options
             CommandLine cmdLine = cmdLineParser.parse(this, args);
 
             if (cmdLine.hasOption("soft-line-limit")) {
-                System.out.println("Has option soft");
                 softLineLimit = true;
                 softLineLimitValue = ((Number)cmdLine.getParsedOptionValue("soft-line-limit")).intValue();
             }
 
             if (cmdLine.hasOption("data-output")) {
-                System.out.println("Data output");
                 outputDataFilePath = (String) cmdLine.getParsedOptionValue("data-output");
             }
 
             if (cmdLine.hasOption("mseed-path")) {
-                System.out.println("Mseed path");
                 mseedPath = (String) cmdLine.getParsedOptionValue("mseed-path");
+            }
+
+            if (cmdLine.hasOption("debug")) {
+                debug = true;
             }
 
             if (cmdLine.hasOption("help")) {
@@ -88,7 +94,7 @@ public class ReaderCliOptions extends Options
 
     @Override
     public String toString() {
-        return String.format("Options:\n\thas line Limit:\t%s\n\tsoftLineLimit:\t%d\n\tdata-output:\t%s\n\tmseed filepath:\t%s", 
-                softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath);
+        return String.format("Options:\n\thas line Limit:\t%s\n\tsoftLineLimit:\t%d\n\tdata-output:\t%s\n\tmseed filepath:\t%s\n\tdebug:\t%s", 
+                softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath, debug);
     };
 }
