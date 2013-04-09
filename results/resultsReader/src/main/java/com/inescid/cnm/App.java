@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -52,7 +52,7 @@ public class App
             }
 
             System.out.println("Extracting samples");
-            ArrayList<Sample> sampleList = transformToSampleList(orderedRecordDataMap);
+            ArrayList<Sample> sampleList = transformToSampleList(orderedRecordDataMap, opt.outputWithTime);
 
             System.out.println("Writting to output file treated data");
             writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTime);
@@ -64,7 +64,7 @@ public class App
         }
     }
 
-    private static void writeSampleList(List<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTime){
+    private static void writeSampleList(Collection<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTime){
         BufferedWriter out;
         int lines = 0;
         try
@@ -91,7 +91,7 @@ public class App
 
     }
 
-    private static ArrayList<Sample> transformToSampleList(TreeMap<DataRecord, float[]> orderedRecordDataMap)
+    private static ArrayList<Sample> transformToSampleList(TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean sortWithTime)
     {
         Calendar cal = Calendar.getInstance();   
         ArrayList<Sample> sampleList = new ArrayList<Sample>();
@@ -131,7 +131,13 @@ public class App
         }
 
         System.out.println("Sorting...");
-        Collections.sort(sampleList, new Sample.SampleComparator());
+
+        if(sortWithTime)
+            Collections.sort(sampleList, new Sample.SampleComparatorTime());
+        else
+            Collections.sort(sampleList, new Sample.SampleComparatorSequenceNumber());
+
+
         return sampleList;
     }
 
