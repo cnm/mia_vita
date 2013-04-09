@@ -23,7 +23,8 @@ public class Sample {
 
     @Override
     public String toString() {
-        return String.format("%s\t%f", df.format(ts), v);
+        // return String.format("%s\t%f", df.format(ts), v); // This shows a pretty date
+        return String.format("%s\t%f", ts.getTime(), v); // This shows the time in miliseconds since 1970
     };
 
 

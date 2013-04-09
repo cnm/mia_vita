@@ -204,12 +204,6 @@ public class App
             }
         }// While
 
-        // Remove duplicates
-        // HashSet set = new HashSet();
-        // set.addAll(records);
-
-        // ArrayList nonDuplicate
-
         return records;
     }
 
