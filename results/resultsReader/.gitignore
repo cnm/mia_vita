@@ -4,3 +4,4 @@ out.*
 .classpath
 .project
 .settings/
+out_*.*
