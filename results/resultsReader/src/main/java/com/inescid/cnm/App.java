@@ -16,8 +16,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import com.google.common.collect.ImmutableList;
 
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.CodecException;
@@ -49,7 +52,7 @@ public class App
             if(opt.debug) { printOrderedRecordDataMap(orderedRecordDataMap); }
 
             System.out.println("Extracting samples");
-            ArrayList<Sample> sampleList = transformToSampleList(orderedRecordDataMap, opt.outputWithTime);
+            List<Sample> sampleList = transformToSampleList(orderedRecordDataMap, opt.outputWithTime);
 
             System.out.println("Writting to output file treated data");
             writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTime);
@@ -115,7 +118,7 @@ public class App
         return orderedRecordDataMap;
     }
 
-    private static ArrayList<Sample> transformToSampleList(TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean sortWithTime)
+    private static List<Sample> transformToSampleList(final TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean sortWithTime)
     {
         Calendar cal = Calendar.getInstance();   
         ArrayList<Sample> sampleList = new ArrayList<Sample>();
@@ -161,8 +164,7 @@ public class App
         else
             Collections.sort(sampleList, new Sample.SampleComparatorSequenceNumber());
 
-
-        return sampleList;
+        return ImmutableList.copyOf(sampleList);
     }
 
 
