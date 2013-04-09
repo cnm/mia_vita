@@ -16,7 +16,7 @@ public class Sample {
 
     public Sample(Date ts, float v)
     {
-        this.ts = ts;
+        this.ts = new Date(ts.getTime());
         this.v = v;
         this.sn = numberSamples++;
     }

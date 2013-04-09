@@ -16,7 +16,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -41,15 +40,13 @@ public class App
         String inputMseedPath = opt.mseedPath;
         System.out.println(opt + "\n");
 
+        //Lets read the mseed file, order it, transform it to a collection of samples, and then write the samples in a file
         try
         {
             System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
             orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(inputMseedPath));
 
-            if(opt.debug)
-            {
-                printOrderedRecordDataMap(orderedRecordDataMap);
-            }
+            if(opt.debug) { printOrderedRecordDataMap(orderedRecordDataMap); }
 
             System.out.println("Extracting samples");
             ArrayList<Sample> sampleList = transformToSampleList(orderedRecordDataMap, opt.outputWithTime);
@@ -59,36 +56,63 @@ public class App
         }
         catch (FileNotFoundException e1)
         {
-            System.out.println("Unable to find file: " + inputMseedPath);
+            System.out.println("Unable to find input mseed file: " + inputMseedPath);
             System.exit(1);
         }
     }
 
-    private static void writeSampleList(Collection<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTime){
-        BufferedWriter out;
-        int lines = 0;
-        try
-        {
-            out = new BufferedWriter(new FileWriter(dataOutFilepath));
-            for(Sample sample : sampleList){
-                out.write(sample.toString(outputWithTime) + "\n");
+    private static Collection<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
+    {
+        DataInput dis;
+        Boolean eofReached = false;
 
-                lines +=1;
-                if(softLineLimit && lines > softLineLimitValue)
-                {
-                    break;   
-                }
+        dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
+
+        Collection<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
+
+        // Continue reading until EOF given by exception
+        while (!eofReached)
+        {
+            try
+            {
+                SeedRecord sr = SeedRecord.read(dis, 4096); // 4096 is for read miniseed that lack a Blockette1000
+
+                // We should only find data records
+                assert sr instanceof DataRecord;
+                DataRecord dr = (DataRecord) sr;
+                records.add(dr);
             }
+            catch (EOFException e)
+            {
+                System.out.println("EOF Exception --> Indicate the input has no more to read. Not an error");
+                eofReached = true; // To get out of the loop
+            }
+            catch (IOException e)
+            {
+                System.out.println("IO exception. Quitting");
+                e.printStackTrace();
+                System.exit(1);
+            }
+            catch (SeedFormatException e)
+            {
+                System.out.println("Exception with the mseed format. Quitting");
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }// While
 
-            out.close();
-        }
+        return records;
+    }
 
-        catch (IOException e)
+    private static TreeMap<DataRecord, float[]> decompressDataRecordList(Collection<DataRecord> records)
+    {
+        TreeMap<DataRecord, float[]> orderedRecordDataMap = new TreeMap<DataRecord, float[]>(new DataRecordBeginComparator());
+
+        for (DataRecord record : records)
         {
-            System.out.println("Could not write data file");
-            e.printStackTrace();
+            orderedRecordDataMap.put(record, decompressDataRecord(record));
         }
-
+        return orderedRecordDataMap;
     }
 
     private static ArrayList<Sample> transformToSampleList(TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean sortWithTime)
@@ -141,71 +165,6 @@ public class App
         return sampleList;
     }
 
-    private static void printOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap)
-    {
-        for (Map.Entry<DataRecord, float[]> entry : orderedRecordDataMap.entrySet())
-        {
-            DataRecord dr = entry.getKey();
-            float[] data = entry.getValue();
-
-            printHeader(dr);
-            printResults(data);
-        }
-    }
-
-    private static TreeMap<DataRecord, float[]> decompressDataRecordList(Collection<DataRecord> records)
-    {
-        TreeMap<DataRecord, float[]> orderedRecordDataMap = new TreeMap<DataRecord, float[]>(new DataRecordBeginComparator());
-
-        for (DataRecord record : records)
-        {
-            orderedRecordDataMap.put(record, decompressDataRecord(record));
-        }
-        return orderedRecordDataMap;
-    }
-
-    private static Collection<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
-    {
-        DataInput dis;
-        Boolean eofReached = false;
-
-        dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
-
-        Collection<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
-
-        while (!eofReached)
-        {
-            try
-            {
-                SeedRecord sr = SeedRecord.read(dis, 4096); // 4096 is for read miniseed that lack a Blockette1000
-
-                if (sr instanceof DataRecord)
-                {
-                    DataRecord dr = (DataRecord) sr;
-                    records.add(dr);
-                }
-            }
-            catch (EOFException e)
-            {
-                System.out.println("EOF Exception --> Indicate the input has no more to read. Not an error");
-                eofReached = true; // To get out of the loop
-            }
-            catch (IOException e)
-            {
-                System.out.println("IO exception");
-                e.printStackTrace();
-                System.exit(1);
-            }
-            catch (SeedFormatException e)
-            {
-                System.out.println("Exception with the mseed format");
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }// While
-
-        return records;
-    }
 
     private static void printResults(float[] data)
     {
@@ -256,6 +215,32 @@ public class App
         return data;
     }
 
+    private static void writeSampleList(Collection<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTime){
+        BufferedWriter out;
+        int lines = 0;
+        try
+        {
+            out = new BufferedWriter(new FileWriter(dataOutFilepath));
+            for(Sample sample : sampleList){
+                out.write(sample.toString(outputWithTime) + "\n");
+
+                lines +=1;
+                if(softLineLimit && lines > softLineLimitValue)
+                {
+                    break;   
+                }
+            }
+
+            out.close();
+        }
+
+        catch (IOException e)
+        {
+            System.out.println("Could not write data file");
+            e.printStackTrace();
+        }
+    }
+
     private static void printHeader(DataRecord dr)
     {
         // Date to format ---> 2013,038,01:22:05.0000
@@ -286,4 +271,17 @@ public class App
             System.exit(1);
         }
     }
+
+    private static void printOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap)
+    {
+        for (Map.Entry<DataRecord, float[]> entry : orderedRecordDataMap.entrySet())
+        {
+            DataRecord dr = entry.getKey();
+            float[] data = entry.getValue();
+
+            printHeader(dr);
+            printResults(data);
+        }
+    }
+
 }
