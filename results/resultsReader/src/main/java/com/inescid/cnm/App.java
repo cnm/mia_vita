@@ -54,6 +54,15 @@ public class App
             System.out.println("Extracting samples");
             List<Sample> sampleList = transformToSampleList(orderedRecordDataMap, opt.outputWithTime);
 
+            if(!validSampleList(sampleList))
+            {
+               System.out.println("Invalid samples. Have more than 20 msec gap between them");
+            }
+            else
+            {
+               System.out.println("Samples are valid");
+            }
+
             System.out.println("Writting to output file treated data");
             writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTime);
         }
@@ -62,6 +71,28 @@ public class App
             System.out.println("Unable to find input mseed file: " + inputMseedPath);
             System.exit(1);
         }
+    }
+
+    private static boolean validSampleList(List<Sample> sampleList)
+    {
+        long delta = 0;
+        long last_sample_time = sampleList.get(0).getTs().getTime();
+
+        // Check for gaps in time collection
+        for (Sample s : sampleList)
+        {
+
+            long this_sample_time = s.getTs().getTime();
+            delta = last_sample_time - this_sample_time;
+
+            // If delta is higher than 20 milliseconds
+            if (delta > 20)
+            {
+                return false;                  
+            }
+            last_sample_time = this_sample_time;
+        }
+        return true;
     }
 
     private static Collection<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException

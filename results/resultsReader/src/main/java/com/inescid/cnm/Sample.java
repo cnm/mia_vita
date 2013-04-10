@@ -54,6 +54,12 @@ public class Sample {
         }
     };
 
+
+    public Date getTs()
+    {
+        return ts;
+    }
+
     public String toStringTimeStamp() {
         return String.format("%d\t%f", sn, v);
     }
