@@ -20,6 +20,7 @@ public class ReaderCliOptions extends Options
     public int softLineLimitValue = -1;
     public boolean debug = false;
     public boolean outputWithTime = false;
+    public boolean onlyCheck = false;
 
     public ReaderCliOptions()
     {
@@ -36,14 +37,14 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withDescription("Input mseed filepath");
         OptionBuilder.withType(String.class);
         OptionBuilder.hasArg();
-        OptionBuilder.withArgName("mseed path");
+        OptionBuilder.withArgName("mseed-path");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("data-output");
         OptionBuilder.withDescription("Filepath to write the data output");
         OptionBuilder.withType(String.class);
         OptionBuilder.hasArg();
-        OptionBuilder.withArgName("output path");
+        OptionBuilder.withArgName("output-path");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("help");
@@ -52,6 +53,10 @@ public class ReaderCliOptions extends Options
 
         OptionBuilder.withLongOpt("debug");
         OptionBuilder.withDescription("Prints mseed info as it reads the input file");
+        this.addOption(OptionBuilder.create());
+
+        OptionBuilder.withLongOpt("only-check");
+        OptionBuilder.withDescription("Only checks input file and does not write output file");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("outputWithTime");
@@ -85,6 +90,10 @@ public class ReaderCliOptions extends Options
 
             if (cmdLine.hasOption("debug")) {
                 debug = true;
+            }
+
+            if (cmdLine.hasOption("only-check")) {
+                onlyCheck = true;
             }
 
             if (cmdLine.hasOption("help")) {

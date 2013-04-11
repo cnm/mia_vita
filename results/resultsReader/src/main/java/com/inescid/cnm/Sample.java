@@ -11,7 +11,7 @@ public class Sample {
     private final float v;
     private final int sn;
 
-    private static SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+    private static SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH:mm:ss.SSS");
 
     public Sample(Date ts, float v)
     {
@@ -37,6 +37,10 @@ public class Sample {
     @Override
     public String toString() {
         return toStringDate();
+    };
+
+    public String toStringJustTS() {
+        return String.format("%s", df.format(ts)); // This shows a pretty date
     };
 
     public String toStringDate() {

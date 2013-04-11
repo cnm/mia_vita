@@ -16,8 +16,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.google.common.collect.ImmutableList;
@@ -35,6 +37,8 @@ import edu.sc.seis.seisFile.mseed.SeedRecord;
 
 public class App
 {
+    public static float SPS;
+
     public static void main(String[] args)
     {
         TreeMap<DataRecord, float[]> orderedRecordDataMap;
@@ -49,22 +53,24 @@ public class App
             System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
             orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(inputMseedPath));
 
-            if(opt.debug) { printOrderedRecordDataMap(orderedRecordDataMap); }
+            if (opt.debug)
+            {
+                printOrderedRecordDataMap(orderedRecordDataMap);
+            }
 
             System.out.println("Extracting samples");
-            List<Sample> sampleList = transformToSampleList(orderedRecordDataMap, opt.outputWithTime);
+            List<Sample> sampleList = transformToOrderedSampleList(orderedRecordDataMap, opt.outputWithTime);
 
-            if(!validSampleList(sampleList))
+            if (validSampleList(sampleList))
             {
-               System.out.println("Invalid samples. Have more than 20 msec gap between them");
-            }
-            else
-            {
-               System.out.println("Samples are valid");
+                System.out.println("All samples are valid");
             }
 
-            System.out.println("Writting to output file treated data");
-            writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTime);
+            if (!opt.onlyCheck)
+            {
+                System.out.println("Writting to output file treated data");
+                writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTime);
+            }
         }
         catch (FileNotFoundException e1)
         {
@@ -76,23 +82,36 @@ public class App
     private static boolean validSampleList(List<Sample> sampleList)
     {
         long delta = 0;
+        Sample lastSample = sampleList.get(0);
         long last_sample_time = sampleList.get(0).getTs().getTime();
+        boolean valid = true;
+        boolean first = true;
 
         // Check for gaps in time collection
         for (Sample s : sampleList)
         {
-
             long this_sample_time = s.getTs().getTime();
             delta = last_sample_time - this_sample_time;
 
-            // If delta is higher than 20 milliseconds
-            if (delta > 20)
+            // If delta is higher than the SPS
+            if (delta > (1000 / SPS) && !first)
             {
-                return false;                  
+                System.out.println("Expected SPS/Delta: " + SPS + " / " + delta + "\t\tGap in data records at time: " + lastSample.toStringJustTS() + " / " + s.toStringJustTS());
+                valid = false;                  
             }
+
+            // Check if they are repeated values
+            if (this_sample_time == last_sample_time && !first)
+            {
+                System.out.println("Repeated sample with time: " + s.toStringDate() + "\t\t" + lastSample.toStringDate());
+                valid = false;                  
+            }
+            lastSample = s;
             last_sample_time = this_sample_time;
+            first = false;
         }
-        return true;
+
+        return valid;
     }
 
     private static Collection<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
@@ -115,6 +134,8 @@ public class App
                 assert sr instanceof DataRecord;
                 DataRecord dr = (DataRecord) sr;
                 records.add(dr);
+
+                setSPS(dr.getHeader().getSampleRate());
             }
             catch (EOFException e)
             {
@@ -138,6 +159,11 @@ public class App
         return records;
     }
 
+    private static void setSPS(float sampleRate)
+    {
+        App.SPS = sampleRate;
+    }
+
     private static TreeMap<DataRecord, float[]> decompressDataRecordList(Collection<DataRecord> records)
     {
         TreeMap<DataRecord, float[]> orderedRecordDataMap = new TreeMap<DataRecord, float[]>(new DataRecordBeginComparator());
@@ -149,7 +175,7 @@ public class App
         return orderedRecordDataMap;
     }
 
-    private static List<Sample> transformToSampleList(final TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean sortWithTime)
+    private static List<Sample> transformToOrderedSampleList(final TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean sortWithTime)
     {
         Calendar cal = Calendar.getInstance();   
         ArrayList<Sample> sampleList = new ArrayList<Sample>();
@@ -316,5 +342,4 @@ public class App
             printResults(data);
         }
     }
-
 }
