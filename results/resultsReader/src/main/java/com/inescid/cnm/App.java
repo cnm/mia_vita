@@ -16,10 +16,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import com.google.common.collect.ImmutableList;
@@ -38,6 +36,8 @@ import edu.sc.seis.seisFile.mseed.SeedRecord;
 public class App
 {
     public static float SPS;
+    public static int numberOverlaps = 0;
+    public static int numberGaps = 0;
 
     public static void main(String[] args)
     {
@@ -60,12 +60,13 @@ public class App
 
             System.out.println("Extracting samples");
             List<Sample> sampleList = transformToOrderedSampleList(orderedRecordDataMap, opt.outputWithTime);
-
             if (validSampleList(sampleList))
             {
                 System.out.println("All samples are valid");
             }
 
+            float n_samp = (float) sampleList.size();
+            System.out.println(String.format("Analysed %f samples. Overlaps: %d (%f%%)\tGaps: %d (%f%%)", n_samp, numberOverlaps, (numberOverlaps / n_samp) * 100, numberGaps, (numberGaps / n_samp) * 100));
             if (!opt.onlyCheck)
             {
                 System.out.println("Writting to output file treated data");
@@ -97,6 +98,7 @@ public class App
             if (delta > (1000 / SPS) && !first)
             {
                 System.out.println("Expected SPS/Delta: " + SPS + " / " + delta + "\t\tGap in data records at time: " + lastSample.toStringJustTS() + " / " + s.toStringJustTS());
+                numberGaps += 1;
                 valid = false;                  
             }
 
@@ -104,6 +106,7 @@ public class App
             if (this_sample_time == last_sample_time && !first)
             {
                 System.out.println("Repeated sample with time: " + s.toStringDate() + "\t\t" + lastSample.toStringDate());
+                numberOverlaps += 1;
                 valid = false;                  
             }
             lastSample = s;
