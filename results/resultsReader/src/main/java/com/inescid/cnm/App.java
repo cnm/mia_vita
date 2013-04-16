@@ -65,8 +65,8 @@ public class App
                 System.out.println("All samples are valid");
             }
 
-            float n_samp = (float) sampleList.size();
-            System.out.println(String.format("Analysed %f samples. Overlaps: %d (%f%%)\tGaps: %d (%f%%)", n_samp, numberOverlaps, (numberOverlaps / n_samp) * 100, numberGaps, (numberGaps / n_samp) * 100));
+            printStatistics(sampleList.size(), numberOverlaps, numberGaps);
+
             if (!opt.onlyCheck)
             {
                 System.out.println("Writting to output file treated data");
@@ -78,6 +78,14 @@ public class App
             System.out.println("Unable to find input mseed file: " + inputMseedPath);
             System.exit(1);
         }
+    }
+
+    private static void printStatistics(int number_samples, int numberOverlaps, int numberGaps)
+    {
+            float n_samp = (float) number_samples;
+            String message = String.format("Analysed %f samples. Overlaps: %d (%f%%)\tGaps: %d (%f%%)", 
+                    n_samp, numberOverlaps, (numberOverlaps / n_samp) * 100, numberGaps, (numberGaps / n_samp) * 100);
+            System.out.println(message);
     }
 
     private static boolean validSampleList(List<Sample> sampleList)
