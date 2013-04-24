@@ -44,7 +44,14 @@ public class App
         try
         {
             System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
-            IDataReader reader = new ReadMSeed();
+
+            IDataReader reader;
+            if(opt.isInputJson)
+                reader = new ReadMSeed();
+            else
+                reader = new ReadOur();
+ 
+
             orderedRecordDataMap = decompressDataRecordList(reader.getAllDataRecords(inputMseedPath));
             SPS = reader.getSPS();
 

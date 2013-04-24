@@ -22,6 +22,8 @@ public class ReaderCliOptions extends Options
     public boolean inputWithSequenceNumber = false;
     public boolean outputWithTime = false;
     public boolean onlyCheck = false;
+    public boolean isInputJson = false;
+
 
     public ReaderCliOptions()
     {
@@ -61,7 +63,15 @@ public class ReaderCliOptions extends Options
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("outputWithTime");
-        OptionBuilder.withDescription("Prints mseed info as it reads the input file");
+        OptionBuilder.withDescription("Is the output to be written with time values");
+        this.addOption(OptionBuilder.create());
+
+        OptionBuilder.withLongOpt("inputWithSequenceNumber");
+        OptionBuilder.withDescription("Input has sequence number instead of timestamp");
+        this.addOption(OptionBuilder.create());
+
+        OptionBuilder.withLongOpt("isInputJson");
+        OptionBuilder.withDescription("Is Input in json format");
         this.addOption(OptionBuilder.create());
     }
 
@@ -93,6 +103,10 @@ public class ReaderCliOptions extends Options
                 outputWithTime = true;
             }
 
+            if (cmdLine.hasOption("isInputJson")) {
+                isInputJson = true;
+            }
+
             if (cmdLine.hasOption("debug")) {
                 debug = true;
             }
@@ -117,7 +131,9 @@ public class ReaderCliOptions extends Options
 
     @Override
     public String toString() {
-        return String.format("Options:%n\thas line Limit:\t%s%n\tsoftLineLimit:\t%d%n\tdata-output:\t%s%n\tmseed filepath:\t%s%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber\t%s", 
-                softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath, debug, outputWithTime, inputWithSequenceNumber);
+        return String.format("Options:%n\thas line Limit:\t%s%n\tsoftLineLimit:\t%d%n\tdata-output:\t%s%n\tmseed filepath:\t%s" + 
+                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber\t%s%n\tIsInputWithJson%s", 
+                softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath, 
+                debug, outputWithTime, inputWithSequenceNumber, isInputJson);
     };
 }
