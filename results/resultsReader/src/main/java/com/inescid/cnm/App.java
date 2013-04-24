@@ -1,11 +1,6 @@
 package com.inescid.cnm;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -30,8 +25,6 @@ import edu.sc.seis.seisFile.mseed.Blockette1000;
 import edu.sc.seis.seisFile.mseed.DataHeader;
 import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.DataRecordBeginComparator;
-import edu.sc.seis.seisFile.mseed.SeedFormatException;
-import edu.sc.seis.seisFile.mseed.SeedRecord;
 
 public class App
 {
@@ -51,7 +44,10 @@ public class App
         try
         {
             System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
-            orderedRecordDataMap = decompressDataRecordList(getAllDataRecords(inputMseedPath));
+            IDataReader reader = new ReadMSeed();
+            orderedRecordDataMap = decompressDataRecordList(reader.getAllDataRecords(inputMseedPath));
+            SPS = reader.getSPS();
+
 
             if (opt.debug)
             {
@@ -97,7 +93,7 @@ public class App
             // If delta is higher than the SPS
             if (delta > (1000 / SPS) && !first)
             {
-                System.out.println("Expected SPS/Delta: " + SPS + " / " + delta + "\t\tGap in data records at time: " + lastSample.toStringJustTS() + " / " + s.toStringJustTS());
+                System.out.println("Expected SPS/Delta: " + SPS + " / " + delta + "\t\tGap in data records at time: " + s.toStringJustTS() + " / " + lastSample.toStringJustTS());
                 numberGaps += 1;
                 valid = false;                  
             }
@@ -115,56 +111,6 @@ public class App
         }
 
         return valid;
-    }
-
-    private static Collection<DataRecord> getAllDataRecords(String filename) throws FileNotFoundException
-    {
-        DataInput dis;
-        Boolean eofReached = false;
-
-        dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
-
-        Collection<DataRecord> records = new ArrayList<DataRecord>(); // List which will store the data records
-
-        // Continue reading until EOF given by exception
-        while (!eofReached)
-        {
-            try
-            {
-                SeedRecord sr = SeedRecord.read(dis, 4096); // 4096 is for read miniseed that lack a Blockette1000
-
-                // We should only find data records
-                assert sr instanceof DataRecord;
-                DataRecord dr = (DataRecord) sr;
-                records.add(dr);
-
-                setSPS(dr.getHeader().getSampleRate());
-            }
-            catch (EOFException e)
-            {
-                System.out.println("EOF Exception --> Indicate the input has no more to read. Not an error");
-                eofReached = true; // To get out of the loop
-            }
-            catch (IOException e)
-            {
-                System.out.println("IO exception. Quitting");
-                e.printStackTrace();
-                System.exit(1);
-            }
-            catch (SeedFormatException e)
-            {
-                System.out.println("Exception with the mseed format. Quitting");
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }// While
-
-        return records;
-    }
-
-    private static void setSPS(float sampleRate)
-    {
-        App.SPS = sampleRate;
     }
 
     private static TreeMap<DataRecord, float[]> decompressDataRecordList(Collection<DataRecord> records)
