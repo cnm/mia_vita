@@ -48,14 +48,13 @@ public class App
             orderedRecordDataMap = decompressDataRecordList(reader.getAllDataRecords(inputMseedPath));
             SPS = reader.getSPS();
 
-
             if (opt.debug)
             {
                 printOrderedRecordDataMap(orderedRecordDataMap);
             }
 
             System.out.println("Extracting samples");
-            List<Sample> sampleList = transformToOrderedSampleList(orderedRecordDataMap, opt.outputWithTime);
+            List<Sample> sampleList = transformToOrderedSampleList(orderedRecordDataMap, opt.inputWithSequenceNumber);
             if (validSampleList(sampleList))
             {
                 System.out.println("All samples are valid");
@@ -124,7 +123,7 @@ public class App
         return orderedRecordDataMap;
     }
 
-    private static List<Sample> transformToOrderedSampleList(final TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean sortWithTime)
+    private static List<Sample> transformToOrderedSampleList(final TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean inputWithSequenceNumber)
     {
         Calendar cal = Calendar.getInstance();   
         ArrayList<Sample> sampleList = new ArrayList<Sample>();
@@ -165,10 +164,10 @@ public class App
 
         System.out.println("Sorting...");
 
-        if(sortWithTime)
-            Collections.sort(sampleList, new Sample.SampleComparatorTime());
-        else
+        if(inputWithSequenceNumber)
             Collections.sort(sampleList, new Sample.SampleComparatorSequenceNumber());
+        else
+            Collections.sort(sampleList, new Sample.SampleComparatorTime());
 
         return ImmutableList.copyOf(sampleList);
     }
