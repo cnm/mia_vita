@@ -132,7 +132,7 @@ public class ReaderCliOptions extends Options
     @Override
     public String toString() {
         return String.format("Options:%n\thas line Limit:\t%s%n\tsoftLineLimit:\t%d%n\tdata-output:\t%s%n\tmseed filepath:\t%s" + 
-                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber\t%s%n\tIsInputWithJson%s", 
+                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber\t%s%n\tIsInputWithJson: %s", 
                 softLineLimit, softLineLimitValue, outputDataFilePath, mseedPath, 
                 debug, outputWithTime, inputWithSequenceNumber, isInputJson);
     };

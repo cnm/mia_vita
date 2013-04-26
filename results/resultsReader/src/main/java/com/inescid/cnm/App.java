@@ -4,27 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import com.google.common.collect.ImmutableList;
-
-import edu.iris.dmc.seedcodec.Codec;
-import edu.iris.dmc.seedcodec.CodecException;
-import edu.iris.dmc.seedcodec.DecompressedData;
-import edu.iris.dmc.seedcodec.UnsupportedCompressionType;
-import edu.sc.seis.seisFile.mseed.Blockette1000;
-import edu.sc.seis.seisFile.mseed.DataHeader;
-import edu.sc.seis.seisFile.mseed.DataRecord;
-import edu.sc.seis.seisFile.mseed.DataRecordBeginComparator;
 
 public class App
 {
@@ -34,7 +15,6 @@ public class App
 
     public static void main(String[] args)
     {
-        TreeMap<DataRecord, float[]> orderedRecordDataMap;
         ReaderCliOptions opt = new ReaderCliOptions();
         opt.parse(args);
         String inputMseedPath = opt.mseedPath;
@@ -46,23 +26,16 @@ public class App
             System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
 
             IDataReader reader;
-            if(opt.isInputJson)
-                reader = new ReadMSeed();
-            else
-                reader = new ReadOur();
- 
 
-            orderedRecordDataMap = decompressDataRecordList(reader.getAllDataRecords(inputMseedPath));
+            if(opt.isInputJson)
+                reader = new ReadJson(opt.mseedPath);
+            else
+                reader = new ReadMSeed(opt.mseedPath, opt.debug, opt.inputWithSequenceNumber);
+
             SPS = reader.getSPS();
 
-            if (opt.debug)
-            {
-                printOrderedRecordDataMap(orderedRecordDataMap);
-            }
-
-            System.out.println("Extracting samples");
-            List<Sample> sampleList = transformToOrderedSampleList(orderedRecordDataMap, opt.inputWithSequenceNumber);
-            if (validSampleList(sampleList))
+            List<Sample> sampleList = reader.getSamples();
+            if(validSampleList(sampleList))
             {
                 System.out.println("All samples are valid");
             }
@@ -119,115 +92,7 @@ public class App
         return valid;
     }
 
-    private static TreeMap<DataRecord, float[]> decompressDataRecordList(Collection<DataRecord> records)
-    {
-        TreeMap<DataRecord, float[]> orderedRecordDataMap = new TreeMap<DataRecord, float[]>(new DataRecordBeginComparator());
 
-        for (DataRecord record : records)
-        {
-            orderedRecordDataMap.put(record, decompressDataRecord(record));
-        }
-        return orderedRecordDataMap;
-    }
-
-    private static List<Sample> transformToOrderedSampleList(final TreeMap<DataRecord, float[]> orderedRecordDataMap, Boolean inputWithSequenceNumber)
-    {
-        Calendar cal = Calendar.getInstance();   
-        ArrayList<Sample> sampleList = new ArrayList<Sample>();
-
-        try
-        {
-            for (Map.Entry<DataRecord, float[]> entry : orderedRecordDataMap.entrySet())
-            {
-
-                int i = 0;
-                float[] values = entry.getValue();
-                DataRecord dr = entry.getKey();
-
-                SimpleDateFormat df = new SimpleDateFormat("yyyy,DDD,HH:mm:ss.SSS");
-                DataHeader header = dr.getHeader();
-
-                Date start = df.parse(header.getStartTime().substring(0, header.getStartTime().length() - 1));  // Removed last character as it is always 0
-
-                for (float f : values)
-                {
-
-                    int timeInRecord = (1000 / header.getSampleRateFactor()) * i;
-                    i += 1;
-                    cal.setTime(start);
-                    cal.add(Calendar.MILLISECOND, timeInRecord);
-
-                    sampleList.add(new Sample(cal.getTime(), f));
-                }
-            }
-
-        }
-        catch (ParseException e)
-        {
-            System.out.println("Parse exception");
-            e.printStackTrace();
-            System.out.println("Continuing");
-        }
-
-        System.out.println("Sorting...");
-
-        if(inputWithSequenceNumber)
-            Collections.sort(sampleList, new Sample.SampleComparatorSequenceNumber());
-        else
-            Collections.sort(sampleList, new Sample.SampleComparatorTime());
-
-        return ImmutableList.copyOf(sampleList);
-    }
-
-
-    private static void printResults(float[] data)
-    {
-        int i = 0;
-        for (float f : data)
-        {
-            i += 1;
-            System.out.print(String.format("%05d\t", Math.round(f)));
-            if (i >= 24)
-            {
-                i = 0;
-                System.out.println("");
-            }
-        }
-        System.out.println("\n");
-    }
-
-    private static float[] decompressDataRecord(DataRecord dr)
-    {
-        Codec codec = new Codec();
-
-        assert dr.getBlockettes().length == 1;
-        Blockette1000 b1000 = (Blockette1000) dr.getBlockettes(1000)[0];
-        float[] data = new float[dr.getHeader().getNumSamples()];
-
-        DecompressedData decompData;
-        try
-        {
-            decompData = codec.decompress(b1000.getEncodingFormat(), dr.getData(), dr.getHeader().getNumSamples(), b1000.isLittleEndian());
-
-            float[] temp = decompData.getAsFloat();
-            int numSoFar = 0;
-
-            System.arraycopy(temp, 0, data, numSoFar, temp.length);
-            numSoFar += temp.length;
-        }
-        catch (UnsupportedCompressionType e)
-        {
-            System.out.println("UnsupportedCompressionType");
-            e.printStackTrace();
-        }
-        catch (CodecException e)
-        {
-            System.out.println("CodecException");
-            e.printStackTrace();
-        }
-
-        return data;
-    }
 
     private static void writeSampleList(Collection<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTime){
         BufferedWriter out;
@@ -252,49 +117,6 @@ public class App
         {
             System.out.println("Could not write data file");
             e.printStackTrace();
-        }
-    }
-
-    private static void printHeader(DataRecord dr)
-    {
-        // Date to format ---> 2013,038,01:22:05.0000
-        SimpleDateFormat df = new SimpleDateFormat("yyyy,DDD,HH:mm:ss.SSS");
-
-        DataHeader header = dr.getHeader();
-        Calendar cal = Calendar.getInstance();   
-
-        try
-        {
-            Date start = df.parse(header.getStartTime().substring(0, header.getStartTime().length() - 1));  // Removed last character as it is always 0
-            int timeInRecord = (1000 / header.getSampleRateFactor()) * header.getNumSamples();
-            cal.setTime(start);
-            cal.add(Calendar.MILLISECOND, timeInRecord);
-
-            System.out.print("Start: " + df.format(start));
-            System.out.print("\tEnd: " + df.format(cal.getTime()));
-            System.out.print("\tSequence Number: " + header.getSequenceNum());
-            System.out.print("\tID: " + header.getStationIdentifier());
-            System.out.print("\tChannel: " + header.getChannelIdentifier());
-            System.out.print("\tLocation: " + header.getLocationIdentifier());
-            System.out.print("\tNumber Samples: " + header.getNumSamples());
-            System.out.print("\tSPS: " + header.getSampleRateFactor());
-            System.out.println(" x " + header.getSampleRateMultiplier());
-        }
-        catch (ParseException e)
-        {
-            System.exit(1);
-        }
-    }
-
-    private static void printOrderedRecordDataMap(TreeMap<DataRecord, float[]> orderedRecordDataMap)
-    {
-        for (Map.Entry<DataRecord, float[]> entry : orderedRecordDataMap.entrySet())
-        {
-            DataRecord dr = entry.getKey();
-            float[] data = entry.getValue();
-
-            printHeader(dr);
-            printResults(data);
         }
     }
 
