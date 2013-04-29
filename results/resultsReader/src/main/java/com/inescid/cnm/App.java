@@ -31,7 +31,10 @@ public class App
             else
                 reader = new ReadMSeed(opt.inputFilePath, opt.debug, opt.inputWithSequenceNumber);
 
-            SPS = reader.getSPS();
+            if(opt.forcedSPS)
+                SPS = opt.SPS;
+            else
+                SPS = reader.getSPS();
 
             List<Sample> sampleList = reader.getSamples();
             if(validSampleList(sampleList))

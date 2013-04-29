@@ -41,3 +41,5 @@ usage: help
     --only-check                        Only checks input file and does not write output file
     --outputWithTime                    Is the output to be written with time values
     --soft-line-limit <number>          Limits the number of mseed lines to process (only a soft limit, number of lines limit can be higher)
+    --SPS <sps-value>             Force a sample per second (SPS) value
+

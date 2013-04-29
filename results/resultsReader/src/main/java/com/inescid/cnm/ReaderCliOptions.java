@@ -23,6 +23,8 @@ public class ReaderCliOptions extends Options
     public boolean outputWithTime = false;
     public boolean onlyCheck = false;
     public boolean isInputJson = false;
+    public float SPS = 0;
+    public boolean forcedSPS = false;
 
 
     public ReaderCliOptions()
@@ -48,6 +50,13 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withType(String.class);
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("output-path");
+        this.addOption(OptionBuilder.create());
+
+        OptionBuilder.withLongOpt("SPS");
+        OptionBuilder.withDescription("Force a sample per second (SPS) value");
+        OptionBuilder.withType(Number.class);
+        OptionBuilder.hasArg();
+        OptionBuilder.withArgName("sps-value");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("help");
@@ -86,6 +95,12 @@ public class ReaderCliOptions extends Options
                 softLineLimit = true;
                 softLineLimitValue = ((Number)cmdLine.getParsedOptionValue("soft-line-limit")).intValue();
             }
+
+            if (cmdLine.hasOption("SPS")) {
+                forcedSPS = true;
+                SPS = ((Number)cmdLine.getParsedOptionValue("SPS")).floatValue();
+            }
+
 
             if (cmdLine.hasOption("data-output")) {
                 outputDataFilePath = (String) cmdLine.getParsedOptionValue("data-output");
@@ -132,8 +147,8 @@ public class ReaderCliOptions extends Options
     @Override
     public String toString() {
         return String.format("Options:%n\thas line Limit:\t%s%n\tsoftLineLimit:\t%d%n\tdata-output:\t%s%n\tinput filepath:\t%s" + 
-                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber\t%s%n\tIsInputWithJson: %s", 
+                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber\t%s%n\tIsInputWithJson: %s%n\tSPS: %f", 
                 softLineLimit, softLineLimitValue, outputDataFilePath, inputFilePath, 
-                debug, outputWithTime, inputWithSequenceNumber, isInputJson);
+                debug, outputWithTime, inputWithSequenceNumber, isInputJson, SPS);
     };
 }
