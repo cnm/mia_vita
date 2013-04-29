@@ -43,11 +43,11 @@ void clear_list(list* l)
 
 void rmlist(list* l)
 {
-    if(l)
-      {
-        free(l->buff);
-        free(l);
-      }
+  if(l)
+    {
+      free(l->buff);
+      free(l);
+    }
 }
 
 
@@ -67,10 +67,10 @@ void rmlist(list* l)
 #warning "Check if implementation is converting to correct endianess. IMHO only works if everything is ARM. (little endian)"
 static packet_t ntohpkt(packet_t pkt)
 {
-    pkt.timestamp = be64toh( pkt.timestamp );
-    pkt.air = be64toh( pkt.air );
-    pkt.seq = be32toh( pkt.seq );
-    return pkt;
+  pkt.timestamp = be64toh( pkt.timestamp );
+  pkt.air = be64toh( pkt.air );
+  pkt.seq = be32toh( pkt.seq );
+  return pkt;
 }
 
 static void write_json(packet_t pkt, uint8_t first, int json_fd )
@@ -89,34 +89,34 @@ static void write_json(packet_t pkt, uint8_t first, int json_fd )
   sample3_byte = (uint8_t *) &sample3;
   sample4_byte = (uint8_t *) &sample4;
 
- *(sample1_byte + 0) = pkt.samples[0 + 2];
- *(sample1_byte + 1) = pkt.samples[0 + 1];
- *(sample1_byte + 2) = pkt.samples[0 + 0];
+  *(sample1_byte + 0) = pkt.samples[0 + 2];
+  *(sample1_byte + 1) = pkt.samples[0 + 1];
+  *(sample1_byte + 2) = pkt.samples[0 + 0];
 
- *(sample2_byte + 0) = pkt.samples[4 + 1];
- *(sample2_byte + 1) = pkt.samples[4 + 0];
- *(sample2_byte + 2) = pkt.samples[0 + 3];
+  *(sample2_byte + 0) = pkt.samples[4 + 1];
+  *(sample2_byte + 1) = pkt.samples[4 + 0];
+  *(sample2_byte + 2) = pkt.samples[0 + 3];
 
- *(sample3_byte + 0) = pkt.samples[8 + 0];
- *(sample3_byte + 1) = pkt.samples[4 + 3];
- *(sample3_byte + 2) = pkt.samples[4 + 2];
+  *(sample3_byte + 0) = pkt.samples[8 + 0];
+  *(sample3_byte + 1) = pkt.samples[4 + 3];
+  *(sample3_byte + 2) = pkt.samples[4 + 2];
 
- *(sample4_byte + 0) = pkt.samples[8 + 3];
- *(sample4_byte + 1) = pkt.samples[8 + 2];
- *(sample4_byte + 2) = pkt.samples[8 + 1];
+  *(sample4_byte + 0) = pkt.samples[8 + 3];
+  *(sample4_byte + 1) = pkt.samples[8 + 2];
+  *(sample4_byte + 2) = pkt.samples[8 + 1];
 
- if(sample1 > 0x800000){
-     sample1 = (((~sample1)+1) & 0x00FFFFFF)*(-1);
- }
- if(sample2 > 0x800000){
-     sample2 = (((~sample2)+1) & 0x00FFFFFF)*(-1);
- }
- if(sample3 > 0x800000){
-     sample3 = (((~sample3)+1) & 0x00FFFFFF)*(-1);
- }
- if(sample4 > 0x800000){
-     sample4 = (((~sample4)+1) & 0x00FFFFFF)*(-1);
- }
+  if(sample1 > 0x800000){
+      sample1 = (((~sample1)+1) & 0x00FFFFFF)*(-1);
+  }
+  if(sample2 > 0x800000){
+      sample2 = (((~sample2)+1) & 0x00FFFFFF)*(-1);
+  }
+  if(sample3 > 0x800000){
+      sample3 = (((~sample3)+1) & 0x00FFFFFF)*(-1);
+  }
+  if(sample4 > 0x800000){
+      sample4 = (((~sample4)+1) & 0x00FFFFFF)*(-1);
+  }
 
   pkt = ntohpkt(pkt);
 
@@ -167,7 +167,7 @@ static void close_output_files(int json_fd, char * temp_path, char * new_path)
   write(json_fd, "\n}", 2);
   close(json_fd);
 
-  #warning Rename not happening. TODO - Create an option for archive and one for each node
+#warning Rename not happening. TODO - Create an option for archive and one for each node
   /* rename(temp_path, new_path); */
 }
 
@@ -175,7 +175,7 @@ static void dump(list* l)
 {
   uint32_t i;
   int json_fd;
-  #warning 326 is not a logical number. Had to use it as 6 (the supossed correct value) gave a seg fault. REDO URGENT
+#warning 326 is not a logical number. Had to use it as 6 (the supossed correct value) gave a seg fault. REDO URGENT
   char * temp_path = (char *) calloc (sizeof(l->new_filename) + 326 * sizeof(char), sizeof(char));
   sprintf(temp_path, "%s.temp", l->new_filename);
 
@@ -235,21 +235,22 @@ void insert(list* l, packet_t* p)
   int64_t current_time, current_interval;
 
   //Check if node id > 0 && < 16
-  if(p->id > 0 && p->id < 16){
+  if(p->id > 0 && p->id < 16)
+    {
 
-    // Let's insert the jitter of packet p
-    current_time = get_kernel_current_time();
-    current_interval = current_time - last_arrival_time[p->id];
-    last_arrival_time[p->id] = current_time;
+      // Let's insert the jitter of packet p
+      current_time = get_kernel_current_time();
+      current_interval = current_time - last_arrival_time[p->id];
+      last_arrival_time[p->id] = current_time;
 
-    /* Retries is actually jitter in milliseconds */
-    p->retries = abs(current_interval - last_arrival_interval[p->id]) / 1000;
-    last_arrival_interval[p->id] = p->retries;
+      /* Retries is actually jitter in milliseconds */
+      p->retries = abs(current_interval - last_arrival_interval[p->id]) / 1000;
+      last_arrival_interval[p->id] = p->retries;
 
-    // Calculate missing packets
-    p->fails = p->seq - last_packet[p->id];
-    last_packet[p->id] = p->seq;
-  }
+      // Calculate missing packets
+      p->fails = p->seq - last_packet[p->id];
+      last_packet[p->id] = p->seq;
+    }
 
   memcpy(l->buff + l->lst_size, p, sizeof(*p));
   l->lst_size++;

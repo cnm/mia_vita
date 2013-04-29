@@ -132,9 +132,9 @@ void serve()
   sprintf(path2, "%s.2", output_json_file);
   sprintf(path3, "%s.3", output_json_file);
 
-  l[0] = mklist(capacity, path1);
-  l[1] = mklist(capacity, path2);
-  l[2] = mklist(capacity, path3);
+  l[0] = mklist(capacity, path1); // One list for each nodes on the network (Node 1)
+  l[1] = mklist(capacity, path2); // One list for each nodes on the network (Node 2)
+  l[2] = mklist(capacity, path3); // One list for each nodes on the network (Node 3)
 
   while(1)
     {
@@ -155,7 +155,7 @@ void serve()
 #ifdef __DEBUG__
       printf("Received packet.\n");
 #endif
-      insert(l[pkt.id - 1], &pkt);
+      insert(l[pkt.id - 1], &pkt);  // Insert the packet in the correct list 
     }
 }
 

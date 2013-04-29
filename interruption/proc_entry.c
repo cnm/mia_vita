@@ -60,10 +60,10 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples, uint32_t* last_
 #ifdef __DEBUG__
       printk(KERN_INFO "NOTHING TO READ\n");
 #endif
-      return 0; //Screw this... cannot read samples
+      return 0; //Screw this... there are no samples to read
       }
 
-    samples_to_copy = (*last_read > last_write)? last_write + DATA_SIZE - *last_read : last_write - *last_read;
+    samples_to_copy = (*last_read > last_write) ? last_write + DATA_SIZE - *last_read : last_write - *last_read;
 
     *be_samples = kmalloc(samples_to_copy * sizeof(sample), GFP_ATOMIC);
 
