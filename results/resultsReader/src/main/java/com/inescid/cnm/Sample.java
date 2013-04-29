@@ -20,7 +20,7 @@ public class Sample {
         this.sn = numberSamples++;
     }
 
-    public static void changeDataFormat(String dateFormat){
+    public static void changeDateFormat(String dateFormat){
         df = new SimpleDateFormat(dateFormat);
     }
 
