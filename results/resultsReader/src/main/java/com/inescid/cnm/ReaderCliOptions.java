@@ -25,7 +25,7 @@ public class ReaderCliOptions extends Options
     public boolean isInputJson = false;
     public float SPS = 0;
     public boolean forcedSPS = false;
-
+    public int channel = 1;
 
     public ReaderCliOptions()
     {
@@ -57,6 +57,13 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withType(Number.class);
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("sps-value");
+        this.addOption(OptionBuilder.create());
+
+        OptionBuilder.withLongOpt("channel");
+        OptionBuilder.withDescription("Force the JSON to use a specific channel (default 1)");
+        OptionBuilder.withType(Number.class);
+        OptionBuilder.hasArg();
+        OptionBuilder.withArgName("channel number");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("help");
@@ -101,13 +108,16 @@ public class ReaderCliOptions extends Options
                 SPS = ((Number)cmdLine.getParsedOptionValue("SPS")).floatValue();
             }
 
+            if (cmdLine.hasOption("channel")) {
+                channel = ((Number)cmdLine.getParsedOptionValue("channel")).intValue();
+            }
 
             if (cmdLine.hasOption("data-output")) {
                 outputDataFilePath = (String) cmdLine.getParsedOptionValue("data-output");
             }
 
-            if (cmdLine.hasOption("input-file-path")) {
-                inputFilePath = (String) cmdLine.getParsedOptionValue("input-file-path");
+            if (cmdLine.hasOption("input")) {
+                inputFilePath = (String) cmdLine.getParsedOptionValue("input");
             }
 
             if (cmdLine.hasOption("inputWithSequenceNumber")) {
@@ -147,8 +157,8 @@ public class ReaderCliOptions extends Options
     @Override
     public String toString() {
         return String.format("Options:%n\thas line Limit:\t%s%n\tsoftLineLimit:\t%d%n\tdata-output:\t%s%n\tinput filepath:\t%s" + 
-                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber\t%s%n\tIsInputWithJson: %s%n\tSPS: %f", 
+                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber:\t%s%n\tIsInputWithJson: %s%n\tSPS: %f%n\tChannel: %d", 
                 softLineLimit, softLineLimitValue, outputDataFilePath, inputFilePath, 
-                debug, outputWithTime, inputWithSequenceNumber, isInputJson, SPS);
+                debug, outputWithTime, inputWithSequenceNumber, isInputJson, SPS, channel);
     };
 }
