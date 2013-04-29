@@ -36,7 +36,7 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withArgName("number");
         this.addOption(OptionBuilder.create());
 
-        OptionBuilder.withLongOpt("inputFilePath");
+        OptionBuilder.withLongOpt("input");
         OptionBuilder.withDescription("Input filepath");
         OptionBuilder.withType(String.class);
         OptionBuilder.hasArg();

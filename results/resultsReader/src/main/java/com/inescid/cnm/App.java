@@ -17,20 +17,19 @@ public class App
     {
         ReaderCliOptions opt = new ReaderCliOptions();
         opt.parse(args);
-        String inputMseedPath = opt.mseedPath;
         System.out.println(opt + "\n");
 
         //Lets read the mseed file, order it, transform it to a collection of samples, and then write the samples in a file
         try
         {
-            System.out.println(String.format("Reading mseed file: %s", opt.mseedPath));
+            System.out.println(String.format("Reading mseed file: %s", opt.inputFilePath));
 
             IDataReader reader;
 
             if(opt.isInputJson)
-                reader = new ReadJson(opt.mseedPath);
+                reader = new ReadJson(opt.inputFilePath);
             else
-                reader = new ReadMSeed(opt.mseedPath, opt.debug, opt.inputWithSequenceNumber);
+                reader = new ReadMSeed(opt.inputFilePath, opt.debug, opt.inputWithSequenceNumber);
 
             SPS = reader.getSPS();
 
@@ -50,7 +49,7 @@ public class App
         }
         catch (FileNotFoundException e1)
         {
-            System.out.println("Unable to find input mseed file: " + inputMseedPath);
+            System.out.println("Unable to find input mseed file: " + opt.inputFilePath);
             System.exit(1);
         }
     }

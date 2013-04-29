@@ -32,10 +32,12 @@ To draw the images for all the three axis run:
 usage: help
 ===========
 
-   --data-output <output path>          Filepath to write the data output
-   --debug                              Prints mseed info as it reads the input file
-   --help                               Print this message and exit
-   --mseed-path <mseed path>            Input mseed filepath
-   --soft-line-limit <number>           Limits the number of mseed lines to process (only a soft limit, number of lines limit can be higher)
-
-
+    --data-output <output-path>         Filepath to write the data output
+    --debug                             Prints mseed info as it reads the input file
+    --help                              print this message and exit
+    --input <input-file-path>           Input filepath
+    --inputWithSequenceNumber           Input has sequence number instead of timestamp
+    --isInputJson                       Is Input in json format
+    --only-check                        Only checks input file and does not write output file
+    --outputWithTime                    Is the output to be written with time values
+    --soft-line-limit <number>          Limits the number of mseed lines to process (only a soft limit, number of lines limit can be higher)
