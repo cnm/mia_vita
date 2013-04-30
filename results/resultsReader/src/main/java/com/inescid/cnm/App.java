@@ -52,7 +52,7 @@ public class App
             if (!opt.onlyCheck)
             {
                 System.out.println("Writting to output file treated data");
-                writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTime);
+                writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTimeSinceEpoch);
             }
         }
         catch (FileNotFoundException e1)
@@ -103,14 +103,14 @@ public class App
         return valid;
     }
 
-    private static void writeSampleList(Collection<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTime){
+    private static void writeSampleList(Collection<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTimeSinceEpoch){
         BufferedWriter out;
         int lines = 0;
         try
         {
             out = new BufferedWriter(new FileWriter(dataOutFilepath));
             for(Sample sample : sampleList){
-                out.write(sample.toString(outputWithTime) + "\n");
+                out.write(sample.toString(outputWithTimeSinceEpoch) + "\n");
 
                 lines +=1;
                 if(softLineLimit && lines > softLineLimitValue)

@@ -20,7 +20,7 @@ public class ReaderCliOptions extends Options
     public int softLineLimitValue = -1;
     public boolean debug = false;
     public boolean inputWithSequenceNumber = false;
-    public boolean outputWithTime = false;
+    public boolean outputWithTimeSinceEpoch = false;
     public boolean onlyCheck = false;
     public boolean isInputJson = false;
     public float SPS = 0;
@@ -31,8 +31,8 @@ public class ReaderCliOptions extends Options
     {
         super();
 
-        OptionBuilder.withLongOpt("soft-line-limit");
-        OptionBuilder.withDescription("Limits the number of mseed lines to process (only a soft limit, number of lines limit can be higher)");
+        OptionBuilder.withLongOpt("write-limit");
+        OptionBuilder.withDescription("Limits the number of samples to write");
         OptionBuilder.withType(Number.class);
         OptionBuilder.hasArg();
         OptionBuilder.withArgName("number");
@@ -78,8 +78,8 @@ public class ReaderCliOptions extends Options
         OptionBuilder.withDescription("Only checks input file and does not write output file");
         this.addOption(OptionBuilder.create());
 
-        OptionBuilder.withLongOpt("outputWithTime");
-        OptionBuilder.withDescription("Is the output to be written with time values");
+        OptionBuilder.withLongOpt("outputWithTimeSinceEpoch");
+        OptionBuilder.withDescription("Is the output to be written dates in unix time (with miliseconds) - Default print a human readable date");
         this.addOption(OptionBuilder.create());
 
         OptionBuilder.withLongOpt("inputWithSequenceNumber");
@@ -98,9 +98,9 @@ public class ReaderCliOptions extends Options
         try {
             CommandLine cmdLine = cmdLineParser.parse(this, args);
 
-            if (cmdLine.hasOption("soft-line-limit")) {
+            if (cmdLine.hasOption("write-limit")) {
                 softLineLimit = true;
-                softLineLimitValue = ((Number)cmdLine.getParsedOptionValue("soft-line-limit")).intValue();
+                softLineLimitValue = ((Number)cmdLine.getParsedOptionValue("write-limit")).intValue();
             }
 
             if (cmdLine.hasOption("SPS")) {
@@ -124,8 +124,8 @@ public class ReaderCliOptions extends Options
                 inputWithSequenceNumber = true;
             }
 
-            if (cmdLine.hasOption("outputWithTime")) {
-                outputWithTime = true;
+            if (cmdLine.hasOption("outputWithTimeSinceEpoch")) {
+                outputWithTimeSinceEpoch = true;
             }
 
             if (cmdLine.hasOption("isInputJson")) {
@@ -156,9 +156,9 @@ public class ReaderCliOptions extends Options
 
     @Override
     public String toString() {
-        return String.format("Options:%n\thas line Limit:\t%s%n\tsoftLineLimit:\t%d%n\tdata-output:\t%s%n\tinput filepath:\t%s" + 
-                "%n\tdebug:\t%s%n\toutputWithTime:\t%s%n\tinputWithSequenceNumber:\t%s%n\tIsInputWithJson: %s%n\tSPS: %f%n\tChannel: %d", 
+        return String.format("Options:%n\thas line Limit:\t%s%n\tWrite line limit:\t%d%n\tdata-output:\t%s%n\tinput filepath:\t%s" + 
+                "%n\tdebug:\t%s%n\toutputWithTimeSinceEpoch:\t%s%n\tinputWithSequenceNumber:\t%s%n\tIsInputWithJson: %s%n\tSPS: %f%n\tChannel: %d", 
                 softLineLimit, softLineLimitValue, outputDataFilePath, inputFilePath, 
-                debug, outputWithTime, inputWithSequenceNumber, isInputJson, SPS, channel);
+                debug, outputWithTimeSinceEpoch, inputWithSequenceNumber, isInputJson, SPS, channel);
     };
 }

@@ -20,8 +20,8 @@ public class ReadJson implements IDataReader
 
     public ReadJson(String filename, int channel) throws FileNotFoundException
     {
-        sampleList = getAllSamples(filename);
         this.channel = channel;
+        sampleList = getAllSamples(filename);
     }
 
     private List<Sample> getAllSamples(String filename) throws FileNotFoundException
@@ -51,9 +51,6 @@ public class ReadJson implements IDataReader
                     Date date = new Date(timestampOnlyMiliSeconds.longValue());
                     Sample sample = new Sample(date, value);
                     sampleList.add(sample);
-                    
-                    // if(sampleList.size() > 38000)     
-                    //     break;
                 }
             }
             br.close();

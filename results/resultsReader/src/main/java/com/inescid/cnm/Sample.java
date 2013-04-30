@@ -40,7 +40,7 @@ public class Sample {
     };
 
     public String toStringJustTS() {
-        return String.format("%s", df.format(ts)); // This shows a pretty date
+        return String.format("%s", df.format(ts)); // This shows only the timestamp
     };
 
     public String toStringDate() {
@@ -50,11 +50,11 @@ public class Sample {
     public String toString(boolean withTime) {
         if(withTime)
         {
-            return toStringDate();
+            return toStringTimeEpoch();
         }
         else
         {
-            return toStringTimeStamp();
+            return toStringDate();
         }
     };
 
@@ -64,7 +64,7 @@ public class Sample {
         return ts;
     }
 
-    public String toStringTimeStamp() {
+    public String toStringSequenceNumber() {
         return String.format("%d\t%f", sn, v);
     }
 
