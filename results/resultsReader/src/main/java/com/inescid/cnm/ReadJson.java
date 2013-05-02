@@ -48,7 +48,8 @@ public class ReadJson implements IDataReader
 
                     // timestamp string fetched (space not included) ---> 1360195908 608085 --> (seconds microseconds)
                     BigDecimal timestampOnlyMiliSeconds = timestamp.divide(new BigDecimal(1000));
-                    Date date = new Date(timestampOnlyMiliSeconds.longValue());
+                    long milisecondsInOneHour = 1000*60*60;
+                    Date date = new Date(timestampOnlyMiliSeconds.longValue() - milisecondsInOneHour);
                     Sample sample = new Sample(date, value);
                     sampleList.add(sample);
                 }
