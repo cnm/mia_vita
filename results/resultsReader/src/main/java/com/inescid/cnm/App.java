@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,11 +27,13 @@ public class App
 
             IDataReader reader;
 
+            // Prepare the reader for the input files
             if(opt.isInputJson)
                 reader = new ReadJson(opt.inputFilePath, opt.channel);
             else
                 reader = new ReadMSeed(opt.inputFilePath, opt.debug, opt.inputWithSequenceNumber);
 
+            // Let's set the SPS
             if(opt.forcedSPS)
             {
                 SPS = opt.SPS;
@@ -41,18 +44,24 @@ public class App
                 System.out.println("Assuming SPS is " + SPS);
             }
 
+            // Lets finally read the input files
             List<Sample> sampleList = reader.getSamples();
-            if(validSampleList(sampleList))
+
+            // Validate the obtained samples
+            Collection<Sample> outlierList = new ArrayList<Sample>();
+            if(validSampleList(sampleList, outlierList))
             {
                 System.out.println("All samples are valid");
             }
 
+            // Print the stats
             printStatistics(sampleList.size(), numberOverlaps, numberGaps);
 
+            // Write the stats orderly to csv file
             if (!opt.onlyCheck)
             {
                 System.out.println("Writting to output file treated data");
-                writeSampleList(sampleList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTimeSinceEpoch);
+                writeSampleList(sampleList, outlierList, opt.outputDataFilePath, opt.softLineLimit, opt.softLineLimitValue, opt.outputWithTimeSinceEpoch);
             }
         }
         catch (FileNotFoundException e1)
@@ -62,10 +71,10 @@ public class App
         }
     }
 
-    private static boolean validSampleList(List<Sample> sampleList)
+    private static boolean validSampleList(List<Sample> sampleList, Collection<Sample> outlierList)
     {
         long delta = 0;
-        Sample lastSample = sampleList.get(0);
+        Sample last_sample = sampleList.get(0);
         long last_sample_time = sampleList.get(0).getTs().getTime();
         boolean valid = true;
         boolean first = true;
@@ -73,16 +82,20 @@ public class App
         // let's give a 15 miliseconds error margin to not consider there is a gap (sample with sligh delay)
         int error = 15;
 
-        // Check for gaps in time collection
+        SlidingWindow window = new SlidingWindow(10);
+
+        // Lets traverse all samples
         for (Sample s : sampleList)
         {
             long this_sample_time = s.getTs().getTime();
             delta = this_sample_time - last_sample_time;
 
+            // Check for gaps in time collection
             // If delta is higher than the SPS
             if (delta > ((1000 / SPS) + error) && !first)
             {
-                System.out.println("Expected Delta/ True Delta: " + (1000 / SPS) + " / " + delta + "\t\tGap in data records at time: " + s.toStringJustTS() + " / " + lastSample.toStringJustTS());
+                System.out.println("Expected Delta/ True Delta: " + (1000 / SPS) + " / " + delta + 
+                        "\t\tGap in data records at time: " + s.toStringJustTS() + " / " + last_sample.toStringJustTS());
                 System.out.println(s.getTs().getTime());
                 numberGaps += 1;
                 valid = false;                  
@@ -91,19 +104,34 @@ public class App
             // Check if they are repeated values
             if (this_sample_time == last_sample_time && !first)
             {
-                System.out.println("Repeated sample with time: " + s.toStringDate() + "\t\t" + lastSample.toStringDate());
+                System.out.println("Repeated sample with time: " + s.toStringDate() + "\t\t" + last_sample.toStringDate());
                 numberOverlaps += 1;
                 valid = false;                  
             }
-            lastSample = s;
+
+            last_sample = s;
             last_sample_time = this_sample_time;
             first = false;
+
+
+            // Lets check if it is an outlier
+            window.add(s);
+            if(window.isMiddleOutlier()){
+                System.out.println("I thing is outlier: " + window.getMiddle());
+                outlierList.add(window.getMiddle());
+            }
         }
+
+        sampleList.removeAll(outlierList);
+
+        for (Sample out : outlierList)
+            sampleList.add(new Sample(out.getTs(), 9999999));
 
         return valid;
     }
 
-    private static void writeSampleList(Collection<Sample> sampleList, String dataOutFilepath, Boolean softLineLimit, int softLineLimitValue, Boolean outputWithTimeSinceEpoch){
+    private static void writeSampleList(Collection<Sample> sampleList, Collection<Sample> outlierList, String dataOutFilepath, Boolean softLineLimit, 
+            int softLineLimitValue, Boolean outputWithTimeSinceEpoch){
         BufferedWriter out;
         int lines = 0;
         try

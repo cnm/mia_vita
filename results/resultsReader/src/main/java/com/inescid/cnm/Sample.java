@@ -25,8 +25,25 @@ public class Sample {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return this.ts.equals(obj);
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        Sample otherSample = (Sample) other;
+        if (this.getTs() == null) {
+            if (otherSample.getTs() != null) {
+                return false;
+            }
+        } else if (!this.getTs().equals(otherSample.getTs())) {
+            return false;
+        }
+        return true;
     };
 
     @Override
@@ -62,6 +79,11 @@ public class Sample {
     public Date getTs()
     {
         return ts;
+    }
+
+    public float getValue()
+    {
+        return v;
     }
 
     public String toStringSequenceNumber() {
