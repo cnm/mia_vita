@@ -1,7 +1,3 @@
-# java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --soft-line-limit 16000 --mseed-path ../Sesimbra_07_Jan_2012/theirs/IP.PSES..BHZ.D.2013.038 --data-output out.BHZ --outputWithTime
-# java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --soft-line-limit 16000 --mseed-path ../Sesimbra_07_Jan_2012/theirs/IP.PSES..BHE.D.2013.038 --data-output out.BHE --outputWithTime
-# java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --soft-line-limit 16000 --mseed-path ../Sesimbra_07_Jan_2012/theirs/IP.PSES..BHN.D.2013.038 --data-output out.BHN --outputWithTime
-
 java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/theirs/v2/20130207_1100e.msd --outputWithTimeSinceEpoch --data-output results/e1
 java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/theirs/v2/20130207_1200e.msd --outputWithTimeSinceEpoch --data-output results/e2
 java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/theirs/v2/20130207_1300e.msd --outputWithTimeSinceEpoch --data-output results/e3
@@ -20,6 +16,6 @@ cat n1 n2 n3 > n
 cat z1 z2 z3 > z
 cd ..
 
-java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/ours/miavita.json.1 --isInputJson --outputWithTimeSinceEpoch --channel 1 --data-output results/oursN
-java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/ours/miavita.json.1 --isInputJson --outputWithTimeSinceEpoch --channel 2 --data-output results/oursE
-java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/ours/miavita.json.1 --isInputJson --outputWithTimeSinceEpoch --channel 3 --data-output results/oursZ
+# java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/ours/miavita.json.1 --isInputJson --outputWithTimeSinceEpoch --channel 1 --data-output results/oursN
+# java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/ours/miavita.json.1 --isInputJson --outputWithTimeSinceEpoch --channel 2 --data-output results/oursE
+# java -jar target/myReader-1.0-SNAPSHOT-jar-with-dependencies.jar --input ../Sesimbra_07_Jan_2012/ours/miavita.json.1 --isInputJson --outputWithTimeSinceEpoch --channel 3 --data-output results/oursZ

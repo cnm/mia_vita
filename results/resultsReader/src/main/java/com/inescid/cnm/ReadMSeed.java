@@ -14,11 +14,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.google.common.collect.ImmutableList;
 
 import edu.iris.dmc.seedcodec.Codec;
 import edu.iris.dmc.seedcodec.CodecException;
@@ -251,7 +250,7 @@ public class ReadMSeed implements IDataReader
         else
             Collections.sort(sampleList, new Sample.SampleComparatorTime());
 
-        return ImmutableList.copyOf(sampleList);
+        return new LinkedList<Sample>(sampleList);
     }
 
 
