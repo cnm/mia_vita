@@ -124,8 +124,8 @@ public class App
 
         sampleList.removeAll(outlierList);
 
-        for (Sample out : outlierList)
-            sampleList.add(new Sample(out.getTs(), 9999999));
+        // for (Sample out : outlierList)
+        //     sampleList.add(new Sample(out.getTs(), 9999999));
 
         return valid;
     }
