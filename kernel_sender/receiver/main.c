@@ -8,8 +8,6 @@
 #include <signal.h>
 #include <unistd.h>
 
-#define DEBUG 1
-
 #include "miavita_packet.h"
 #include "list.h"
 
@@ -18,17 +16,16 @@ char* iface = "lo", *move_file_to = "miavita_old";
 uint32_t capacity = 250;
 
 int sockfd = -1;
-
-list* l[3];
+int json_fd = -1; 
 
 void print_usage(char* cmd)
 {
-  printf("Usage: %s [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>] [-o <moved_file_prefix>] [-z archive_json_file]\n", cmd);
+  printf("Usage: %s [-i <interface>] [-p <listen_on_port>] [-j <output_json_file>] [-o <moved_file_prefix>] \n", cmd);
   printf("-i\tInterface name on which the program will listen. Default is %s\n", iface);
   printf("-p\tUDP port on which the program will listen. Default is %u\n", port);
-  printf("-b\tName of the binary file to where the data is going to be written. Default is %s\n", output_binary_file);
+  /* printf("-b\tName of the binary file to where the data is going to be written. Default is %s\n", output_binary_file); */
   printf("-j\tName of the json file to where the data is going to be written. Default is %s\n", output_json_file);
-  printf("-z\tName of the json file to where the archive data is going to be written. Default is %s\n", archive_json_file);
+  /* printf("-z\tName of the json file to where the archive data is going to be written. Default is %s\n", archive_json_file); */
   printf("-o\tOutput file prefix when the file is moved by log rotation. Default is %s.\n", move_file_to);
   printf("-c\tBuffer capacity expressed in terms of number of packets. Default is %d.\n", capacity);
 }
@@ -36,7 +33,7 @@ void print_usage(char* cmd)
 uint8_t parse_args(char** argv, int argc)
 {
   uint32_t i;
-  for(i = 1; i < argc;){
+  for(i = 1; i < argc;) {
       if(!strcmp(argv[i], "-i")){
           iface = argv[i + 1];
           i += 2;
@@ -78,6 +75,11 @@ uint8_t parse_args(char** argv, int argc)
   return 1;
 }
 
+/**
+ * @brief binds to a socket at port specified in port global variable and to a interface given by the iface global var
+ *
+ * @return 0 if error 1 if sucess
+ */
 uint8_t bind_socket()
 {
   struct ifaddrs *addrs, *iap;
@@ -117,24 +119,13 @@ uint8_t bind_socket()
 }
 
 
-/* Binds sockets, receives packets and inserts them in list l*/
+/**
+ * @brief Receives packets and inserts them in list l
+ */
 void serve()
 {
-  char path1[100] = {0};
-  char path2[100] = {0};
-  char path3[100] = {0};
-
-  memset(path1, 0, sizeof(path1));
-  memset(path2, 0, sizeof(path2));
-  memset(path3, 0, sizeof(path3));
-
-  sprintf(path1, "%s.1", output_json_file);
-  sprintf(path2, "%s.2", output_json_file);
-  sprintf(path3, "%s.3", output_json_file);
-
-  l[0] = mklist(capacity, path1); // One list for each nodes on the network (Node 1)
-  l[1] = mklist(capacity, path2); // One list for each nodes on the network (Node 2)
-  l[2] = mklist(capacity, path3); // One list for each nodes on the network (Node 3)
+  printf("Writing to %s\n", output_json_file);
+  json_fd = open_output_files(output_json_file);
 
   while(1)
     {
@@ -155,22 +146,30 @@ void serve()
 #ifdef __DEBUG__
       printf("Received packet.\n");
 #endif
-      insert(l[pkt.id - 1], &pkt);  // Insert the packet in the correct list 
+
+      uint8_t first = 0;
+      write_json(pkt, first, json_fd);  // Insert the packet in the correct list
     }
 }
 
+
+/**
+ * @brief Closes the sockets and cleans the lists
+ */
 void cleanup()
 {
   int i = 0;
   close(sockfd);
+  close(json_fd);
 
-  for(i = 0; i < 3; i++)
-    {
-      rmlist(l[i]);
-    }
   exit(0);
 }
 
+/**
+ * @brief Fills command line parameters, binds to socket and then receives packets
+ *
+ * @return 0 if OK, != 0 if error
+ */
 int main(int argc, char** argv)
 {
   if(!parse_args(argv, argc) || !bind_socket())

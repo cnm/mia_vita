@@ -64,7 +64,7 @@ void rmlist(list* l)
 #define sample_to_le(S)
 #endif
 
-#warning "Check if implementation is converting to correct endianess. IMHO only works if everything is ARM. (little endian)"
+#warning " JT Check if implementation is converting to correct endianess. IMHO only works if everything is ARM. (little endian)"
 static packet_t ntohpkt(packet_t pkt)
 {
   pkt.timestamp = be64toh( pkt.timestamp );
@@ -73,7 +73,14 @@ static packet_t ntohpkt(packet_t pkt)
   return pkt;
 }
 
-static void write_json(packet_t pkt, uint8_t first, int json_fd )
+/**
+ * @brief Write a packet to a file
+ *
+ * @param pkt
+ * @param first - Indicates if it is the first line to be written. (shouldn't it be last?)
+ * @param json_fd - file descriptor for the output file
+ */
+void write_json(packet_t pkt, uint8_t first, int json_fd )
 {
   /* static uint8_t first = 1; */
   char buff[2048] = {0};
@@ -130,7 +137,8 @@ static void write_json(packet_t pkt, uint8_t first, int json_fd )
       first = 0;
     }
 
-  sprintf(buff, "\"%u:%u\":{\"ts\":%lld,\"1\":%d,\"2\":%d,\"3\":%d,\"4\": %d}", pkt.id, pkt.seq, pkt.timestamp, sample1, sample2, sample3, sample4);
+  sprintf(buff, "\"%u:%u\":{\"ts\":%lld,\"1\":%d,\"2\":%d,\"3\":%d,\"4\": %d}",
+          pkt.id, pkt.seq, pkt.timestamp, sample1, sample2, sample3, sample4);
 
   to_write = strlen(buff);
   while(written < to_write)
@@ -145,7 +153,7 @@ static void write_json(packet_t pkt, uint8_t first, int json_fd )
     }
 }
 
-static uint8_t open_output_files(char * output_filename)
+int open_output_files(char * output_filename)
 {
   /* TODO - Pass this as a parameters - Use this to truncate */
   /* int json_fd = open(output_filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); */
@@ -223,7 +231,7 @@ int  __packet_comparator(const void* a, const void* b){
 
 #define SEC_2_USEC 1000000L
 #define USEC_2_NSEC 1000
-int64_t get_kernel_current_time(void) 
+int64_t get_kernel_current_time(void)
 {
   struct timeval tv;
   gettimeofday(&tv, NULL);
@@ -237,7 +245,6 @@ void insert(list* l, packet_t* p)
   //Check if node id > 0 && < 16
   if(p->id > 0 && p->id < 16)
     {
-
       // Let's insert the jitter of packet p
       current_time = get_kernel_current_time();
       current_interval = current_time - last_arrival_time[p->id];
