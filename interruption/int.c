@@ -347,7 +347,7 @@ void handle_gps_int(void){
     return;
 }
 
-/* #define SAMPLE_RATE_TIME_INTERVAL_U   20000      /1* Supposed to be          -> 50Hz -> 20 Miliseconds -> 20 000 Micro+|*/ */
+/* #define SAMPLE_RATE_TIME_INTERVAL_U   20000      /1* Supposed to be          -> 50Hz -> 20 Miliseconds -> 20 000 Micro+|*/
 #define SAMPLE_RATE_TIME_INTERVAL_U   13513         /* Due to error in PCB 74Hz -> 20 Miliseconds -> 20 000 Micro*/
 #define DATA_READY_TIME_U                13         /* First sample difference  -> 1 / (3.6??? Mhz / 512) TODO - Calculate this */
 
@@ -358,7 +358,7 @@ void handle_adc_int(){
 
     /* TODO - Current solution discards next 2 lines but they are extremely usefull if GPS does not find a signal. Maybe pass as a parameter as module is inserted??? */
     struct timeval t;
-    __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
+    /* __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U; */
 
     /* TODO - Change to use a base and then compare the base with the kernel time. Do NOT change the kernel time */
 #warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time
