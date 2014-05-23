@@ -1,21 +1,3 @@
-/*
- * =====================================================================================
- *
- *       Filename:  mem_addr.h
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  08/18/2011 04:08:17 PM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
- *        Company:  
- *
- * =====================================================================================
- */
-
 /* For spi communication */
 #define SPI_REGISTER                    0x71000000
 #define SPI_CFG                         0x40   /* See page 144 */
@@ -72,11 +54,6 @@
 #define IRQ_GPIO_MASK                   (1<<IRQ_GPIO)
 
 #define SOFT_INT_REGISTER               ((VIC) + 0x24)          /* See page 294  */
-
-#define CHANNELS                        4
-#define SAMPLE_RATE_HZ                  50
-#define SECONDS_IN_BUFFER               5
-#define DATA_SIZE                       (CHANNELS * SAMPLE_RATE_HZ * SECONDS_IN_BUFFER / 3)
 
 #define WATCHDOG_TIME_10SEG             2
 #define WATCHDOG_FPGA_ADDRESS           0x74
