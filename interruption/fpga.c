@@ -3,15 +3,8 @@
  *
  *       Filename:  caller.c
  *
- *    Description:
+ *    Description: All interaction with the FPGA are in this class
  *
- *        Version:  1.0
- *        Created:  08/16/2011 12:40:08 PM
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (),
- *        Company:
  *
  * =====================================================================================
  */
@@ -22,26 +15,21 @@
 #include <linux/miavita_xtime.h>
 
 #include "mem_addr.h"
+#include "fpga.h"
 
 extern int request_mem(volatile unsigned int mem_addr, unsigned int size);
 extern void release_mem(volatile unsigned int mem_addr, unsigned int byte_size);
-void write_dio26(bool b);
-unsigned short read_dio26(void);
-void release_mem_spi(void);
 
-void set_lun_speed_edge(void);
-unsigned short getR0(void);
-void cavium_disable_cs(void);
-int dostuff(void);
-void prepare_registers(void);
+/* static unsigned short read_dio26(void); */
+static void set_lun_speed_edge(void);
+static unsigned short getR0(void);
+static void cavium_disable_cs(void);
+static void prepare_registers(void);
 static volatile unsigned int gpio_a_new_mem;
 static volatile unsigned int spi_register;
-
 static volatile unsigned int *cvspiregs;
 
-void write_watchdog(void);
-
-void poke16(unsigned int adr, unsigned short dat) {
+static void poke16(unsigned int adr, unsigned short dat) {
     unsigned int dummy = 0;
     unsigned int d = dat;
     unsigned int a15_a16_addr_register; /*  See section 5.1 of the ts7500 manual */
@@ -75,7 +63,7 @@ void poke16(unsigned int adr, unsigned short dat) {
 
 }
 
-unsigned short peek16(unsigned int adr) {
+static unsigned short peek16(unsigned int adr) {
     unsigned short ret = -1;
     unsigned int a15_a16_addr_register; /*  See section 5.1 of the ts7500 manual */
     volatile unsigned int *p; // The volatile is extremely important here
@@ -105,16 +93,16 @@ unsigned short peek16(unsigned int adr) {
     return ret;
 }
 
-unsigned short getR0() {
+static unsigned short getR0() {
     unsigned short spiR0 = peek16(0x40);
     return spiR0;
 }
 
-void setR0(unsigned short val) {
+static void setR0(unsigned short val) {
     poke16(0x40,val);
 }
 
-void cavium_disable_cs() {
+static void cavium_disable_cs() {
     unsigned short val = getR0();
 
     if (val & (1<<7)) {
@@ -127,7 +115,7 @@ void cavium_disable_cs() {
     }
 }
 
-void prepare_registers() {
+static void prepare_registers() {
     int i;
     volatile unsigned int *p; // The volatile is extremely important here
 
@@ -155,7 +143,7 @@ void prepare_registers() {
     cavium_disable_cs(); // force CS# deassertion just in case
 }
 
-void reserve_memory(void){
+static void reserve_memory(void){
     gpio_a_new_mem = request_mem(GPIOA_REGISTER, WORD_SIZE);
     spi_register = request_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
     cvspiregs = (void*) spi_register;
@@ -174,10 +162,9 @@ void prepare_spi2(void){
 void prepare_spi(void){
     printk("Reserving memory\n");
     reserve_memory();
-
 }
 
-void set_lun_speed_edge(){
+static void set_lun_speed_edge(){
     int clock = 15;
     int edge = 1; /* It must reads on the rising edge */
 
@@ -205,7 +192,7 @@ void set_lun_speed_edge(){
 #define SEC_2_NSEC 1000000000L
 #define USEC_2_NSEC 1000
 
-int64_t get_kernel_current_time(void) {
+static int64_t get_kernel_current_time(void) {
   struct timeval t;
   memset(&t, 0, sizeof(struct timeval));
   do_gettimeofday(&t);
@@ -262,11 +249,46 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
     return;
 }
 
+
 void release_mem_spi(void){
     release_mem(GPIOA_REGISTER, WORD_SIZE);
     release_mem(SPI_REGISTER, 0x6C + WORD_SIZE);
 }
 
+
+
+/**
+ * @brief Pulses the watchdog and set's next int to occur in 10 seconds
+ */
+void write_watchdog(void) {
+    poke16(WATCHDOG_FPGA_ADDRESS, WATCHDOG_TIME_10SEG);
+    return;
+}
+
+
+/* Function to read what's in DIO 26 (DIO MULTIPLEXER)
+ *
+ *  Only used for debug purposes.
+ * */
+/* static unsigned short read_dio26(void){ */
+/*     int pinOffSet = 5; */
+/*     int value_read = 0; */
+
+/*     // Make the specified pin into an input direction register */
+/*     poke16(0x6c, peek16(0x6c) & ~(1 << pinOffSet)); /// */
+
+/*     value_read = peek16(0x6a) & (1 << pinOffSet); */
+
+/*     // Make the specified pin into an output in direction register */
+/*     poke16(0x6c, peek16(0x6c) | (1 << pinOffSet)); /// */
+
+/*   return value_read; */
+/* } */
+
+/* Function to write what's in DIO 26 (DIO MULTIPLEXER)
+ *
+ *  Only used for debug purposes.
+ * */
 void write_dio26(bool b){
     int pinOffSet = 5;
 
@@ -281,28 +303,3 @@ void write_dio26(bool b){
     poke16(0x6c, peek16(0x6c) | (1 << pinOffSet)); ///
 }
 
-/* Function to read what's in DIO 26 (DIO MULTIPLEXER)
- *
- *  Only used for debug purposes.
- *
- * */
-unsigned short read_dio26(void){
-    int pinOffSet = 5;
-    int value_read = 0;
-
-    // Make the specified pin into an input direction register
-    poke16(0x6c, peek16(0x6c) & ~(1 << pinOffSet)); ///
-
-    value_read = peek16(0x6a) & (1 << pinOffSet);
-
-    // Make the specified pin into an output in direction register
-    poke16(0x6c, peek16(0x6c) | (1 << pinOffSet)); ///
-
-  return value_read;
-}
-
-
-void write_watchdog(void){
-    return;
-    poke16(WATCHDOG_FPGA_ADDRESS, WATCHDOG_TIME_10SEG);
-}

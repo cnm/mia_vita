@@ -57,16 +57,14 @@ extern void release_mem_spi(void);
 extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
-
 extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
 extern void write_dio26(bool b);
 extern unsigned short read_dio26(void);
-
+extern void write_watchdog(void);
 
 bool is_fpga_used(void);
 
 unsigned int counter;
-extern void write_watchdog(void);
 volatile unsigned short mux_state = 0;
 int udelay_in_second;
 
@@ -325,10 +323,10 @@ irqreturn_t interrupt(int irq, void *dev_id){
 void handle_gps_int(void){
 
     /* TODO - Change to use a base and then compare the base with the kernel time. Do NOT change the kernel time */
-#warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time
-    struct timeval t;
-    do_gettimeofday(&t);
-    t.tv_usec = 0;
+    /* #warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time */
+    /* struct timeval t; */
+    /* do_gettimeofday(&t); */
+    /* t.tv_usec = 0; */
 
     counter = 0;
     counter_seconds++;
@@ -347,8 +345,8 @@ void handle_gps_int(void){
     return;
 }
 
-/* #define SAMPLE_RATE_TIME_INTERVAL_U   20000      /1* Supposed to be          -> 50Hz -> 20 Miliseconds -> 20 000 Micro+|*/
-#define SAMPLE_RATE_TIME_INTERVAL_U   13513         /* Due to error in PCB 74Hz -> 20 Miliseconds -> 20 000 Micro*/
+#define SAMPLE_RATE_TIME_INTERVAL_U   20000            /* Supposed to be          -> 50Hz -> 20 Miliseconds -> 20 000 Micro+|*/
+/* #define SAMPLE_RATE_TIME_INTERVAL_U   13513         /1* Due to error in PCB 74Hz -> 20 Miliseconds -> 20 000 Micro*/
 #define DATA_READY_TIME_U                13         /* First sample difference  -> 1 / (3.6??? Mhz / 512) TODO - Calculate this */
 
 void handle_adc_int(){
@@ -358,12 +356,12 @@ void handle_adc_int(){
 
     /* TODO - Current solution discards next 2 lines but they are extremely usefull if GPS does not find a signal. Maybe pass as a parameter as module is inserted??? */
     struct timeval t;
-    /* __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U; */
+    __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
 
     /* TODO - Change to use a base and then compare the base with the kernel time. Do NOT change the kernel time */
-#warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time
+    /* #warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time */
     do_gettimeofday(&t);
-    __miavita_elapsed_usecs = t.tv_usec;
+    /* __miavita_elapsed_usecs = t.tv_usec; */
 
     counter++;
     if(fpga_busy)
