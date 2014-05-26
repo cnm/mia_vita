@@ -161,6 +161,7 @@ static void serve()
           return;
       }
 
+      printf("Received packet\n");
       write_json(&pkt, first, json_fd);  // Insert the packet in the correct list
       first = 1;
     }

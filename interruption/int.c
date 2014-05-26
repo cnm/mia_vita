@@ -284,7 +284,7 @@ irqreturn_t interrupt(int irq, void *dev_id){
 
         if((counter_scl % DIVISOR) == 0)
           {
-            /* if((counter_scl % 2) == 0){ */
+            /* if((counter_scl % 40) == 0){ */
             /*     printk(KERN_INFO "Received adc int ADC\n"); */
             /* } */
 
@@ -299,7 +299,7 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_sda++;
 
         if((counter_sda % DIVISOR) == 0){
-            printk(KERN_INFO "Received PPS\n");
+            /* printk(KERN_INFO "Received PPS\n"); */
             handle_gps_int();
         }
       }

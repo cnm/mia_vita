@@ -50,9 +50,9 @@ sample_t CIRC_BUFFER[BUFF_SIZE];
  * @param be_samples - is a pointer which will be allocated inside the function. It will contain the samples in big endian format.
  *        It should be released by the caller of the function.
  *
- * @return 0 nothing is read. 1 if it read correctly something
+ * @return 0 nothing is read. The number of samples read if everything is ok
  */
-int read_nsamples(sample_t** be_samples, uint32_t* len_in_samples)
+uint32_t read_nsamples(sample_t** be_samples)
 {
   /*DATA memory layout:
    *
@@ -72,9 +72,9 @@ int read_nsamples(sample_t** be_samples, uint32_t* len_in_samples)
 
   if(last_read == last_write)
     {
-      *len_in_samples = 0;
       return 0;               // There are no samples to read
     }
+
 
   // Let's check if the last_write is behind the last read. This can occur as this is a circular buffer
   if(last_read > last_write) {
@@ -111,7 +111,7 @@ int read_nsamples(sample_t** be_samples, uint32_t* len_in_samples)
     printk(KERN_EMERG "%s:%d: Last read is different from last write. Should be due to concorrency problem", __FILE__, __LINE__);
   }
 
-  return samples_to_copy; //Read was successful
+  return samples_to_copy; // Read was successful
 }
 EXPORT_SYMBOL(read_nsamples);
 

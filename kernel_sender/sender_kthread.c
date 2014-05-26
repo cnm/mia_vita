@@ -137,7 +137,7 @@ static packet_t * prepare_packet(const sample_t * sample, uint32_t seq, uint8_t 
   pkt->id = node_id;
 
   // Now let's copy the samples into the packet
-  sample_size = sizeof(pkt->samples); // This should be (24b * 4) or in other words (1char * 12)
+  sample_size = sizeof(sample->data); // This should be (24b * 4) or in other words (1char * 12)
   memcpy(pkt->samples, sample->data, sample_size);
 
   return pkt;
@@ -187,7 +187,8 @@ static int main_loop(void* data)
           break;
         }
 
-      if(read_nsamples(&samples, &len))
+      len = read_nsamples(&samples);
+      if(len > 0)
         {
 
 #ifdef __DEBUG__
@@ -197,8 +198,8 @@ static int main_loop(void* data)
           for(i = 0; i < len; i += 1)
             {
               pkt = prepare_packet(&(samples[i]), seq++, node_id);
-
-              if(pkt == NULL){
+              if(pkt == NULL) {
+                  printk(KERN_EMERG "Was not able to prepare the packet to send\n");
                   continue;
               }
               send_it(pkt);

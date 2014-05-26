@@ -27,6 +27,6 @@ typedef struct{
 
 extern void create_proc_file(void);
 extern void write_to_buffer(unsigned int * value, int64_t timestamp);
-extern int read_nsamples(sample_t** be_samples, uint32_t* len_in_samples);
+extern uint32_t read_nsamples(sample_t** be_samples);
 
 #endif
