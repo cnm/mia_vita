@@ -38,10 +38,10 @@ volatile uint32_t last_write = 0;
 volatile uint32_t last_read = 0;
 
 // The circular buffer
-sample DATA[DATA_SIZE];
+sample_t CIRC_BUFFER[BUFF_SIZE];
 
 #define FIRST_INDEX 0
-#define LAST_INDEX DATA_SIZE - 1
+#define LAST_INDEX BUFF_SIZE - 1
 
 /**
  * @brief Ok, reading 1 sample at a time is quite easy. Let's try to read more than one. This function will read as many samples
@@ -52,7 +52,7 @@ sample DATA[DATA_SIZE];
  *
  * @return 0 nothing is read. 1 if it read correctly something
  */
-int read_nsamples(sample** be_samples, uint32_t* len_in_samples)
+int read_nsamples(sample_t** be_samples, uint32_t* len_in_samples)
 {
   /*DATA memory layout:
    *
@@ -87,7 +87,7 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples)
   }
 
   // Let's create buffer to copy the samples
-  *be_samples = kmalloc(samples_to_copy * sizeof(sample), GFP_ATOMIC);
+  *be_samples = kmalloc(samples_to_copy * sizeof(sample_t), GFP_ATOMIC);
 
   // Check if the kmalloc return something valid
   if(!(*be_samples))
@@ -99,11 +99,11 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples)
   // for each of the samples copy them (this could be done with a memcopy in future to improve performance)
   for(i = 0; i < samples_to_copy; i += 1)
     {
-      current_index = ((last_read + 1 + i) % DATA_SIZE);
-      (*be_samples)[i] = DATA[current_index];
+      current_index = ((last_read + 1 + i) % BUFF_SIZE);
+      (*be_samples)[i] = CIRC_BUFFER[current_index];
     }
 
-  last_read = ((last_read + samples_to_copy) % DATA_SIZE);
+  last_read = ((last_read + samples_to_copy) % BUFF_SIZE);
 
   // We have to check if we did everything allright (TODO: Right now due to concurrency this may happen. Have to create somekind of lock mechanism)
   if(last_read != last_write_tmp) {
@@ -123,12 +123,12 @@ void write_to_buffer(unsigned int * value, int64_t timestamp)
   printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));
 #endif
 
-  DATA[last_write].timestamp = timestamp;
-  DATA[last_write].data[0] = *value;
-  DATA[last_write].data[1] = *(value + 1);
-  DATA[last_write].data[2] = *(value + 2);
+  CIRC_BUFFER[last_write].timestamp = timestamp;
+  CIRC_BUFFER[last_write].data[0] = *value;
+  CIRC_BUFFER[last_write].data[1] = *(value + 1);
+  CIRC_BUFFER[last_write].data[2] = *(value + 2);
 
-  last_write = ((last_write + 1) % DATA_SIZE);
+  last_write = ((last_write + 1) % BUFF_SIZE);
 }
 
 /**
@@ -148,7 +148,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
                          int dest_buffer_length, int *eof, void *data)
 {
   /* We only use char sizes from here */
-  unsigned int data_size_in_chars = DATA_SIZE * sizeof(sample);
+  unsigned int data_size_in_chars = BUFF_SIZE * sizeof(sample_t);
   unsigned int how_many_we_copy = 0;
 
   //Calculates how many octets to copy
@@ -166,7 +166,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
 
   how_many_we_copy = (how_many_we_copy < dest_buffer_length) ? how_many_we_copy : dest_buffer_length;
 
-  memcpy(dest_buffer, ((char*) DATA) + offset, how_many_we_copy);
+  memcpy(dest_buffer, ((char*) CIRC_BUFFER) + offset, how_many_we_copy);
 
   *eof = how_many_we_copy ? 1 : 0;
   *buffer_location = dest_buffer;
@@ -196,5 +196,5 @@ void create_proc_file(void)
   proc_file_entry->mode = S_IFREG | S_IRUGO;
   proc_file_entry->uid = 0;
   proc_file_entry->gid = 0;
-  proc_file_entry->size = DATA_SIZE;
+  proc_file_entry->size = BUFF_SIZE;
 }

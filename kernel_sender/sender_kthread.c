@@ -106,12 +106,49 @@ static void send_it(packet_t* pkt)
   set_fs(oldfs);
 }
 
+/**
+ * @brief Creates a packet containing a single sample
+ *
+ * @param sample
+ *
+ * @return The created packet. It has to be freed by the caller of this function
+ */
+static packet_t * prepare_packet(const sample_t * sample, uint32_t seq, uint8_t node_id)
+{
+  packet_t* pkt;
+  unsigned int sample_size;
+
+  pkt = kmalloc(sizeof(packet_t), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
+  if(!pkt){
+      printk(KERN_EMERG "%s:%d Failed to allocate packet.\n", __FILE__, __LINE__);
+      return NULL;
+  }
+
+  //Erase the memory for the new packet
+  memset(pkt, 0, sizeof(packet_t));
+
+  // Let's copy the timestamp from the sample to the packet. While doing that we put it in big endian
+  pkt->timestamp = cpu_to_be64(sample->timestamp);
+
+  // Let's put the packet timestamp also in big endian
+  pkt->seq = cpu_to_be32(seq++);
+
+  // Copying the sender's node id. Note that as it is 1Byte it is not necessary to put it in big endian
+  pkt->id = node_id;
+
+  // Now let's copy the samples into the packet
+  sample_size = sizeof(pkt->samples); // This should be (24b * 4) or in other words (1char * 12)
+  memcpy(pkt->samples, sample->data, sample_size);
+
+  return pkt;
+}
+
 /*
  * This is the kthread function. Although I didn't used it you can always pass it values through the data variable.
  */
 static int main_loop(void* data)
 {
-  sample *samples;
+  sample_t *samples;
   packet_t * pkt;
   uint32_t len, i = 0;
   static uint32_t seq = 0;
@@ -159,7 +196,11 @@ static int main_loop(void* data)
 
           for(i = 0; i < len; i += 1)
             {
-              ptk = prepare_packet();
+              pkt = prepare_packet(&(samples[i]), seq++, node_id);
+
+              if(pkt == NULL){
+                  continue;
+              }
               send_it(pkt);
               kfree(pkt);
             }
@@ -173,41 +214,6 @@ static int main_loop(void* data)
   return 0;
 }
 
-/**
- * @brief Creates a packet containing a single sample
- *
- * @param sample
- *
- * @return The created packet. It has to be freed by the caller of this function
- */
-static packet* prepare_packet(const * const sample, uint32_t seq, uint8_t node_id)
-{
-  packet_t* pkt;
-
-  pkt = kmalloc(sizeof(packet_t), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
-  if(!pkt){
-      printk(KERN_EMERG "%s:%d Failed to allocate packet.\n", __FILE__, __LINE__);
-      continue;
-  }
-
-  //Erase the memory for the new packet
-  memset(pkt, 0, sizeof(packet_t));
-
-  // Let's copy the timestamp from the sample to the packet. While doing that we put it in big endian
-  pkt->timestamp = cpu_to_be64(sample->timestamp);
-
-  // Let's put the packet timestamp also in big endian
-  pkt->seq = cpu_to_be32(seq++);
-
-  // Copying the sender's node id. Note that as it is 1Byte it is not necessary to put it in big endian
-  pkt->id = node_id;
-
-  // Now let's copy the samples into the packet
-  sample_size = sizeof(pkt->samples); // This should be (24b * 4) or in other words (1char * 12)
-  memcpy(pkt->samples, sample->data, sample_size);
-
-  return pkt;
-}
 
 int __init init_module(void)
 {

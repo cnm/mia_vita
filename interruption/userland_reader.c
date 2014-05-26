@@ -12,9 +12,9 @@
 /*
  * Function Prototypes
  */
-void read_sample(sample*, FILE*);
-void correct_sample(sample*);
-void separate_channels(sample*, unsigned int*);
+void read_sample(sample_t*, FILE*);
+void correct_sample(sample_t*);
+void separate_channels(sample_t*, unsigned int*);
 void two_complement(unsigned int*);
 
 
@@ -31,12 +31,12 @@ int main(void)
   int i, j, read_samples;
   int ** channel_data = (int **) malloc(sizeof(int *) * BUFFER_SIZE);
 
-  sample** samples = (sample**) malloc(sizeof(sample*) * BUFFER_SIZE);
+  sample_t ** samples = (sample_t**) malloc(sizeof(sample_t*) * BUFFER_SIZE);
 
   for(i=0; i<BUFFER_SIZE; i++)
     {
       channel_data[i] = (unsigned int *) malloc(sizeof(unsigned int) * NUM_OF_CHANNELS);
-      samples[i] = (sample*) malloc(sizeof(sample));
+      samples[i] = (sample_t*) malloc(sizeof(sample_t));
     }
 
   ifp = fopen("/proc/geophone", "r");
@@ -76,13 +76,13 @@ int main(void)
 }
 
 
-void read_sample(sample* samp, FILE* ifp)
+void read_sample(sample_t* samp, FILE* ifp)
 {
   unsigned char* temp;
 
   int i;
   unsigned int len_uc = sizeof(unsigned char);
-  unsigned int length_sample = sizeof(sample);
+  unsigned int length_sample = sizeof(sample_t);
   unsigned int read_oct = 0; // Number of read octets
 
   temp = (unsigned char*) samp;
@@ -107,7 +107,7 @@ void read_sample(sample* samp, FILE* ifp)
  *Sample:     2-|---1-----|--3---|--2---|----4----|-3
  *be_samples:
  */
-void correct_sample(sample* samp)
+void correct_sample(sample_t* samp)
 {
   unsigned int* corr_data = (unsigned int*) malloc(sizeof(unsigned int) * 3);
   uint8_t* int1 = (uint8_t*) samp->data;
@@ -135,7 +135,7 @@ void correct_sample(sample* samp)
   samp->data[2] = corr_data[2];
 }
 
-void separate_channels(sample* samp, unsigned int* channels)
+void separate_channels(sample_t* samp, unsigned int* channels)
 {
   int i;
   uint8_t* sample_data;

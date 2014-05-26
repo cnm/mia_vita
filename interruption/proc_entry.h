@@ -9,7 +9,7 @@
 #define CHANNELS                        4
 #define SAMPLE_RATE_HZ                  50
 #define SECONDS_IN_BUFFER               5
-#define DATA_SIZE                       (CHANNELS * SAMPLE_RATE_HZ * SECONDS_IN_BUFFER)
+#define BUFF_SIZE                       (CHANNELS * SAMPLE_RATE_HZ * SECONDS_IN_BUFFER)
 
 /*DATA memory layout:
  *
@@ -23,10 +23,10 @@
 typedef struct{
     int64_t timestamp;
     uint32_t data[3];//each sample will hold 4 channels
-} sample;
+} sample_t;
 
 extern void create_proc_file(void);
 extern void write_to_buffer(unsigned int * value, int64_t timestamp);
-extern int read_nsamples(sample** be_samples, uint32_t* len_in_samples);
+extern int read_nsamples(sample_t** be_samples, uint32_t* len_in_samples);
 
 #endif
