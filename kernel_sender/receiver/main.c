@@ -7,6 +7,9 @@
 #include <ifaddrs.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "miavita_packet.h"
 #include "list.h"
@@ -16,7 +19,9 @@ char* iface = "lo", *move_file_to = "miavita_old";
 uint32_t capacity = 250;
 
 int sockfd = -1;
-int json_fd = -1; 
+int json_fd = -1;
+
+char* output_json_file = "miavita.json";
 
 void print_usage(char* cmd)
 {
@@ -49,21 +54,21 @@ uint8_t parse_args(char** argv, int argc)
           i += 2;
           continue;
       }
-      if(!strcmp(argv[i], "-b")){
-          output_binary_file = argv[i + 1];
-          i += 2;
-          continue;
-      }
+      /* if(!strcmp(argv[i], "-b")){ */
+      /*     output_binary_file = argv[i + 1]; */
+      /*     i += 2; */
+      /*     continue; */
+      /* } */
       if(!strcmp(argv[i], "-j")){
           output_json_file = argv[i + 1];
           i += 2;
           continue;
       }
-      if(!strcmp(argv[i], "-z")){
-          archive_json_file = argv[i + 1];
-          i += 2;
-          continue;
-      }
+      /* if(!strcmp(argv[i], "-z")){ */
+      /*     archive_json_file = argv[i + 1]; */
+      /*     i += 2; */
+      /*     continue; */
+      /* } */
       if(!strcmp(argv[i], "-o")){
           move_file_to = argv[i + 1];
           i += 2;
@@ -80,7 +85,7 @@ uint8_t parse_args(char** argv, int argc)
  *
  * @return 0 if error 1 if sucess
  */
-uint8_t bind_socket()
+static uint8_t bind_socket()
 {
   struct ifaddrs *addrs, *iap;
   struct sockaddr_in sa;
@@ -112,43 +117,52 @@ uint8_t bind_socket()
         }
     }
 
-#ifdef __DEBUG__
-  printf("Connected to socket\n");
-#endif
   return 1;
 }
+
+open_output_files(char * output_filename)
+{
+  /* TODO - Pass the truncate option as a parameters - Use this to truncate */
+  /* int json_fd = open(output_filename, O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); */
+
+  /* TODO - Pass this as a parameters - Use this to append */
+  int json_fd = open(output_filename, O_WRONLY | O_APPEND | O_CREAT);
+
+  if(json_fd == -1)
+    {
+      perror("Unable to open json output file");
+      return 0;
+    }
+  write(json_fd, "{", 1);
+  return json_fd;
+}
+
 
 
 /**
  * @brief Receives packets and inserts them in list l
  */
-void serve()
+static void serve()
 {
   printf("Writing to %s\n", output_json_file);
   json_fd = open_output_files(output_json_file);
+  uint8_t first = 0;
+  packet_t pkt;
+  struct sockaddr_in sa;
+  uint32_t size = sizeof(sa);
 
   while(1)
     {
-      struct sockaddr_in sa;
-      packet_t pkt;
-      uint32_t size = sizeof(sa);
-
       memset(&sa, 0, sizeof(sa));
       memset(&pkt, 0, sizeof(pkt));
 
-#ifdef __DEBUG__
-      printf("Going to receive packets (it is blocking)\n");
-#endif
       if(recvfrom(sockfd, (void*) &pkt, sizeof(pkt), 0, (struct sockaddr*) &sa, &size) <= 0){
           perror("recvfrom() - Received from the socket gave an error");
           return;
       }
-#ifdef __DEBUG__
-      printf("Received packet.\n");
-#endif
 
-      uint8_t first = 0;
-      write_json(pkt, first, json_fd);  // Insert the packet in the correct list
+      write_json(&pkt, first, json_fd);  // Insert the packet in the correct list
+      first = 1;
     }
 }
 
@@ -156,7 +170,7 @@ void serve()
 /**
  * @brief Closes the sockets and cleans the lists
  */
-void cleanup()
+static void cleanup()
 {
   int i = 0;
   close(sockfd);

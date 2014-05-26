@@ -19,6 +19,6 @@ extern char* archive_json_file;
 extern list* mklist(uint32_t capacity, char* new_filename);
 extern void rmlist(list* l);
 extern void insert(list* l, packet_t* p);
-extern void write_json(packet_t pkt, uint8_t first, int json_fd );
+extern void write_json(packet_t * pkt, uint8_t first, int json_fd );
 extern int open_output_files(char * output_filename);
 #endif

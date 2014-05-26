@@ -112,8 +112,8 @@ static void send_it(packet_t* pkt)
 static int main_loop(void* data)
 {
   sample *samples;
-  uint32_t offset = 0, len, i;
-  packet_t* pkt;
+  packet_t * pkt;
+  uint32_t len, i = 0;
   static uint32_t seq = 0;
 
   if (sock_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, &udp_socket) < 0)
@@ -150,7 +150,7 @@ static int main_loop(void* data)
           break;
         }
 
-      if(read_nsamples(&samples, &len, &offset))
+      if(read_nsamples(&samples, &len))
         {
 
 #ifdef __DEBUG__
@@ -159,32 +159,54 @@ static int main_loop(void* data)
 
           for(i = 0; i < len; i += 1)
             {
-              pkt = kmalloc(sizeof(*pkt), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
-              if(!pkt){
-                  printk(KERN_EMERG "%s:%d Failed to allocate packet.\n", __FILE__, __LINE__);
-                  continue;
-              }
-
-              memset(pkt, 0, sizeof(*pkt));
-              memcpy(pkt->samples, (samples + i)->data, sizeof(pkt->samples));
-              pkt->timestamp = cpu_to_be64((samples+i)->timestamp);
-              pkt->seq = cpu_to_be32(seq++);
-
-#ifdef __DEBUG__
-              printk("Packet timestamp is %llX (big endian)\n", pkt->timestamp);
-#endif
-              pkt->id = node_id;
+              ptk = prepare_packet();
               send_it(pkt);
               kfree(pkt);
             }
 
-          kfree(samples);
+          kfree(samples); // Never forget samples was allocated in read_nsamples and so has to be freed
         }
 
       //    schedule(); //This is similar to kill a fly with a bazooka, but it works.
       msleep(SLEEP_TIME_MS);
     }
   return 0;
+}
+
+/**
+ * @brief Creates a packet containing a single sample
+ *
+ * @param sample
+ *
+ * @return The created packet. It has to be freed by the caller of this function
+ */
+static packet* prepare_packet(const * const sample, uint32_t seq, uint8_t node_id)
+{
+  packet_t* pkt;
+
+  pkt = kmalloc(sizeof(packet_t), GFP_ATOMIC); //we may use vmalloc, or GFP_KERNEL....
+  if(!pkt){
+      printk(KERN_EMERG "%s:%d Failed to allocate packet.\n", __FILE__, __LINE__);
+      continue;
+  }
+
+  //Erase the memory for the new packet
+  memset(pkt, 0, sizeof(packet_t));
+
+  // Let's copy the timestamp from the sample to the packet. While doing that we put it in big endian
+  pkt->timestamp = cpu_to_be64(sample->timestamp);
+
+  // Let's put the packet timestamp also in big endian
+  pkt->seq = cpu_to_be32(seq++);
+
+  // Copying the sender's node id. Note that as it is 1Byte it is not necessary to put it in big endian
+  pkt->id = node_id;
+
+  // Now let's copy the samples into the packet
+  sample_size = sizeof(pkt->samples); // This should be (24b * 4) or in other words (1char * 12)
+  memcpy(pkt->samples, sample->data, sample_size);
+
+  return pkt;
 }
 
 int __init init_module(void)

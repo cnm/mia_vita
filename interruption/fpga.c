@@ -201,7 +201,7 @@ static int64_t get_kernel_current_time(void) {
 }
 
 void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
-    unsigned int a,b,c,d,e,f;
+    volatile unsigned int a,b,c,d,e,f;
     uint32_t temp_buffer1 = 0;
     uint32_t temp_buffer2 = 0;
     uint32_t temp_buffer3 = 0;

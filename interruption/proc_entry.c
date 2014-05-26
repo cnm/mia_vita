@@ -34,18 +34,18 @@
 struct proc_dir_entry *proc_file_entry;
 
 // The last write array index
-unsigned volatile uint32_t last_write = 0;
-unsigned volatile uint32_t last_read = 0;
+volatile uint32_t last_write = 0;
+volatile uint32_t last_read = 0;
 
 // The circular buffer
-sample DATA[DATA_SIZE];//Note that I've changed DATA_SIZE
+sample DATA[DATA_SIZE];
 
 #define FIRST_INDEX 0
 #define LAST_INDEX DATA_SIZE - 1
 
 /**
  * @brief Ok, reading 1 sample at a time is quite easy. Let's try to read more than one. This function will read as many samples
- *as it can from the DATA circular buffer.
+ * as it can from the DATA circular buffer.
  *
  * @param be_samples - is a pointer which will be allocated inside the function. It will contain the samples in big endian format.
  *        It should be released by the caller of the function.
@@ -63,26 +63,27 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples)
    *Sample:     2-|---1-----|--3---|--2---|----4----|-3
    *be_samples:
    */
-  uint32_t samples_to_copy; // Indicates how many samples to copy (note a sample has the three channels and a timestamp)
+  uint32_t samples_to_copy;   // Indicates how many samples to copy (note a sample has the three channels and a timestamp)
+  unsigned int i;             // Iterator for a cicle
+  unsigned int current_index; // Indicates the current data index being copied
 
-  if(*last_read == last_write)
+  // This var is used in a very naive method to check if there is concurrency. TODO - Improve this
+  unsigned int last_write_tmp = last_write;
+
+  if(last_read == last_write)
     {
-#ifdef __DEBUG__
-      printk(KERN_INFO "NOTHING TO READ\n");
-#endif
-      return 0; // There are no samples to read
+      *len_in_samples = 0;
+      return 0;               // There are no samples to read
     }
 
-  // Let's check if the last_write is behind the last read
-  // This can occur as this is a circular buffer
+  // Let's check if the last_write is behind the last read. This can occur as this is a circular buffer
   if(last_read > last_write) {
     // In this case we will read all images until the end of buffer and then from 0 to the last write
     // the + 1  is to read the last write so that last_read == last_write
-    samples_to_copy = (LAST_INDEX - last_read) + (last_write - FIRST_INDEX ) + 1:
+    samples_to_copy = (LAST_INDEX - last_read) + (last_write - FIRST_INDEX ) + 1;
   }
-  // In this case the write is ahead of read
-  else  {
-    sammples_to_copy = last_write - last_read;
+  else  { // In this case the write is ahead of read
+    samples_to_copy = last_write - last_read;
   }
 
   // Let's create buffer to copy the samples
@@ -96,25 +97,56 @@ int read_nsamples(sample** be_samples, uint32_t* len_in_samples)
     }
 
   // for each of the samples copy them (this could be done with a memcopy in future to improve performance)
-  for(int i = 1; i <= samples_to_copy; i += 1)
+  for(i = 0; i < samples_to_copy; i += 1)
     {
-      (*be_samples)[i] = (DATA[(last_read + i) % DATA_SIZE]);
+      current_index = ((last_read + 1 + i) % DATA_SIZE);
+      (*be_samples)[i] = DATA[current_index];
     }
 
-  last_read = (last_read + samples_to_copy) % DATA_SIZE;
+  last_read = ((last_read + samples_to_copy) % DATA_SIZE);
 
-  // We have to check if we did everything allright
-  last_read == last_write;
+  // We have to check if we did everything allright (TODO: Right now due to concurrency this may happen. Have to create somekind of lock mechanism)
+  if(last_read != last_write_tmp) {
+    // Something went wrong
+    printk(KERN_EMERG "%s:%d: Last read is different from last write. Should be due to concorrency problem", __FILE__, __LINE__);
+  }
 
   return samples_to_copy; //Read was successful
 }
 EXPORT_SYMBOL(read_nsamples);
 
-//Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
+
+/* This function is called by the interruption and therefore cannot be interrupted */
+void write_to_buffer(unsigned int * value, int64_t timestamp)
+{
+#ifdef __DEBUG__
+  printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));
+#endif
+
+  DATA[last_write].timestamp = timestamp;
+  DATA[last_write].data[0] = *value;
+  DATA[last_write].data[1] = *(value + 1);
+  DATA[last_write].data[2] = *(value + 2);
+
+  last_write = ((last_write + 1) % DATA_SIZE);
+}
+
+/**
+ * @brief Called by each read to the proc entry. If the cache is dirty it will be rebuilt.
+ *  TODO - This function has to be updated. It is currently not used.
+ * Currently this function is not update and should not be used
+ * @param dest_buffer - Where to copy the data
+ * @param buffer_location -
+ * @param offset
+ * @param dest_buffer_length - size of the dest buffer (limit of data to copy)
+ * @param eof
+ * @param data
+ *
+ * @return
+ */
 static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset,
                          int dest_buffer_length, int *eof, void *data)
 {
-
   /* We only use char sizes from here */
   unsigned int data_size_in_chars = DATA_SIZE * sizeof(sample);
   unsigned int how_many_we_copy = 0;
@@ -142,22 +174,12 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
   return how_many_we_copy;
 }
 
-/* This function is called by the interruption and therefore cannot be interrupted */
-void write_to_buffer(unsigned int * value, int64_t timestamp)
-{
-#ifdef __DEBUG__
-  printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));
-#endif
-
-  DATA[last_write].timestamp = timestamp;
-  DATA[last_write].data[0] = *value;
-  DATA[last_write].data[1] = *(value + 1);
-  DATA[last_write].data[2] = *(value + 2);
-
-  last_write = ((last_write + 1) % DATA_SIZE);
-
-}
-
+/**
+ * @brief Create the /proc/"PROC_FILE_NAME" file normally /proc/geophone
+ * by which the user can interact with the kernel module
+ *
+ * This module is automatically called when the module is inserted
+ */
 void create_proc_file(void)
 {
   last_write = 0;

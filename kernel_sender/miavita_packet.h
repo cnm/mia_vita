@@ -8,15 +8,9 @@
 #define __MIAVITA_PACKET_H__
 
 typedef struct __attribute__ ((__packed__)){ // specifies that the minimum required memory be used to represent the type.
-  int64_t timestamp;                         // Signed Transmission time the packet was created (1) or the time since packet was created (2)
-  int64_t air;                               // Estimated time the packet was "on the air"
+  int64_t timestamp;                         // Signed Transmission time the packet was created 
   uint32_t seq;                              // Sequence number
-  uint8_t fails;                             // Fails since last packet was received
-  uint8_t retries;                           // Retries ...
-  uint32_t channelA;                         // Samples for the four channels
-  uint32_t channelB;                         // Samples for the four channels
-  uint32_t channelC;                         // Samples for the four channels
-  uint32_t channelD;                         // Samples for the four channels
+  uint8_t samples[12];                       // Samples for the four channels
   uint8_t id;                                // ID of the originator node
 } packet_t;
 
