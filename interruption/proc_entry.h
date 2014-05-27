@@ -22,11 +22,12 @@
  */
 typedef struct{
     int64_t timestamp;
+    int32_t seq_number;
     uint32_t data[3];//each sample will hold 4 channels
 } sample_t;
 
 extern void create_proc_file(void);
-extern void write_to_buffer(unsigned int * value, int64_t timestamp);
+extern void write_to_buffer(unsigned int * value, int64_t timestamp, int32_t seq_number);
 extern uint32_t read_nsamples(sample_t** be_samples);
 
 #endif

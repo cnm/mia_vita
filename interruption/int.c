@@ -8,6 +8,7 @@
 
 #include "mem_addr.h"
 #include "proc_entry.h"
+#include "fpga.h"
 
 MODULE_AUTHOR("Joao Trindade");
 MODULE_LICENSE("GPL");
@@ -57,7 +58,6 @@ extern void release_mem_spi(void);
 extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
-extern void write_to_buffer(unsigned int * read_buffer, int64_t timestamp);
 extern void write_dio26(bool b);
 extern unsigned short read_dio26(void);
 extern void write_watchdog(void);
@@ -384,7 +384,7 @@ void handle_adc_int(){
     read_four_channels(value_buffer, &timestamp);
 
     /* Save to a buffer the value */
-    write_to_buffer(value_buffer, timestamp);
+    write_to_buffer(value_buffer, timestamp, counter);
 }
 /******************************** End of Interruption handlers ************************/
 

@@ -117,18 +117,19 @@ EXPORT_SYMBOL(read_nsamples);
 
 
 /* This function is called by the interruption and therefore cannot be interrupted */
-void write_to_buffer(unsigned int * value, int64_t timestamp)
+void write_to_buffer(unsigned int * value, int64_t timestamp, int32_t seq_number)
 {
 #ifdef __DEBUG__
   printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));
 #endif
 
+  last_write = ((last_write + 1) % BUFF_SIZE);
+
   CIRC_BUFFER[last_write].timestamp = timestamp;
+  CIRC_BUFFER[last_write].seq_number = seq_number;
   CIRC_BUFFER[last_write].data[0] = *value;
   CIRC_BUFFER[last_write].data[1] = *(value + 1);
   CIRC_BUFFER[last_write].data[2] = *(value + 2);
-
-  last_write = ((last_write + 1) % BUFF_SIZE);
 }
 
 /**

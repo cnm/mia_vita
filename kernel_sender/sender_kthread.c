@@ -131,7 +131,7 @@ static packet_t * prepare_packet(const sample_t * sample, uint32_t seq, uint8_t 
   pkt->timestamp = cpu_to_be64(sample->timestamp);
 
   // Let's put the packet timestamp also in big endian
-  pkt->seq = cpu_to_be32(seq++);
+  pkt->seq = cpu_to_be32(sample->seq_number);
 
   // Copying the sender's node id. Note that as it is 1Byte it is not necessary to put it in big endian
   pkt->id = node_id;
