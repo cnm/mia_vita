@@ -357,11 +357,9 @@ void handle_adc_int(){
     /* TODO - Current solution discards next 2 lines but they are extremely usefull if GPS does not find a signal. Maybe pass as a parameter as module is inserted??? */
     struct timeval t;
     __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
-
-    /* TODO - Change to use a base and then compare the base with the kernel time. Do NOT change the kernel time */
-    /* #warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time */
+    // For now we just ask the kernel time for all stuff related to microseconds. This is wrong but very usefull for testing purposes.
     do_gettimeofday(&t);
-    /* __miavita_elapsed_usecs = t.tv_usec; */
+    __miavita_elapsed_usecs = t.tv_usec;
 
     counter++;
     if(fpga_busy)
