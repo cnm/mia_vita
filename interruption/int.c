@@ -67,6 +67,8 @@ bool is_fpga_used(void);
 unsigned int counter;
 volatile unsigned short mux_state = 0;
 int udelay_in_second;
+__kernel_time_t sec_in_pps = 0;
+__kernel_suseconds_t usec_in_pps = 0;
 
 #define DIVISOR 1
 
@@ -322,17 +324,17 @@ irqreturn_t interrupt(int irq, void *dev_id){
 
 void handle_gps_int(void){
 
-    /* TODO - Change to use a base and then compare the base with the kernel time. Do NOT change the kernel time */
-    /* #warning Now I'm changing the kernel own time. Please create a base and then compare the base with the kernel time */
-    /* struct timeval t; */
-    /* do_gettimeofday(&t); */
-    /* t.tv_usec = 0; */
+    struct timeval t;
+    do_gettimeofday(&t);
+    sec_in_pps = t.tv_sec;
+    usec_in_pps = t.tv_usec;
 
     counter = 0;
     counter_seconds++;
     udelay_in_second = 0;
     __miavita_elapsed_usecs = 0;
     __miavita_elapsed_secs++;
+
 
     if(is_fpga_used()){
         return;
@@ -349,17 +351,78 @@ void handle_gps_int(void){
 /* #define SAMPLE_RATE_TIME_INTERVAL_U   13513         /1* Due to error in PCB 74Hz -> 20 Miliseconds -> 20 000 Micro*/
 #define DATA_READY_TIME_U                13         /* First sample difference  -> 1 / (3.6??? Mhz / 512) TODO - Calculate this */
 
+
+/**
+ * @brief This function will calculate the number of usecs that have passed since the last PPS interruption.
+ *
+ * It works in the following manner:
+ *
+ * Each PPS interrupt we will:
+ *      set BASE_SEC to the current second
+ *      set BASE_USEC to the current usec
+ *
+ * Each time a ADC sample is collected the current nanoseconds is one of the following options
+ *
+ *      if   BASE == CURRENT_SEC then:
+ *          return CURRENT_USEC - BASE_USEC
+ *
+ *      elif BASE + 1 == CURRENT_SEC then:
+ *          return (NUMBER_OF_USECS_IN_SECONDS - BASE_USEC) + CURRENT_USEC
+ *                  --------------------------------------
+ *                           |
+ *                  This gives the number of usecs passed in the previous sec
+ *
+ *      else "SOME ERROR OCCURRED. All cases should be one of the previous"
+ *
+ * @param current_sec current second measured in the kernel
+ * @param current_usec current usecond measured in the kernel
+ * @param base_sec measured second in the kernel when the last PPS occurred
+ * @param base_usec measured usecond in the kernel when the last PPS occurred
+ *
+ * @return the number of usecs passed since last PPS occurrent
+ */
+#define NUMBER_OF_USECS_IN_SECONDS  1000000
+inline uint64_t calculate_usecs(__kernel_time_t current_sec, __kernel_suseconds_t current_usec, __kernel_time_t base_sec, __kernel_suseconds_t base_usec) {
+
+    if(base_sec == current_sec) {
+        return current_usec - base_usec;
+    }
+    else if ( base_sec + 1 == current_sec) {
+        return NUMBER_OF_USECS_IN_SECONDS - base_usec + current_usec;
+    }
+
+    else {
+        if(base_sec != 0) { /* Until the first PPS we are not in a valid state, only consider an error after that */
+          printk(KERN_EMERG "There occurrent an error calculating the number of usecs passed since last PPS");
+        }
+        return 0; /* Returning 0 is wrong but is the best I can do (what else can I do, crash the kernel module? */
+    }
+}
+
 void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
     int64_t timestamp;
-
-    /* TODO - Current solution discards next 2 lines but they are extremely usefull if GPS does not find a signal. Maybe pass as a parameter as module is inserted??? */
     struct timeval t;
-    __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
-    // For now we just ask the kernel time for all stuff related to microseconds. This is wrong but very usefull for testing purposes.
-    do_gettimeofday(&t);
-    __miavita_elapsed_usecs = t.tv_usec;
+    __kernel_time_t current_sec;
+    __kernel_suseconds_t current_usec;
+
+    /* TODO - Maybe pass as a parameter as module is inserted??? */
+    bool use_kernel_time = true;
+
+    /* In this option we are going to use the kernel time (just the nanosecond part) to timestamp the samples */
+    if(use_kernel_time) {
+        do_gettimeofday(&t);
+        current_sec = t.tv_sec;
+        current_usec = t.tv_usec;
+
+        __miavita_elapsed_usecs = calculate_usecs(current_sec, current_usec, sec_in_pps, usec_in_pps);
+    }
+
+    // We will just rely on the constant sample interval to mark the samples
+    else {
+        __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
+    }
 
     counter++;
     if(fpga_busy)
