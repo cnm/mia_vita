@@ -64,7 +64,7 @@ extern void write_watchdog(void);
 
 bool is_fpga_used(void);
 
-unsigned int counter;
+unsigned int counter; /* Change this counter to 64 bits */
 volatile unsigned short mux_state = 0;
 int udelay_in_second;
 __kernel_time_t sec_in_pps = 0;
@@ -284,14 +284,14 @@ irqreturn_t interrupt(int irq, void *dev_id){
       {
         counter_scl++;
 
-        if((counter_scl % DIVISOR) == 0)
-          {
+        /* if((counter_scl % DIVISOR) == 0) */
+        /*   { */
             /* if((counter_scl % 40) == 0){ */
             /*     printk(KERN_INFO "Received adc int ADC\n"); */
             /* } */
 
             handle_adc_int();
-          }
+          /* } */
       }
 
 
@@ -300,10 +300,10 @@ irqreturn_t interrupt(int irq, void *dev_id){
       {
         counter_sda++;
 
-        if((counter_sda % DIVISOR) == 0){
+        /* if((counter_sda % DIVISOR) == 0){ */
             /* printk(KERN_INFO "Received PPS\n"); */
-            handle_gps_int();
-        }
+            /* handle_gps_int(); */
+        /* } */
       }
 
     else
@@ -329,7 +329,6 @@ void handle_gps_int(void){
     sec_in_pps = t.tv_sec;
     usec_in_pps = t.tv_usec;
 
-    counter = 0;
     counter_seconds++;
     udelay_in_second = 0;
     __miavita_elapsed_usecs = 0;

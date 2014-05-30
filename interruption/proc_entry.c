@@ -37,7 +37,7 @@ struct proc_dir_entry *proc_file_entry;
 volatile uint32_t last_write = 0;
 volatile uint32_t last_read = 0;
 
-// The circular buffer
+// The circular buffer - Note that the BUFF size should always be a power of two
 sample_t CIRC_BUFFER[BUFF_SIZE];
 
 #define FIRST_INDEX 0
@@ -99,11 +99,11 @@ uint32_t read_nsamples(sample_t** be_samples)
   // for each of the samples copy them (this could be done with a memcopy in future to improve performance)
   for(i = 0; i < samples_to_copy; i += 1)
     {
-      current_index = ((last_read + 1 + i) % BUFF_SIZE);
+      current_index = quick_module(last_read + 1 + i);
       (*be_samples)[i] = CIRC_BUFFER[current_index];
     }
 
-  last_read = ((last_read + samples_to_copy) % BUFF_SIZE);
+  last_read = quick_module(last_read + samples_to_copy);
 
   // We have to check if we did everything allright (TODO: Right now due to concurrency this may happen. Have to create somekind of lock mechanism)
   if(last_read != last_write_tmp) {
@@ -123,7 +123,7 @@ void write_to_buffer(unsigned int * value, int64_t timestamp, int32_t seq_number
   printk(KERN_INFO "Writint to buffer %d value %u\n", last_write, (*value));
 #endif
 
-  last_write = ((last_write + 1) % BUFF_SIZE);
+  last_write = quick_module(last_write + 1);
 
   CIRC_BUFFER[last_write].timestamp = timestamp;
   CIRC_BUFFER[last_write].seq_number = seq_number;
