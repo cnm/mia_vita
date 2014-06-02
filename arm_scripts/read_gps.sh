@@ -22,12 +22,3 @@ while [ $COUNTER -lt 10 -a $NO_GPS -ne 0 ]; do
 done
 
 killall xuartctl
-
-insmod /root/int_mod.ko &> /root/logIntMod
-sleep 1
-
-NODE=`hostname | tr -d "mv"`
-insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.43" node-id="$((NODE - 42))" &> /root/logSenderMod
-echo "Done"
-
-/bin/bash -c "nohup /root/receiver -i bat0 -j /tmp/data/miavita.json -z /tmp/data/archive.json &"
