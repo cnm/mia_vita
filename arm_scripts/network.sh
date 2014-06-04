@@ -52,6 +52,9 @@ mount /dev/sda1 /tmp/data
 sleep 3
 # /root/read_gps.sh
 
+killall -9 xuartctl
+killall -9 daqctl
+
 #Let work with the leds
 # /usr/local/bin/ts7500ctl --setdio=0x0100000000 #Now POWER_ON
 # /usr/local/bin/ts7500ctl --setdiodir=0x1f00000000

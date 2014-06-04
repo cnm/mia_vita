@@ -259,7 +259,7 @@ void release_mem(volatile unsigned int mem_addr, unsigned int byte_size){
     release_mem_region(mem_addr, byte_size);
 }
 
-bool is_fpga_used(void){
+inline bool is_fpga_used(void){
     volatile unsigned int *p; // The volatile is extremely important here
 
     p = (unsigned int *) intr_trigger_new_address;

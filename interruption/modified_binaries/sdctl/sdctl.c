@@ -293,7 +293,6 @@ static void sbuslock(void) {
     // Mark the FPGA bus as used
     cvgpioregs[0x34/4] |=  1;
 
-
     cvgpioregs[0] = (1<<17|1<<3);
     assert((cvspiregs[0x5c/4] & 0xf) == 0);
     assert((cvspiregs[0x64/4] & 0xf) == 0);
