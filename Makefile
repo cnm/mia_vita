@@ -39,7 +39,7 @@ install: all
 	- @md5sum kernel_sender/receiver/init_counter
 	- @md5sum arm_scripts/network.sh
 	@echo "-------------\n\n"
-	sudo cp -vf interruption/int_mod.ko kernel_sender/receiver/receiver kernel_sender/sender_kthread.ko kernel_sender/receiver/init_counter arm_scripts/network.sh /tmp/mv_card/root
+	sudo cp -vf interruption/int_mod.ko kernel_sender/receiver/receiver kernel_sender/sender_kthread.ko kernel_sender/receiver/init_counter arm_scripts/network.sh arm_scripts/read_gps.sh /tmp/mv_card/root
 	sudo rm -fv /tmp/mv_card/etc/init.d/network.sh
 	sudo ln -s /root/network.sh /tmp/mv_card/etc/init.d/network.sh
 

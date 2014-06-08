@@ -38,10 +38,10 @@ volatile uint32_t last_write = 0;
 volatile uint32_t last_read = 0;
 
 // The circular buffer - Note that the BUFF size should always be a power of two
-sample_t CIRC_BUFFER[BUFF_SIZE];
+sample_t CIRC_BUFFER[CIRC_BUF_SIZE];
 
 #define FIRST_INDEX 0
-#define LAST_INDEX BUFF_SIZE - 1
+#define LAST_INDEX CIRC_BUF_SIZE - 1
 
 /**
  * @brief Ok, reading 1 sample at a time is quite easy. Let's try to read more than one. This function will read as many samples
@@ -149,7 +149,7 @@ static int procfile_read(char *dest_buffer, char **buffer_location, off_t offset
                          int dest_buffer_length, int *eof, void *data)
 {
   /* We only use char sizes from here */
-  unsigned int data_size_in_chars = BUFF_SIZE * sizeof(sample_t);
+  unsigned int data_size_in_chars = CIRC_BUF_SIZE * sizeof(sample_t);
   unsigned int how_many_we_copy = 0;
 
   //Calculates how many octets to copy
@@ -197,5 +197,5 @@ void create_proc_file(void)
   proc_file_entry->mode = S_IFREG | S_IRUGO;
   proc_file_entry->uid = 0;
   proc_file_entry->gid = 0;
-  proc_file_entry->size = BUFF_SIZE;
+  proc_file_entry->size = CIRC_BUF_SIZE;
 }

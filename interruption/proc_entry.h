@@ -12,7 +12,7 @@
 
 
 /* The size of the transmit circular buffer.  This must be a power of two. It should be close to (CHANNELS * SAMPLE_RATE_HZ * SECONDS_IN_BUFFER) */
-#define BUF_SIZE                        1024
+#define CIRC_BUF_SIZE                        1024
 
 /*DATA memory layout:
  *
@@ -52,7 +52,7 @@ typedef struct{
  * @return The results of (index % BUFFER_SIZE)
  */
 static inline unsigned int quick_module(unsigned int index) {
-    return index & (BUFFER_SIZE - 1);
+    return index & (CIRC_BUF_SIZE - 1);
 }
 
 

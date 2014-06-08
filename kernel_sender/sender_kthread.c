@@ -99,6 +99,10 @@ static void send_it(packet_t* pkt)
   oldfs = get_fs();
   set_fs(KERNEL_DS);
 
+#ifdef __DEBUG__
+  printk(KERN_INFO "Sending packet to %s:%d\n", sink_ip, sink_port);
+#endif
+
   if((status = sock_sendmsg(udp_socket, &msg, (size_t) sizeof(*pkt))) < 0)
     {
       printk(KERN_EMERG "FAILED TO SEND MESSAGE THROUGH SOCKET. ERROR %d\n", -status);
@@ -192,7 +196,7 @@ static int main_loop(void* data)
         {
 
 #ifdef __DEBUG__
-          printk(KERN_EMERG "Read %d samples:\n", len);
+          printk(KERN_INFO "Read %d samples:\n", len);
 #endif
 
           for(i = 0; i < len; i += 1)
