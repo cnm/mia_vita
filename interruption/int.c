@@ -52,8 +52,6 @@ unsigned int gpio_int_status_new_address = 0;
 unsigned int counter_sda = 0;
 unsigned int counter_scl = 0;
 unsigned int counter_seconds = 0;
-unsigned int miavita_elapsed_usecs_temp = 0;
-unsigned int miavita_elapsed_secs_temp  = 0;
 
 extern void release_mem_spi(void);
 extern void prepare_spi(void);
@@ -331,10 +329,8 @@ static void handle_gps_int(void){
 
     counter_seconds++;
     udelay_in_second = 0;
-    /* __miavita_elapsed_usecs = 0; */
-    miavita_elapsed_usecs_temp = 0;
-    /* __miavita_elapsed_secs++; */
-    miavita_elapsed_secs_temp++;
+    __miavita_elapsed_usecs = 0;
+    __miavita_elapsed_secs++;
 
 
     if(is_fpga_used()){
@@ -417,14 +413,12 @@ static void handle_adc_int(){
         current_sec = t.tv_sec;
         current_usec = t.tv_usec;
 
-        /* __miavita_elapsed_usecs = calculate_usecs(current_sec, current_usec, sec_in_pps, usec_in_pps); */
-        miavita_elapsed_usecs_temp = calculate_usecs(current_sec, current_usec, sec_in_pps, usec_in_pps);
+        __miavita_elapsed_usecs = calculate_usecs(current_sec, current_usec, sec_in_pps, usec_in_pps);
     }
 
     // We will just rely on the constant sample interval to mark the samples
     else {
-        /* __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U; */
-        miavita_elapsed_usecs_temp += SAMPLE_RATE_TIME_INTERVAL_U;
+        __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
     }
 
     counter++;
@@ -448,8 +442,7 @@ static void handle_adc_int(){
     read_four_channels(value_buffer);
 
     #define SEC_2_USEC 1000000
-    /* timestamp = __miavita_elapsed_secs * SEC_2_USEC + __miavita_elapsed_usecs; */
-    timestamp = miavita_elapsed_secs_temp * SEC_2_USEC + miavita_elapsed_usecs_temp;
+    timestamp = __miavita_elapsed_secs * SEC_2_USEC + __miavita_elapsed_usecs;
 
     /* Save to a buffer the value */
     write_to_buffer(value_buffer, timestamp, counter);
