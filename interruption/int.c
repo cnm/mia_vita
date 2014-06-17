@@ -24,9 +24,8 @@ int request_mem(volatile unsigned int mem_addr, unsigned int size);
 int request_port(unsigned int port_addr, unsigned int size);
 void enable_gpio_interruptions(void);
 void cleanup(void);
-void handle_gps_int(void);
-
-void handle_adc_int(void);
+static void handle_gps_int(void);
+static void handle_adc_int(void);
 
 /* Io remap addresses  */
 unsigned int gpioa_en_new_address = 0;
@@ -53,9 +52,10 @@ unsigned int gpio_int_status_new_address = 0;
 unsigned int counter_sda = 0;
 unsigned int counter_scl = 0;
 unsigned int counter_seconds = 0;
+unsigned int miavita_elapsed_usecs_temp = 0;
+unsigned int miavita_elapsed_secs_temp  = 0;
 
 extern void release_mem_spi(void);
-extern void read_four_channels(unsigned int * read_buffer, int64_t* timestamp);
 extern void prepare_spi(void);
 extern void prepare_spi2(void);
 extern void write_dio26(bool b);
@@ -301,8 +301,8 @@ irqreturn_t interrupt(int irq, void *dev_id){
         counter_sda++;
 
         /* if((counter_sda % DIVISOR) == 0){ */
-            /* printk(KERN_INFO "Received PPS\n"); */
-            /* handle_gps_int(); */
+            printk(KERN_INFO "Received PPS\n");
+            handle_gps_int();
         /* } */
       }
 
@@ -322,7 +322,7 @@ irqreturn_t interrupt(int irq, void *dev_id){
     return IRQ_HANDLED;
 }
 
-void handle_gps_int(void){
+static void handle_gps_int(void){
 
     struct timeval t;
     do_gettimeofday(&t);
@@ -331,8 +331,10 @@ void handle_gps_int(void){
 
     counter_seconds++;
     udelay_in_second = 0;
-    __miavita_elapsed_usecs = 0;
-    __miavita_elapsed_secs++;
+    /* __miavita_elapsed_usecs = 0; */
+    miavita_elapsed_usecs_temp = 0;
+    /* __miavita_elapsed_secs++; */
+    miavita_elapsed_secs_temp++;
 
 
     if(is_fpga_used()){
@@ -398,7 +400,7 @@ inline uint64_t calculate_usecs(__kernel_time_t current_sec, __kernel_suseconds_
     }
 }
 
-void handle_adc_int(){
+static void handle_adc_int(){
     unsigned int value_buffer[3];
     bool fpga_busy = is_fpga_used();
     int64_t timestamp;
@@ -407,20 +409,22 @@ void handle_adc_int(){
     __kernel_suseconds_t current_usec;
 
     /* TODO - Maybe pass as a parameter as module is inserted??? */
-    bool use_kernel_time = true;
+    bool use_kernel_usecs_time = true;
 
     /* In this option we are going to use the kernel time (just the nanosecond part) to timestamp the samples */
-    if(use_kernel_time) {
+    if(use_kernel_usecs_time) {
         do_gettimeofday(&t);
         current_sec = t.tv_sec;
         current_usec = t.tv_usec;
 
-        __miavita_elapsed_usecs = calculate_usecs(current_sec, current_usec, sec_in_pps, usec_in_pps);
+        /* __miavita_elapsed_usecs = calculate_usecs(current_sec, current_usec, sec_in_pps, usec_in_pps); */
+        miavita_elapsed_usecs_temp = calculate_usecs(current_sec, current_usec, sec_in_pps, usec_in_pps);
     }
 
     // We will just rely on the constant sample interval to mark the samples
     else {
-        __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U;
+        /* __miavita_elapsed_usecs += SAMPLE_RATE_TIME_INTERVAL_U; */
+        miavita_elapsed_usecs_temp += SAMPLE_RATE_TIME_INTERVAL_U;
     }
 
     counter++;
@@ -441,7 +445,11 @@ void handle_adc_int(){
       }
 
     /* Read the adc  */
-    read_four_channels(value_buffer, &timestamp);
+    read_four_channels(value_buffer);
+
+    #define SEC_2_USEC 1000000
+    /* timestamp = __miavita_elapsed_secs * SEC_2_USEC + __miavita_elapsed_usecs; */
+    timestamp = miavita_elapsed_secs_temp * SEC_2_USEC + miavita_elapsed_usecs_temp;
 
     /* Save to a buffer the value */
     write_to_buffer(value_buffer, timestamp, counter);

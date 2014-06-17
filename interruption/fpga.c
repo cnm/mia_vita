@@ -190,6 +190,7 @@ static void set_lun_speed_edge(){
 }
 
 #define SEC_2_NSEC 1000000000L
+#define SEC_2_USEC 1000000
 #define USEC_2_NSEC 1000
 
 static int64_t get_kernel_current_time(void) {
@@ -200,7 +201,7 @@ static int64_t get_kernel_current_time(void) {
     * USEC_2_NSEC;
 }
 
-void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
+void read_four_channels(unsigned int* read_buffer) {
     volatile unsigned int a,b,c,d,e,f;
     uint32_t temp_buffer1 = 0;
     uint32_t temp_buffer2 = 0;
@@ -208,8 +209,6 @@ void read_four_channels(unsigned int* read_buffer, int64_t* timestamp){
 
     a = b = c = d = e = f = 0;
 
-    *timestamp = get_kernel_current_time();
-    /* *timestamp = __miavita_elapsed_secs * 1000000 + __miavita_elapsed_usecs; */
 
     a = peek16(0x4A);//2/3 da primeira
     b = peek16(0x4A);//1/3 da primeira 1/3 da segunda
