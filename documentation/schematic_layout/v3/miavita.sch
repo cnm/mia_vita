@@ -13939,7 +13939,7 @@ Source: http://products.nichicon.co.jp/en/pdf/XJA043/e-ud.pdf</description>
 <part name="QG1" library="crystal" deviceset="SM77H" device=""/>
 <part name="+3V9" library="supply1" deviceset="+3V3" device=""/>
 <part name="SUPPLY14" library="supply2" deviceset="GND" device=""/>
-<part name="C9" library="resistor" deviceset="C-EU" device="C0603" value="0.1uF"/>
+<part name="C9" library="resistor" deviceset="C-EU" device="C0603" value="100nF"/>
 <part name="SUPPLY1" library="supply2" deviceset="GND" device=""/>
 <part name="TS7500" library="con-samtec" deviceset="SSW-122-02-S-D" device=""/>
 <part name="SUPPLY4" library="supply2" deviceset="GND" device=""/>

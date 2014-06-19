@@ -1585,7 +1585,7 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="NAME" x="36.83" y="16.51" size="1.016" layer="25"/>
 <attribute name="VALUE" x="39.878" y="10.414" size="1.27" layer="27" rot="R90"/>
 </element>
-<element name="C9" library="resistor" package="C0603" value="0.1uF" x="39.37" y="8.001" smashed="yes">
+<element name="C9" library="resistor" package="C0603" value="100nF" x="39.37" y="8.001" smashed="yes">
 <attribute name="NAME" x="41.021" y="7.493" size="1.016" layer="25"/>
 <attribute name="VALUE" x="38.481" y="5.969" size="1.27" layer="27"/>
 </element>
