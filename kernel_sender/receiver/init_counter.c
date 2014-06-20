@@ -2,8 +2,17 @@
  * This program is used to set the seconds counter in the modified kernel.
  * The value passed should be read from the GPS device.
  *
+ * It reads the current time and sets the the seconds variable in the MIAVITA KERNEL
+ *          __miavita_elapsed_secs
+ *
  * This program already runs the command to start xuartctl.
+ *
+ * It receives two parameters:
+ *      -d indicates the gps device (default is /dev/pts/0)
+ *      -t number of tries for the GPS to be ready
  */
+#define INITIAL_PART_OF_SECOND 300000
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +47,7 @@ uint8_t parseargs(int argc, char** argv){
             continue;
         }
 
-        printf("Unknown argument %s\nUsage: %s [-d <gps_device>]\n", argv[i], argv[0]);
+        printf("Unknown argument %s\nUsage: %s [-d <gps_device>] -t <number_tries>\n", argv[i], argv[0]);
         return 0;
     }
     return 1;
@@ -80,7 +89,7 @@ int main(int argc, char** argv){
     }
 
     //If it is possible that it was another second due to delay reading serial port
-    if(tv.tv_usec < 300000){
+    if(tv.tv_usec < INITIAL_PART_OF_SECOND){
       fprintf(stderr, "Possibly it was another second. So returning an error -1\n");
       return -1;
     }
