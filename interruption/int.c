@@ -64,7 +64,6 @@ bool is_fpga_used(void);
 
 unsigned int counter; /* Change this counter to 64 bits */
 volatile unsigned short mux_state = 0;
-int udelay_in_second;
 __kernel_time_t sec_in_pps = 0;
 __kernel_suseconds_t usec_in_pps = 0;
 
@@ -328,10 +327,8 @@ static void handle_gps_int(void){
     usec_in_pps = t.tv_usec;
 
     counter_seconds++;
-    udelay_in_second = 0;
     __miavita_elapsed_usecs = 0;
     __miavita_elapsed_secs++;
-
 
     if(is_fpga_used()){
         return;
@@ -432,10 +429,6 @@ static void handle_adc_int(){
       {
         write_dio26(1);
         mux_state = 1;
-
-        /* TODO - This lines can be usefull if no GPS is found. But we have to decide if we accept it */
-        /* if(counter != 1) udelay_in_second = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U); */
-        /* if(counter != 1) __miavita_elapsed_usecs = -15 + (counter -1) * (SAMPLE_RATE_TIME_INTERVAL_U - DATA_READY_TIME_U); */
       }
 
     /* Read the adc  */
