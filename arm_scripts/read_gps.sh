@@ -21,4 +21,5 @@ while [ $COUNTER -lt 10 -a $NO_GPS -ne 0 ]; do
     fi
 done
 
-killall xuartctl
+killall -9 xuartctl
+killall -9 daqctl

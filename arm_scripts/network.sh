@@ -2,6 +2,8 @@
 
 NODE=`hostname | tr -d "mv"`
 
+/usr/local/bin/ts7500ctl --setdio=0x0F00000000    # Now POWER_ON and Error
+
 echo -n "Bringing interface eth0 up ..."
 ifconfig eth0 192.168.0.$NODE
 echo "Done"
@@ -30,7 +32,7 @@ fi
 echo "Done"
 
 echo -n "Bringing B.A.T.M.A.N. up..."
-insmod /usr/our_modules/batman-adv.ko
+insmod /root/batman-adv.ko
 batctl if add ra0
 ifconfig bat0 192.168.2.$NODE
 
@@ -47,13 +49,12 @@ mkdir /tmp/data
 mount /dev/sda1 /tmp/data
 
 #Let's start MiaVita stuff
-#/root/read_gps.sh &
+# /root/read_gps.sh &
 /bin/bash -c "nohup /root/read_gps.sh &"
-sleep 3
-# /root/read_gps.sh
+sleep 5
 
-killall -9 xuartctl
-killall -9 daqctl
+# killall -9 xuartctl
+# killall -9 daqctl
 
 #Let work with the leds
 # /usr/local/bin/ts7500ctl --setdio=0x0100000000 #Now POWER_ON

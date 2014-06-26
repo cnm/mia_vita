@@ -10,6 +10,7 @@
  * It receives two parameters:
  *      -d indicates the gps device (default is /dev/pts/0)
  *      -t number of tries for the GPS to be ready
+ *
  */
 #define INITIAL_PART_OF_SECOND 300000
 
@@ -59,6 +60,7 @@ int main(int argc, char** argv){
     if(argc > 4 || parseargs(argc, argv) == 0)
       return -1;
 
+    /* This starts the xuartctl daemon TODO - Should we start it */
     /*  printf("Starting xuartctl...");*/
     /*  fflush(stdout);*/
     /*  system("xuartctl -d -p 0 -o 8o1 -s 9600");*/
