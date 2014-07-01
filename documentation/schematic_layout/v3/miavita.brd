@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.5.0">
+<eagle version="6.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -162,9 +162,9 @@
 <text x="15.24" y="59.055" size="1.524" layer="22" rot="MR180">LED ON</text>
 <text x="9.525" y="10.795" size="1.524" layer="22" rot="MR270">-S1+</text>
 <text x="9.525" y="18.415" size="1.524" layer="22" rot="MR270">-S2+</text>
-<text x="9.525" y="25.4" size="1.524" layer="22" rot="MR270">-S3+</text>
-<text x="9.525" y="33.02" size="1.524" layer="22" rot="MR270">-LD1+</text>
-<text x="9.525" y="40.005" size="1.524" layer="22" rot="MR270">-LD2+</text>
+<text x="7.62" y="20.955" size="1.524" layer="22" rot="MR90">-S3+</text>
+<text x="7.62" y="26.67" size="1.524" layer="22" rot="MR90">-LD1+</text>
+<text x="7.62" y="34.29" size="1.524" layer="22" rot="MR90">-LD2+</text>
 <text x="9.525" y="46.99" size="1.524" layer="22" rot="MR270">-LD3+</text>
 <text x="9.525" y="54.61" size="1.524" layer="22" rot="MR270">-LD4+</text>
 <text x="9.525" y="59.69" size="1.524" layer="22" rot="MR270">ON</text>
@@ -1548,7 +1548,7 @@ If you need smaller values, please use our TECH pool service.
 <elements>
 <element name="IC4" library="45xx" package="SO16" value="4572D" x="46.355" y="35.56" smashed="yes">
 <attribute name="VALUE" x="42.545" y="34.798" size="1.27" layer="27" ratio="10"/>
-<attribute name="NAME" x="52.07" y="36.576" size="1.016" layer="25" ratio="10"/>
+<attribute name="NAME" x="54.61" y="37.719" size="1.016" layer="25" ratio="10" rot="R180"/>
 </element>
 <element name="IC5" library="74xx-eu" package="SO16" value="74AC590D" x="46.355" y="24.13" smashed="yes">
 <attribute name="VALUE" x="42.545" y="23.368" size="1.27" layer="27" ratio="10"/>
@@ -1586,7 +1586,7 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="39.878" y="10.414" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="C9" library="resistor" package="C0603" value="100nF" x="39.37" y="8.001" smashed="yes">
-<attribute name="NAME" x="41.021" y="7.493" size="1.016" layer="25"/>
+<attribute name="NAME" x="38.481" y="6.223" size="1.016" layer="25"/>
 <attribute name="VALUE" x="38.481" y="5.969" size="1.27" layer="27"/>
 </element>
 <element name="TS7500" library="con-samtec" package="SSW-122-02-S-D" value="SSW-122-02-S-D" x="31.496" y="37.1475" smashed="yes" rot="R270">
@@ -1606,7 +1606,7 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="12.192" y="31.496" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R4" library="resistor" package="R0603" value="100k" x="9.906" y="28.702" smashed="yes" rot="R270">
-<attribute name="NAME" x="10.414" y="29.21" size="1.016" layer="25"/>
+<attribute name="NAME" x="11.049" y="29.845" size="0.8128" layer="25" rot="R270" align="center"/>
 <attribute name="VALUE" x="7.874" y="29.591" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="GPS_S" library="con-leotronics" package="1296-08" value="1296-T08" x="67.9" y="24.035" smashed="yes" rot="MR270">
@@ -1629,7 +1629,7 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="18.669" y="39.497" size="1.27" layer="27" rot="R180"/>
 </element>
 <element name="C6" library="resistor" package="C1210" value="10uF" x="13.335" y="32.385" smashed="yes" rot="R90">
-<attribute name="NAME" x="12.573" y="35.306" size="1.016" layer="25"/>
+<attribute name="NAME" x="12.573" y="35.941" size="1.016" layer="25"/>
 <attribute name="VALUE" x="16.256" y="30.988" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="JP1" library="jumper" package="JP1" value="" x="12.065" y="62.865" smashed="yes" rot="R90">
@@ -1637,23 +1637,23 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="14.605" y="65.786" size="1.27" layer="27" ratio="10" rot="R180"/>
 </element>
 <element name="C2" library="resistor" package="C0603" value="100nF" x="39.37" y="35.56" smashed="yes" rot="R270">
-<attribute name="NAME" x="38.481" y="37.592" size="1.016" layer="25"/>
+<attribute name="NAME" x="38.481" y="31.877" size="1.016" layer="25"/>
 <attribute name="VALUE" x="37.338" y="36.449" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="C3" library="resistor" package="C0603" value="100nF" x="39.37" y="24.13" smashed="yes" rot="R270">
-<attribute name="NAME" x="38.481" y="26.162" size="1.016" layer="25"/>
+<attribute name="NAME" x="38.481" y="23.622" size="1.016" layer="25" rot="R90"/>
 <attribute name="VALUE" x="37.338" y="25.019" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="C7" library="resistor" package="C0603" value="100nF" x="39.37" y="46.99" smashed="yes" rot="R270">
-<attribute name="NAME" x="38.481" y="49.022" size="1.016" layer="25"/>
+<attribute name="NAME" x="36.576" y="46.482" size="1.016" layer="25"/>
 <attribute name="VALUE" x="37.338" y="47.879" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="C8" library="resistor" package="C0805" value="10uF" x="21.59" y="26.67" smashed="yes">
-<attribute name="NAME" x="20.701" y="27.686" size="1.016" layer="25"/>
+<attribute name="NAME" x="21.336" y="27.686" size="1.016" layer="25"/>
 <attribute name="VALUE" x="20.701" y="24.384" size="1.27" layer="27"/>
 </element>
 <element name="C10" library="resistor" package="C0805" value="10uF" x="12.7" y="27.94" smashed="yes" rot="R180">
-<attribute name="NAME" x="14.351" y="27.051" size="1.016" layer="25"/>
+<attribute name="NAME" x="14.351" y="27.051" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="13.589" y="30.226" size="1.27" layer="27" rot="R180"/>
 </element>
 <element name="C11" library="resistor" package="C0805" value="10uF" x="11.43" y="11.43" smashed="yes" rot="R270">
@@ -1661,7 +1661,7 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="9.144" y="12.319" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="C12" library="resistor" package="C0805" value="10uF" x="9.906" y="25.4" smashed="yes" rot="R90">
-<attribute name="NAME" x="9.271" y="22.86" size="1.016" layer="25"/>
+<attribute name="NAME" x="11.811" y="25.4" size="0.8128" layer="25" align="center"/>
 <attribute name="VALUE" x="12.192" y="24.511" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="Q1" library="transistor-npn" package="SOT23" value="BC847B" x="13.97" y="40.64" smashed="yes" rot="R90">
@@ -1669,11 +1669,11 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="17.145" y="38.735" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R1" library="resistor" package="R0603" value="47K" x="17.145" y="40.64" smashed="yes" rot="R90">
-<attribute name="NAME" x="16.256" y="42.164" size="1.016" layer="25"/>
+<attribute name="NAME" x="17.526" y="42.164" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="19.177" y="39.751" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R2" library="resistor" package="R0603" value="10K" x="19.05" y="40.64" smashed="yes" rot="R270">
-<attribute name="NAME" x="18.161" y="42.164" size="1.016" layer="25"/>
+<attribute name="NAME" x="21.209" y="40.386" size="0.8128" layer="25" rot="R180"/>
 <attribute name="VALUE" x="17.018" y="41.529" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="R5" library="resistor" package="R0603" value="220R" x="10.795" y="40.64" smashed="yes" rot="R270">
@@ -1701,11 +1701,11 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="17.145" y="43.18" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R6" library="resistor" package="R0603" value="47K" x="17.145" y="45.085" smashed="yes" rot="R90">
-<attribute name="NAME" x="16.256" y="46.609" size="1.016" layer="25"/>
+<attribute name="NAME" x="17.526" y="46.609" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="19.177" y="44.196" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R7" library="resistor" package="R0603" value="10K" x="19.05" y="45.085" smashed="yes" rot="R270">
-<attribute name="NAME" x="18.161" y="46.609" size="1.016" layer="25"/>
+<attribute name="NAME" x="21.209" y="44.831" size="0.8128" layer="25" rot="R180"/>
 <attribute name="VALUE" x="17.018" y="45.974" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="R9" library="resistor" package="R0603" value="220R" x="10.795" y="45.085" smashed="yes" rot="R270">
@@ -1717,11 +1717,11 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="17.145" y="47.625" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R10" library="resistor" package="R0603" value="47K" x="17.145" y="49.53" smashed="yes" rot="R90">
-<attribute name="NAME" x="15.621" y="51.054" size="1.016" layer="25"/>
+<attribute name="NAME" x="17.526" y="51.054" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="19.177" y="48.641" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R11" library="resistor" package="R0603" value="10K" x="19.05" y="49.53" smashed="yes" rot="R270">
-<attribute name="NAME" x="18.161" y="51.054" size="1.016" layer="25"/>
+<attribute name="NAME" x="21.844" y="49.276" size="0.8128" layer="25" rot="R180"/>
 <attribute name="VALUE" x="17.018" y="50.419" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="R12" library="resistor" package="R0603" value="220R" x="10.795" y="49.53" smashed="yes" rot="R270">
@@ -1733,11 +1733,11 @@ If you need smaller values, please use our TECH pool service.
 <attribute name="VALUE" x="17.145" y="52.07" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R13" library="resistor" package="R0603" value="47K" x="17.145" y="53.975" smashed="yes" rot="R90">
-<attribute name="NAME" x="15.621" y="55.499" size="1.016" layer="25"/>
+<attribute name="NAME" x="17.526" y="55.499" size="0.8128" layer="25"/>
 <attribute name="VALUE" x="19.177" y="53.086" size="1.27" layer="27" rot="R90"/>
 </element>
 <element name="R14" library="resistor" package="R0603" value="10K" x="19.05" y="53.975" smashed="yes" rot="R270">
-<attribute name="NAME" x="18.161" y="55.499" size="1.016" layer="25"/>
+<attribute name="NAME" x="22.479" y="53.721" size="1.016" layer="25" rot="R180"/>
 <attribute name="VALUE" x="17.018" y="54.864" size="1.27" layer="27" rot="R270"/>
 </element>
 <element name="R15" library="resistor" package="R0603" value="220R" x="10.795" y="53.975" smashed="yes" rot="R270">
@@ -1756,7 +1756,7 @@ If you need smaller values, please use our TECH pool service.
 <element name="L1" library="bobinas" package="L0603" value="" x="24.765" y="26.67" smashed="yes" rot="R90">
 <attribute name="OC_FARNELL" value="1463451" x="24.765" y="26.67" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" x="24.13" y="25.0825" size="0.6096" layer="27" rot="R90"/>
-<attribute name="NAME" x="26.035" y="25.0825" size="1.016" layer="25" rot="R90"/>
+<attribute name="NAME" x="25.4" y="26.9875" size="1.016" layer="25" rot="R270"/>
 </element>
 <element name="Q5" library="transistor-npn" package="SOT23" value="BC847B" x="45.085" y="62.865" smashed="yes" rot="R270">
 <attribute name="NAME" x="47.625" y="62.23" size="1.016" layer="25"/>
