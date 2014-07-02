@@ -145,7 +145,7 @@
 <rectangle x1="73.025" y1="12.7" x2="74.93" y2="18.415" layer="16"/>
 <rectangle x1="45.085" y1="13.335" x2="46.99" y2="19.05" layer="16"/>
 <rectangle x1="57.15" y1="28.575" x2="62.865" y2="30.48" layer="16"/>
-<text x="7.62" y="10.795" size="1.524" layer="21" rot="SR270">+S1-</text>
+<text x="8.255" y="9.525" size="1.524" layer="21" rot="SR270">+S1-</text>
 <text x="7.62" y="18.415" size="1.524" layer="21" rot="SR270">+S2-</text>
 <text x="7.62" y="25.4" size="1.524" layer="21" rot="SR270">+S3-</text>
 <text x="7.62" y="33.02" size="1.524" layer="21" rot="SR270">+LD1-</text>
@@ -160,7 +160,7 @@
 <text x="15.24" y="67.945" size="1.524" layer="22" rot="MR180">MAIN SW</text>
 <text x="15.24" y="64.135" size="1.524" layer="22" rot="MR180">ON SW</text>
 <text x="15.24" y="59.055" size="1.524" layer="22" rot="MR180">LED ON</text>
-<text x="9.525" y="10.795" size="1.524" layer="22" rot="MR270">-S1+</text>
+<text x="9.525" y="9.525" size="1.524" layer="22" rot="MR270">-S1+</text>
 <text x="9.525" y="18.415" size="1.524" layer="22" rot="MR270">-S2+</text>
 <text x="7.62" y="20.955" size="1.524" layer="22" rot="MR90">-S3+</text>
 <text x="7.62" y="26.67" size="1.524" layer="22" rot="MR90">-LD1+</text>
