@@ -330,6 +330,11 @@ static void handle_gps_int(void){
     __miavita_elapsed_usecs = 0;
     __miavita_elapsed_secs++;
 
+    if(counter_scl > 54) {
+        printk(KERN_EMERG "We have lost some packets in this second\n");
+    }
+    counter_scl = 0;
+
     if(is_fpga_used()){
         return;
     }
