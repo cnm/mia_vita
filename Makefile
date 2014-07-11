@@ -23,6 +23,10 @@ sender_clean:
 receiver_clean:
 	- make -C kernel_sender/receiver clean
 
+init_git_submodules:
+	git submodule init
+	git submodule update
+
 install: all
 	@echo "Make sure the sdcard is mounted on /tmp/mv_card"
 	@echo "\n\n----------------"

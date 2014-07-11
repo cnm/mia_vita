@@ -1,5 +1,34 @@
-README
-------
+HOW TO BUILD MIA_VITA PROJECT
+-----------------------------
+
+*There is a very usefull Makefile at the top dir*
+
+To compile the miavita project do this:
+
+   - First download it from github
+
+        git clone "https://github.com/cnm/mia_vita"
+
+        (or if you are a developer)
+
+        git clone "git@github.com:cnm/mia_vita"
+
+    - Update the submodule (only necessary to run once)
+
+        make init_git_submodules
+
+    - Compile the ts7500_kernel ()
+
+        make kernel
+
+    - Compile all the code (except the kernel)
+
+        make all
+
+    - Install everything needed to the sdcard except the kernel
+
+Overall help
+------------
 
 File Structure
 ==============
