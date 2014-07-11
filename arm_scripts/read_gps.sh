@@ -2,7 +2,7 @@
 
 COUNTER=0
 NO_GPS=1
-while [ $COUNTER -lt 30 -a $NO_GPS -ne 0 ]; do
+while [ $COUNTER -lt 50 -a $NO_GPS -ne 0 ]; do
     /root/init_counter -t 20 >> /root/logGps 2>> /root/logGps            # This redirects stderr and stdout
 
     NO_GPS=$?

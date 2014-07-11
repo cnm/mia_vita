@@ -28,7 +28,14 @@ init_git_submodules:
 	git submodule update
 
 kernel:
-	- make -C ts7500_kernel make
+	- make -C ts7500_kernel
+
+install_kernel:
+	@echo "Please enter the letter for your sdcard /dev/sdX ---> "; \
+	read letter_sdcard; \
+	echo "Going to erase partitions /dev/sd$$letter_sdcard$$(echo 2) and 3. Press control+c to cancel"; \
+	read nothing; \
+	dd if=ts7500_kernel/arch/arm/boot/zImage of=/dev/sd$$letter_sdcard$$(echo 2)
 
 install: all
 	@echo "Make sure the sdcard is mounted on /tmp/mv_card"

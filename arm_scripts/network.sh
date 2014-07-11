@@ -49,19 +49,22 @@ mkdir /tmp/data
 mount /dev/sda1 /tmp/data
 
 #Let's start MiaVita stuff
-# /root/read_gps.sh &
-/bin/bash -c "nohup /root/read_gps.sh &"
-sleep 5
+/root/read_gps.sh
+# /bin/bash -c "nohup /root/read_gps.sh &"
+sleep 8
 
-# killall -9 xuartctl
-# killall -9 daqctl
+killall -9 xuartctl
+killall -9 daqctl
 
 #Let work with the leds
 # /usr/local/bin/ts7500ctl --setdio=0x0100000000 #Now POWER_ON
 # /usr/local/bin/ts7500ctl --setdiodir=0x1f00000000
 
+# /usr/local/bin/ts7500ctl --setdio=0x0F00000000    # Now POWER_ON and Error
+
 insmod /root/int_mod.ko &> /root/logIntMod
 sleep 1
+
 
 insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.$NODE" node-id="$((NODE - 40))" &> /root/logSenderMod
 # insmod /root/sender_kthread.ko bind-ip="192.168.0.$NODE" sink-ip="192.168.0.1" node-id="$((NODE - 40))" &> /root/logSenderMod

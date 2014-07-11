@@ -118,6 +118,7 @@ int main(int argc, char** argv){
 
     printf("Time at after setting:\n");
     print_time();
+    system("sleep 5");
 
     printf("Program finished without errors.\n");
     return 0;
