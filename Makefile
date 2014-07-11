@@ -27,6 +27,9 @@ init_git_submodules:
 	git submodule init
 	git submodule update
 
+kernel:
+	- make -C ts7500_kernel make
+
 install: all
 	@echo "Make sure the sdcard is mounted on /tmp/mv_card"
 	@echo "\n\n----------------"
@@ -35,6 +38,7 @@ install: all
 	- @md5sum /tmp/mv_card/root/receiver
 	- @md5sum /tmp/mv_card/root/sender_kthread.ko
 	- @md5sum /tmp/mv_card/root/init_counter
+	- @md5sum /tmp/mv_card/root/network.sh
 	- @md5sum /tmp/mv_card/root/read_gps.sh
 	- @md5sum /tmp/mv_card/root/batman-adv.ko
 	@echo "#### After"

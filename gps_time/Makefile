@@ -7,7 +7,6 @@ uart_gps_test: uart_gps_test.c gps_time.o gps_uartctl.o
 
 %.o: %.c %.h
 	$(CC) -fpic -c $< ${FLAGS}
-	$(CC) -shared -o libCLib.so CLib.o
 
 clean:
 	rm -f *.o uart_gps_test

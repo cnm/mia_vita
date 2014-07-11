@@ -8,7 +8,7 @@
 #define __MIAVITA_PACKET_H__
 
 typedef struct __attribute__ ((__packed__)){ // specifies that the minimum required memory be used to represent the type.
-  int64_t timestamp;                         // Signed Transmission time the packet was created 
+  uint64_t timestamp;                         // Signed Transmission time the packet was created
   uint32_t seq;                              // Sequence number
   uint8_t samples[12];                       // Samples for the four channels
   uint8_t id;                                // ID of the originator node

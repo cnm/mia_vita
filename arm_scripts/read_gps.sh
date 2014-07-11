@@ -2,8 +2,8 @@
 
 COUNTER=0
 NO_GPS=1
-while [ $COUNTER -lt 10 -a $NO_GPS -ne 0 ]; do
-    /root/init_counter -t 1200 >> /root/logGps 2>> /root/logGps            # This redirects stderr and stdout
+while [ $COUNTER -lt 30 -a $NO_GPS -ne 0 ]; do
+    /root/init_counter -t 20 >> /root/logGps 2>> /root/logGps            # This redirects stderr and stdout
 
     NO_GPS=$?
     let COUNTER=COUNTER+1
