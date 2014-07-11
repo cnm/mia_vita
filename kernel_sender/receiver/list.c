@@ -96,7 +96,7 @@ void write_json(packet_t *pkt, uint8_t first, int json_fd )
       first = 0;
     }
 
-  sprintf(buff, "\"%u:%u\":{\"ts\":%lld,\"1\":%d,\"2\":%d,\"3\":%d,\"4\": %d}",
+  sprintf(buff, "\"%u:%u\":{\"ts\":%llu,\"1\":%d,\"2\":%d,\"3\":%d,\"4\": %d}",
           pkt->id, pkt->seq, pkt->timestamp, sample1, sample2, sample3, sample4);
 
   to_write = strlen(buff);
