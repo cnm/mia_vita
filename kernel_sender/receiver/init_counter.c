@@ -54,6 +54,15 @@ uint8_t parseargs(int argc, char** argv){
     return 1;
 }
 
+static void print_time(){
+    time_t rawtime;
+    struct tm * timeinfo;
+
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    printf("Current local time and date: %s\n", asctime (timeinfo) );
+}
+
 int main(int argc, char** argv){
     struct timeval tv;
 
@@ -92,12 +101,23 @@ int main(int argc, char** argv){
 
     //If it is possible that it was another second due to delay reading serial port
     if(tv.tv_usec < INITIAL_PART_OF_SECOND){
-      fprintf(stderr, "Possibly it was another second. So returning an error -1\n");
-      return -1;
+        fprintf(stderr, "Possibly it was another second. So returning an error -1\n");
+        return -1;
     }
 
     printf("GPS returned with UNIX seconds: %ld\n", tv.tv_sec);
     set_seconds((uint64_t) tv.tv_sec); /* Set's the seconds in the miavia counter in the kernel cat ts7500_kernel/ipc/miavita_syscall.c:sys_miavitasetseconds */
+    printf("Seconds set in the miavita kernel variable: %lu\n", get_mean_value());
+
+    printf("Now I'm going to set the current date to the OS\n");
+    printf("Time at before setting:\n");
+    print_time();
+
+    time_t seconds_time = (time_t) tv.tv_sec;
+    stime(&seconds_time);
+
+    printf("Time at after setting:\n");
+    print_time();
 
     printf("Program finished without errors.\n");
     return 0;
