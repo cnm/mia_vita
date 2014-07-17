@@ -51,9 +51,8 @@ mount /dev/sda1 /tmp/data
 #Let's start MiaVita stuff
 /root/read_gps.sh
 # /bin/bash -c "nohup /root/read_gps.sh &"
-sleep 8
+sleep 2
 
-killall -9 xuartctl
 killall -9 daqctl
 
 #Let work with the leds
