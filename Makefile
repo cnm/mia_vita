@@ -25,7 +25,7 @@ init_counter:
 
 # Compiles the kernel
 kernel:
-	- make -C ts7500_kernel
+	make -C ts7500_kernel
 
 # Installs the kernel's zImage into the sdcard (ps: the zImage is the kernel)
 install_kernel: kernel
@@ -34,6 +34,11 @@ install_kernel: kernel
 	echo "Going to erase partitions /dev/sd$$letter_sdcard$$(echo 2) and 3. Press control+c to cancel"; \
 	read nothing; \
 	dd if=ts7500_kernel/arch/arm/boot/zImage of=/dev/sd$$letter_sdcard$$(echo 2)
+
+build_initrd_binaries:
+	make -C interruption/modified_binaries/sdctl
+	make -C interruption/modified_binaries/xuartctl
+	
 
 install: all
 	@echo "Make sure the sdcard is mounted on /tmp/mv_card"
@@ -48,8 +53,8 @@ install: all
 	- @md5sum /tmp/mv_card/root/batman-adv.ko
 	@echo "#### After"
 	- @md5sum interruption/int_mod.ko
-	- @md5sum kernel_sender/receiver/receiver
 	- @md5sum kernel_sender/sender_kthread.ko
+	- @md5sum kernel_sender/receiver/receiver
 	- @md5sum kernel_sender/receiver/init_counter
 	- @md5sum arm_scripts/network.sh
 	- @md5sum arm_scripts/read_gps.sh
