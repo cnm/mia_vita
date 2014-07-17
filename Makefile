@@ -38,7 +38,7 @@ install_kernel: kernel
 build_initrd_binaries:
 	make -C interruption/modified_binaries/sdctl
 	make -C interruption/modified_binaries/xuartctl
-	
+	@echo "Now please mount third partition of sdcard and copy the sdctl and xuartctl files"
 
 install: all
 	@echo "Make sure the sdcard is mounted on /tmp/mv_card"
