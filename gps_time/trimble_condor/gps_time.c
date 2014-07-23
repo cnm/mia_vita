@@ -26,8 +26,6 @@
 #define GPS_MSG_ANTENNA "PMTKANT"
 #define GPS_MSG_TIME "GPZDA"
 
-#define SEC_WEEK 604800
-#define SEC_GPS_EPOCH 315964800
 
 gps_fault_t gps_fault = GPS_OK;
 
@@ -279,11 +277,7 @@ char valid_NMEA_checksum( char* msg) {
 
 void* process_msg(void *unused) {
 	int start, end;
-	char byte;
-	char number_buf[sizeof(double)];
 	int x;
-	float time_sec;
-	short week_num;
 
 	pthread_mutex_lock(&state_change_m);
 	while (1) {
@@ -375,7 +369,6 @@ void* process_msg(void *unused) {
 			else if ( !strncmp( inst_buf, GPS_MSG_TIME, sizeof(GPS_MSG_TIME)-1)) {
 				if (current_time) {
 					// process time message
-					time_t time_seconds;
 					struct tm broken_time;
 
 					//skip to hours

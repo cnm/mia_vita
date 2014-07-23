@@ -26,11 +26,11 @@ void output_from_gps( unsigned char* msg, int msg_len);
 
 // available for user
 char is_gps_ready();
-/*
+
 int getGPStimeUTC( struct timeval *tv);
 
-int getGPSLLA(float *latitude, float * longitude, float *altitude);
-*/
+int getGPSLLA(double *latitude, double * longitude, double *altitude);
+
 int getgpssatellites();
 
 gps_fault_t getgpsfault();
