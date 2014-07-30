@@ -8,7 +8,7 @@ echo -n "Bringing interface eth0 up ..."
 ifconfig eth0 192.168.0.$NODE
 echo "Done"
 
-/usr/local/bin/xuartctl -p 0 -o 8n1 -s 9600 -d &> /root/logXuart
+/usr/local/bin/xuartctl -p 0 -o 8n1 -s 9600 -d 2>&1 | tee /root/logXuart > /tmp/data/logXuart
 
 echo -n "Bringing interface ra0 up..."
 ifconfig ra0 up
@@ -64,11 +64,11 @@ killall -9 daqctl
 
 # /usr/local/bin/ts7500ctl --setdio=0x0F00000000    # Now POWER_ON and Error
 
-insmod /root/int_mod.ko &> /root/logIntMod
+insmod /root/int_mod.ko 2>&1 | tee /root/logIntMod > /tmp/data/logIntMod
 sleep 1
 
 
-insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.$NODE" node-id="$((NODE - 40))" &> /root/logSenderMod
+insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.$NODE" node-id="$((NODE - 40))" 2>&1 | tee /root/logSenderMod > /tmp/data/logSenderMod
 # insmod /root/sender_kthread.ko bind-ip="192.168.0.$NODE" sink-ip="192.168.0.1" node-id="$((NODE - 40))" &> /root/logSenderMod
 # echo "Done"
 

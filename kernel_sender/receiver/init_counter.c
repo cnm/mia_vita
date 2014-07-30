@@ -112,6 +112,7 @@ int main(int argc, char** argv){
     time_t seconds_time = (time_t) tv.tv_sec;
     stime(&seconds_time);
 
+    sleep(2);
     printf("Time at after setting:\n");
     print_time();
 

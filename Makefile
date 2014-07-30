@@ -40,6 +40,7 @@ build_initrd_binaries:
 	make -C interruption/modified_binaries/xuartctl
 	@echo "Now please mount third partition of sdcard and copy the sdctl and xuartctl files"
 
+# Copies all necessary files to the sdcard
 install: all
 	@echo "Make sure the sdcard is mounted on /tmp/mv_card"
 	@echo "\n\n----------------"
@@ -63,9 +64,9 @@ install: all
 	- @md5sum arm_scripts/motd
 	@echo "-------------\n\n"
 	sudo cp -vf interruption/int_mod.ko kernel_sender/receiver/receiver kernel_sender/sender_kthread.ko kernel_sender/receiver/init_counter arm_scripts/network.sh arm_scripts/read_gps.sh modules/batman-adv.ko arm_scripts/motd /tmp/mv_card/root
-	sudo rm -frv /tmp/mv_card/etc/init.d/network.sh /tmp/mv_card/usr/our_modules/ /etc/motd
+	sudo rm -frv /tmp/mv_card/etc/init.d/network.sh /tmp/mv_card/usr/our_modules/ /tmp/mv_card/etc/motd
 	sudo ln -s /root/network.sh /tmp/mv_card/etc/init.d/network.sh
-	sudo ln -s /root/motd /tmp/mv_card/etc/motd
+	sudo ln -fs /root/motd /tmp/mv_card/etc/motd
 
 # Clean stuff (not complete TODO)
 interruption_clean:
