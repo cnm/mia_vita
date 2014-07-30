@@ -48,6 +48,9 @@ iptables -t nat -A POSTROUTING -o bat0 -j MASQUERADE
 mkdir /tmp/data
 mount /dev/sda1 /tmp/data
 
+/usr/local/bin/ts7500ctl --greenledoff
+/usr/local/bin/ts7500ctl --redledoff
+
 #Let's start MiaVita stuff
 /root/read_gps.sh
 # /bin/bash -c "nohup /root/read_gps.sh &"
