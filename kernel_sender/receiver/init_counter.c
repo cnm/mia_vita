@@ -12,7 +12,6 @@
  *      -t number of tries for the GPS to be ready
  *
  */
-#define INITIAL_PART_OF_SECOND 300000
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,11 +71,11 @@ int main(int argc, char** argv){
     /* This starts the xuartctl daemon TODO - Should we start it */
     /*  printf("Starting xuartctl...");*/
     /*  fflush(stdout);*/
-    /*  system("xuartctl -d -p 0 -o 8o1 -s 9600");*/
+    /*  system("xuartctl -d -p 0 -o 8n1 -s 9600");*/
     /*  printf("done\n");*/
 
     printf("Starting gps with device %s\n", gps_device);
-    uart_init(0, 0, stderr, gps_device);
+    uart_init( 0, stderr, gps_device);
 
     original_tries = tries;
     for(;!is_gps_ready(); tries--)
@@ -99,13 +98,9 @@ int main(int argc, char** argv){
         return -1;
     }
 
-    //If it is possible that it was another second due to delay reading serial port
-    if(tv.tv_usec < INITIAL_PART_OF_SECOND){
-        fprintf(stderr, "Possibly it was another second. So returning an error -1\n");
-        return -1;
-    }
 
     printf("GPS returned with UNIX seconds: %ld\n", tv.tv_sec);
+    // set miavita time
     set_seconds((uint64_t) tv.tv_sec); /* Set's the seconds in the miavia counter in the kernel cat ts7500_kernel/ipc/miavita_syscall.c:sys_miavitasetseconds */
     printf("Seconds set in the miavita kernel variable: %lu\n", get_mean_value());
 
@@ -113,12 +108,12 @@ int main(int argc, char** argv){
     printf("Time at before setting:\n");
     print_time();
 
+    // set system time
     time_t seconds_time = (time_t) tv.tv_sec;
     stime(&seconds_time);
 
     printf("Time at after setting:\n");
     print_time();
-    system("sleep 5");
 
     printf("Program finished without errors.\n");
     return 0;

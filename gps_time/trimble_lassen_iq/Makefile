@@ -1,4 +1,4 @@
-CC= ../crosstool/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
+CC= ../../crosstool/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
 FLAGS=-Wall -g
 LIBS=-pthread -lm
 

@@ -8,7 +8,7 @@ echo -n "Bringing interface eth0 up ..."
 ifconfig eth0 192.168.0.$NODE
 echo "Done"
 
-/usr/local/bin/xuartctl -p 0 -o 8o1 -s 9600 -d &> /root/logXuart
+/usr/local/bin/xuartctl -p 0 -o 8n1 -s 9600 -d &> /root/logXuart
 
 echo -n "Bringing interface ra0 up..."
 ifconfig ra0 up
