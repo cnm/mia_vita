@@ -1,8 +1,9 @@
 #!/bin/bash
 
 NODE=`hostname | tr -d "mv"`
+LED_ALL_ON_START="0x0F00000000"
 
-/usr/local/bin/ts7500ctl --setdio=0x0F00000000    # Now POWER_ON and Error
+/usr/local/bin/ts7500ctl --setdio=${LED_ALL_ON_START}             # Now POWER_ON and Error
 
 echo -n "Bringing interface eth0 up ..."
 ifconfig eth0 192.168.0.$NODE
