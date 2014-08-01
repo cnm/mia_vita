@@ -57,6 +57,7 @@ install: all
 	- @md5sum /tmp/mv_card/root/batman-adv.ko
 	- @md5sum /tmp/mv_card/root/motd
 	- @md5sum /tmp/mv_card/root/uart_gps_test
+	- @md5sum /tmp/manel/etc/Wireless/RT2870STA/RT2870STA.dat
 	@echo "#### After"
 	- @md5sum interruption/int_mod.ko
 	- @md5sum kernel_sender/sender_kthread.ko
@@ -67,11 +68,13 @@ install: all
 	- @md5sum modules/batman-adv.ko
 	- @md5sum arm_scripts/motd
 	- @md5sum gps_time/trimble_condor/uart_gps_test
+	- @md5sum arm_scripts/RT2870STA.dat
 	@echo "-------------\n\n"
-	sudo cp -vf interruption/int_mod.ko kernel_sender/receiver/receiver kernel_sender/sender_kthread.ko kernel_sender/receiver/init_counter arm_scripts/network.sh arm_scripts/read_gps.sh modules/batman-adv.ko arm_scripts/motd gps_time/trimble_condor/uart_gps_test /tmp/mv_card/root
-	sudo rm -frv /tmp/mv_card/etc/init.d/network.sh /tmp/mv_card/usr/our_modules/ /tmp/mv_card/etc/motd
+	sudo cp -vf interruption/int_mod.ko kernel_sender/receiver/receiver kernel_sender/sender_kthread.ko kernel_sender/receiver/init_counter arm_scripts/network.sh arm_scripts/read_gps.sh modules/batman-adv.ko arm_scripts/motd gps_time/trimble_condor/uart_gps_test arm_scripts/RT2870STA.dat /tmp/mv_card/root
+	sudo rm -frv /tmp/mv_card/etc/init.d/network.sh /tmp/mv_card/usr/our_modules/ /tmp/mv_card/etc/motd /tmp/mv_card/etc/Wireless/RT2870STA/RT2870STA.dat
 	sudo ln -s /root/network.sh /tmp/mv_card/etc/init.d/network.sh
 	sudo ln -fs /root/motd /tmp/mv_card/etc/motd
+	sudo ln -fs /root/RT2870STA.dat /tmp/mv_card/etc/Wireless/RT2870STA/RT2870STA.dat
 
 # Clean stuff (not complete TODO)
 interruption_clean:
