@@ -1,6 +1,6 @@
-.PHONY: interruption sender receiver init_counter kernel install install_kernel
+.PHONY: interruption sender receiver init_counter kernel install install_kernel uart_gps_test
 
-all: interruption sender receiver init_counter
+all: interruption sender receiver init_counter uart_gps_test
 
 # Just an "alias" to prepare the git submodules
 init_git_submodules:
@@ -23,6 +23,9 @@ receiver:
 init_counter:
 	make -C kernel_sender/receiver init_counter
 
+uart_gps_test:
+	make -C gps_time/trimble_condor uart_gps_test
+
 # Compiles the kernel
 kernel:
 	make -C ts7500_kernel
@@ -42,8 +45,8 @@ build_initrd_binaries:
 
 # Copies all necessary files to the sdcard
 install: all
-	@echo "Make sure the sdcard is mounted on /tmp/mv_card"
 	@echo "\n\n----------------"
+	@echo "Make sure the sdcard is mounted on /tmp/mv_card"
 	@echo "####  Before"
 	- @md5sum /tmp/mv_card/root/int_mod.ko
 	- @md5sum /tmp/mv_card/root/sender_kthread.ko
@@ -53,6 +56,7 @@ install: all
 	- @md5sum /tmp/mv_card/root/read_gps.sh
 	- @md5sum /tmp/mv_card/root/batman-adv.ko
 	- @md5sum /tmp/mv_card/root/motd
+	- @md5sum /tmp/mv_card/root/uart_gps_test
 	@echo "#### After"
 	- @md5sum interruption/int_mod.ko
 	- @md5sum kernel_sender/sender_kthread.ko
@@ -62,8 +66,9 @@ install: all
 	- @md5sum arm_scripts/read_gps.sh
 	- @md5sum modules/batman-adv.ko
 	- @md5sum arm_scripts/motd
+	- @md5sum gps_time/trimble_condor/uart_gps_test
 	@echo "-------------\n\n"
-	sudo cp -vf interruption/int_mod.ko kernel_sender/receiver/receiver kernel_sender/sender_kthread.ko kernel_sender/receiver/init_counter arm_scripts/network.sh arm_scripts/read_gps.sh modules/batman-adv.ko arm_scripts/motd /tmp/mv_card/root
+	sudo cp -vf interruption/int_mod.ko kernel_sender/receiver/receiver kernel_sender/sender_kthread.ko kernel_sender/receiver/init_counter arm_scripts/network.sh arm_scripts/read_gps.sh modules/batman-adv.ko arm_scripts/motd gps_time/trimble_condor/uart_gps_test /tmp/mv_card/root
 	sudo rm -frv /tmp/mv_card/etc/init.d/network.sh /tmp/mv_card/usr/our_modules/ /tmp/mv_card/etc/motd
 	sudo ln -s /root/network.sh /tmp/mv_card/etc/init.d/network.sh
 	sudo ln -fs /root/motd /tmp/mv_card/etc/motd

@@ -1,7 +1,12 @@
 #!/bin/bash
 
+# Variables
 NODE=`hostname | tr -d "mv"`
 LED_ALL_ON_START="0x0F00000000"
+
+# mount the external sd card
+mkdir /tmp/data
+mount /dev/sda1 /tmp/data
 
 /usr/local/bin/ts7500ctl --setdio=${LED_ALL_ON_START}             # Now POWER_ON and Error
 
@@ -46,9 +51,6 @@ modprobe iptable_nat
 modprobe ipt_MASQUERADE
 iptables -t nat -A POSTROUTING -o bat0 -j MASQUERADE
 
-mkdir /tmp/data
-mount /dev/sda1 /tmp/data
-
 /usr/local/bin/ts7500ctl --greenledoff
 /usr/local/bin/ts7500ctl --redledoff
 
@@ -59,17 +61,11 @@ sleep 2
 
 killall -9 daqctl
 
-#Let work with the leds
-# /usr/local/bin/ts7500ctl --setdio=0x0100000000 #Now POWER_ON
-# /usr/local/bin/ts7500ctl --setdiodir=0x1f00000000
-
-# /usr/local/bin/ts7500ctl --setdio=0x0F00000000    # Now POWER_ON and Error
-
 insmod /root/int_mod.ko 2>&1 | tee /root/logIntMod > /tmp/data/logIntMod
 sleep 1
 
 
-insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.$NODE" node-id="$((NODE - 40))" 2>&1 | tee /root/logSenderMod > /tmp/data/logSenderMod
+insmod /root/sender_kthread.ko bind-ip="192.168.2.$NODE" sink-ip="192.168.2.43" node-id="$((NODE - 40))" 2>&1 | tee /root/logSenderMod > /tmp/data/logSenderMod
 # insmod /root/sender_kthread.ko bind-ip="192.168.0.$NODE" sink-ip="192.168.0.1" node-id="$((NODE - 40))" &> /root/logSenderMod
 # echo "Done"
 

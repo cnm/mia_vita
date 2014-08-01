@@ -10,7 +10,7 @@ NO_GPS=1
 while [ $COUNTER -lt 50 -a $NO_GPS -ne 0 ]; do
     /root/init_counter -t 20 2>&1 | tee -a /root/logGps >> /tmp/data/logGps
 
-    NO_GPS=$?
+    NO_GPS=${PIPESTATUS[0]}                                              # This is equal to $? (return code) of the first pipe
     let COUNTER=COUNTER+1
 
     if [ $NO_GPS -ne 0 ]

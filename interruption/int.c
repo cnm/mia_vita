@@ -266,7 +266,7 @@ inline bool is_fpga_used(void){
 
 /******************************** Interruption handlers *******************************/
 /* Handle the received interruption*/
-irqreturn_t interrupt(int irq, void *dev_id){
+irqreturn_t interrupt(int irq, void *dev_id) {
     volatile unsigned int *p; // The volatile is extremely important here
 
     /* Disable interruptions */
