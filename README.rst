@@ -34,14 +34,14 @@ This is the file structure::
     clean               - Directory for cleaning up the TS-7500 debian partition
     crosstool           - Crosstools binaries to compile for ARM
     documentation       - Documentation
-    fred_framework      - 
+    fred_framework      -
     interruption        - Module to treat the two interruptions
     kernel_sender       - Fred module which sends packets
     old_stuff           - Just for historical purposes. Should be deleted soon.
     rt2501              - Module changed to do the synchronization
     rt3070              - Module rt3070 for the wireless devices. It has not be changed.
     syscall             - Simple syscall to access the time set by the GPS
-    timestamp-module    - 
+    timestamp-module    -
     ts7500ctl           - Binary of the ts7500ctl not changed. Just usefull to test big banging.
     ts7500_kernel       - Modified kernel for working in the TS7500
 
@@ -211,11 +211,11 @@ How to compile a user program in another machine for ts-7500
 
 * Untar it: tar xvzf crosstool-linux-gcc-4.2.1-glibc-2.7-oabi.tar.gz
 
-* cd into usr/local/arm-oabi-toolchain/arm-unknown-linux-gnu/bin/ 
+* cd into usr/local/arm-oabi-toolchain/arm-unknown-linux-gnu/bin/
 
 * Check if you have a broken link. In my case ``ls -l`` gives me this broken link: arm-unknown-linux-gnu-cc -> /usr/local/arm-oabi-toolchain/arm-unknown-linux-gnu/bin/arm-unknown-linux-gnu-gcc
 
-* Fix it: 
+* Fix it:
 
     $ rm arm-unknown-linux-gnu-cc
 
@@ -300,7 +300,7 @@ Copy the kernel and initrd to the flash in the arm
 * Copy both these files to the /dev/ndb4 file system (mount it!!!!!!)
 * Unmount /dev/ndb4 after copy
 * Put the sd-card on the arm and then turn it up
-* Do: 
+* Do:
  * spiflashctl -W 4095 -z 512 -k part1 -i /temp/zImage
  * spiflashctl -W 32 -z 65536 -k part2 -i /temp/initrd
  * sync
@@ -384,7 +384,7 @@ How to add a system call on arm
 ===============================
 
 Adding a system call is not as straight forward as creating a kernel module. The issue is that the system call table is a static table that resides inside
-the kernel. Therefore it cannot be modified dynamically. More specifically you can modify the table but it is impossible to extend it. As a result, adding 
+the kernel. Therefore it cannot be modified dynamically. More specifically you can modify the table but it is impossible to extend it. As a result, adding
 a system call requires recompiling the kernel itself.
 
 First thing first, download the kernel sources for the ts7500 board. cd into the downloaded sources and lets begin.
@@ -394,11 +394,11 @@ Adding a system call can be done in four steps:
 
     CALL(sys_mycall)
 
-  Note: The syscall will be called ``mycall``, but here it is necessary to 
+  Note: The syscall will be called ``mycall``, but here it is necessary to
   prefix it with ``sys``. Another thing to consider is that the system call
-  table size must be a multiple of 4. For example if it has 352 calls you 
-  need to add 4 more calls. Use ``CALL(sys_ni_syscall)`` to add dummy system 
-  calls. When you're finished take note of your system call number, in our 
+  table size must be a multiple of 4. For example if it has 352 calls you
+  need to add 4 more calls. Use ``CALL(sys_ni_syscall)`` to add dummy system
+  calls. When you're finished take note of your system call number, in our
   case we added 4 calls and suppose that our call is the last one, its number
   will be 356.
 
@@ -462,7 +462,7 @@ The kthread module resides inside ``kernel_sender`` folder and has several param
     author:         Frederico Gonçalves, [frederico.lopes.goncalves@gmail.com]
     license:        GPL v2
     depends:        int_mod
-    vermagic:       2.6.24.4 mod_unload ARMv4 
+    vermagic:       2.6.24.4 mod_unload ARMv4
     parm:           bind_ip:This is the ip which the kernel thread will bind to. Default is localhost. (charp)
     parm:           sink_ip:This is the sink ip. Default is localhost. (charp)
     parm:           sport:This is the UDP port which the sender thread will bind to. Default is 57843. (ushort)
@@ -476,10 +476,10 @@ Every parameter has its own default value, but you'll probably want to specify `
 
 Don't forget to insert the ``int_mod.c`` module first and that's it. You'll just need to run the server program as ::
 
-    # user/main 
+    # user/main
 
 You can specify aditional parameters ::
-    
+
     # user/main -h
 
     Usage: ./main [-i <interface>] [-p <listen_on_port>] [-b <output_binary_file>] [-j <output_json_file>]
@@ -521,7 +521,7 @@ Ping broadcast in ADHOC
     echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 
 
-Change from 802.11N to 802.11G
+Change from 802.11N to 802.11B
 ===============================
 
 Edit file:
@@ -531,6 +531,20 @@ Edit file:
 and change WirelessMode=5 to WirelessMode=1
 
 More info available at: http://ubuntuforums.org/showthread.php?t=1566572
+
+    @> WirelessMode=value
+        0: legacy 11b/g mixed
+        1: legacy 11B only
+        2: legacy 11A only //Not support in RfIcType=1(id=RFIC_5225) and RfIcType=2(id=RFIC_5325)
+        3: legacy 11a/b/g mixed //Not support in RfIcType=1(id=RFIC_5225) and RfIcType=2(id=RFIC_5325)
+        4: legacy 11G only
+        5: 11ABGN mixed
+        6: 11N only
+        7: 11GN mixed
+        8: 11AN mixed
+        9: 11BGN mixed
+        10: 11AGN mixed
+
 
 Some test commands
 ==================
