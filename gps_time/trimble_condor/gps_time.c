@@ -20,7 +20,8 @@
 #define GPS_START_CHAR '$'
 #define GPS_END_CHAR '\n'
 #define GPS_CMD_RESET "$PMTK101*32\r\n" // Hot Restart: Use all available data in the NV store.
-#define GPS_CMD_SETUP "$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0*28\r\n$PMTK300,1000,0,0,0,0*1C\r\n"  //  Define automatic GGA and ZDA messages. Set the rate of position fixing activity to 1000ms.
+// if you change this, recalculate checksum using http://www.hhhh.org/wiml/proj/nmeaxor.html
+#define GPS_CMD_SETUP "$PMTK314,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0*28\r\n$PMTK300,1000,0,0,0,0*1C\r\n$PMTK324,0,0,1,0,69*15\r\n"  //  Define automatic GGA and ZDA messages. Set the rate of position fixing activity to 1000ms. Enable PPS always with pulse width 69*61ns.
 
 #define GPS_MSG_STATUS_TIME_POS "GPGGA"
 #define GPS_MSG_ANTENNA "PMTKANT"
