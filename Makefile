@@ -57,7 +57,7 @@ install: all
 	- @md5sum /tmp/mv_card/root/batman-adv.ko
 	- @md5sum /tmp/mv_card/root/motd
 	- @md5sum /tmp/mv_card/root/uart_gps_test
-	- @md5sum /tmp/manel/etc/Wireless/RT2870STA/RT2870STA.dat
+	- @md5sum /tmp/mv_card/root/RT2870STA.dat
 	@echo "#### After"
 	- @md5sum interruption/int_mod.ko
 	- @md5sum kernel_sender/sender_kthread.ko
